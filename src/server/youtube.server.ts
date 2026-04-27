@@ -6,6 +6,7 @@ import { transcribeFile } from "@/server/elevenlabs.server";
 
 const DESKTOP_UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36";
 const MOBILE_UA = "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1";
+const IOS_APP_UA = "com.google.ios.youtube/20.10.4 (iPhone16,2; U; CPU iOS 17_0 like Mac OS X)";
 
 export function extractVideoId(url: string): string | null {
   try {
@@ -53,6 +54,56 @@ function extractInitialPlayerResponse(html: string): any | null {
   return null;
 }
 
+function extractInnertubeApiKey(html: string): string | null {
+  return html.match(/"INNERTUBE_API_KEY":"([^"]+)"/)?.[1] ?? null;
+}
+
+async function getIOSPlayerResponse(videoId: string): Promise<any | null> {
+  try {
+    const watchRes = await fetch(`https://www.youtube.com/watch?v=${videoId}&hl=en`, {
+      headers: {
+        "User-Agent": DESKTOP_UA,
+        "Accept-Language": "en-US,en;q=0.9",
+      },
+    });
+    if (!watchRes.ok) return null;
+
+    const html = await watchRes.text();
+    const apiKey = extractInnertubeApiKey(html);
+    if (!apiKey) return null;
+
+    const playerRes = await fetch(`https://www.youtube.com/youtubei/v1/player?prettyPrint=false&key=${apiKey}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "User-Agent": IOS_APP_UA,
+      },
+      body: JSON.stringify({
+        videoId,
+        contentCheckOk: true,
+        racyCheckOk: true,
+        context: {
+          client: {
+            clientName: "IOS",
+            clientVersion: "20.10.4",
+            deviceModel: "iPhone16,2",
+            hl: "en",
+            gl: "US",
+            osName: "iPhone",
+            osVersion: "17.0.0.0.0",
+            platform: "MOBILE",
+          },
+        },
+      }),
+    });
+
+    if (!playerRes.ok) return null;
+    return await playerRes.json();
+  } catch {
+    return null;
+  }
+}
+
 async function getWatchPagePlayerResponse(videoId: string, mobile = true): Promise<any | null> {
   const base = mobile ? "https://m.youtube.com/watch" : "https://www.youtube.com/watch";
   try {
@@ -71,14 +122,25 @@ async function getWatchPagePlayerResponse(videoId: string, mobile = true): Promi
 }
 
 async function getPlayerResponse(videoId: string): Promise<any | null> {
-  return (await getWatchPagePlayerResponse(videoId, true)) ?? (await getWatchPagePlayerResponse(videoId, false));
+  return (
+    (await getIOSPlayerResponse(videoId)) ??
+    (await getWatchPagePlayerResponse(videoId, true)) ??
+    (await getWatchPagePlayerResponse(videoId, false))
+  );
 }
 
 function pickAudioFormat(player: any): AdaptiveFormat | null {
   const fmts: AdaptiveFormat[] =
     player?.streamingData?.adaptiveFormats ?? [];
   const audios = fmts
-    .filter((f) => f.mimeType?.startsWith("audio/") && f.url && !f.signatureCipher && !f.cipher)
+    .filter(
+      (f: AdaptiveFormat & { drmFamilies?: string[] }) =>
+        f.mimeType?.startsWith("audio/") &&
+        f.url &&
+        !f.signatureCipher &&
+        !f.cipher &&
+        !(f.drmFamilies?.length)
+    )
     .sort((a, b) => (a.bitrate ?? 0) - (b.bitrate ?? 0)); // lowest bitrate first (smaller = faster)
   // Prefer the smallest decent-quality stream to keep payload small for Scribe
   return audios[0] ?? null;
@@ -106,7 +168,7 @@ export async function fetchYouTubeTranscript(videoId: string, preferredLang?: st
   const fmt = pickAudioFormat(player);
   if (!fmt?.url) {
     throw new Error(
-      "Could not extract an audio stream from this video. It may be age-restricted, private, or region-blocked."
+      "Could not extract a downloadable audio stream from this video. It may be protected, private, age-restricted, or region-blocked."
     );
   }
 
@@ -125,7 +187,7 @@ export async function fetchYouTubeTranscript(videoId: string, preferredLang?: st
     },
   });
   if (!audioRes.ok) {
-    throw new Error(`Failed to download audio: ${audioRes.status}`);
+    throw new Error(`Failed to download YouTube audio (${audioRes.status}). This video may require protected playback.`);
   }
   const audioBuf = await audioRes.arrayBuffer();
   if (audioBuf.byteLength > 40 * 1024 * 1024) {
