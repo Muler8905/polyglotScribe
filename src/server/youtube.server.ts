@@ -146,6 +146,26 @@ function pickAudioFormat(player: any): AdaptiveFormat | null {
   return audios[0] ?? null;
 }
 
+async function fetchAudioResponse(url: string, videoId: string): Promise<Response> {
+  const attempts: RequestInit[] = [
+    {},
+    { headers: { "User-Agent": IOS_APP_UA, Referer: `https://www.youtube.com/watch?v=${videoId}` } },
+    { headers: { "User-Agent": MOBILE_UA, Referer: `https://m.youtube.com/watch?v=${videoId}` } },
+    { headers: { "User-Agent": DESKTOP_UA, Referer: `https://www.youtube.com/watch?v=${videoId}` } },
+  ];
+
+  let lastResponse: Response | null = null;
+  for (const init of attempts) {
+    const response = await fetch(url, init);
+    if (response.ok) return response;
+    lastResponse = response;
+  }
+
+  throw new Error(
+    `Failed to download YouTube audio (${lastResponse?.status ?? "unknown"}). This video may require protected playback.`
+  );
+}
+
 export async function fetchYouTubeTranscript(videoId: string, preferredLang?: string) {
   const player = await getPlayerResponse(videoId);
   if (!player) throw new Error("Could not load video metadata from YouTube.");
@@ -180,15 +200,7 @@ export async function fetchYouTubeTranscript(videoId: string, preferredLang?: st
     );
   }
 
-  const audioRes = await fetch(fmt.url, {
-    headers: {
-      "User-Agent": MOBILE_UA,
-      Referer: `https://m.youtube.com/watch?v=${videoId}`,
-    },
-  });
-  if (!audioRes.ok) {
-    throw new Error(`Failed to download YouTube audio (${audioRes.status}). This video may require protected playback.`);
-  }
+  const audioRes = await fetchAudioResponse(fmt.url, videoId);
   const audioBuf = await audioRes.arrayBuffer();
   if (audioBuf.byteLength > 40 * 1024 * 1024) {
     throw new Error(
