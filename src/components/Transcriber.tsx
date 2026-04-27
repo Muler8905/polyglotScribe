@@ -163,7 +163,7 @@ function LivePanel({ onSaved }: Props) {
 
   const scribe = useScribe({
     modelId: "scribe_v2_realtime",
-    commitStrategy: CommitStrategy.Vad,
+    commitStrategy: CommitStrategy.VAD,
     onPartialTranscript: (d: { text: string }) => setPartial(d?.text ?? ""),
     onCommittedTranscript: (d: { text: string }) => {
       const t = (d?.text ?? "").trim();
