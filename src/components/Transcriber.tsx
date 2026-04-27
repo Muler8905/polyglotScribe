@@ -510,7 +510,7 @@ function YouTubePanel({ onSaved }: Props) {
       </div>
       <div className={s.actions}>
         <button className={`${s.btn} ${s.btnPrimary}`} onClick={fetchCaptions} disabled={!url.trim() || busy}>
-          {busy ? "Fetching…" : "Fetch Captions"}
+          {busy ? "Transcribing…" : "Transcribe Audio"}
         </button>
       </div>
 
