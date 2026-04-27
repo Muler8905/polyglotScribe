@@ -1,7 +1,11 @@
 // Extract audio from a YouTube video and transcribe it via ElevenLabs Scribe.
-// Pure-JS approach: parse ytInitialPlayerResponse for an audio-only adaptive stream URL,
-// fetch the audio bytes, and forward to ElevenLabs speech-to-text.
+// The most reliable source of direct audio stream URLs is currently the mobile
+// watch page's ytInitialPlayerResponse, so we parse that first and only fall
+// back to other metadata sources when needed.
 import { transcribeFile } from "@/server/elevenlabs.server";
+
+const DESKTOP_UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36";
+const MOBILE_UA = "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1";
 
 export function extractVideoId(url: string): string | null {
   try {
@@ -30,36 +34,44 @@ interface AdaptiveFormat {
   audioQuality?: string;
 }
 
-async function getPlayerResponse(videoId: string): Promise<any | null> {
-  // Use the Android InnerTube client — returns plain audio URLs without
-  // signature ciphers, which we cannot decrypt in a Worker.
+function extractInitialPlayerResponse(html: string): any | null {
+  const patterns = [
+    /var ytInitialPlayerResponse\s*=\s*(\{[\s\S]+?\});/,
+    /ytInitialPlayerResponse\s*=\s*(\{[\s\S]+?\});/,
+  ];
+
+  for (const pattern of patterns) {
+    const match = html.match(pattern);
+    if (!match?.[1]) continue;
+    try {
+      return JSON.parse(match[1]);
+    } catch {
+      // keep trying the next extraction pattern
+    }
+  }
+
+  return null;
+}
+
+async function getWatchPagePlayerResponse(videoId: string, mobile = true): Promise<any | null> {
+  const base = mobile ? "https://m.youtube.com/watch" : "https://www.youtube.com/watch";
   try {
-    const r = await fetch("https://www.youtube.com/youtubei/v1/player?prettyPrint=false", {
-      method: "POST",
+    const r = await fetch(`${base}?v=${videoId}&hl=en`, {
       headers: {
-        "Content-Type": "application/json",
-        "User-Agent": "com.google.android.youtube/19.09.37 (Linux; U; Android 14)",
-        "X-YouTube-Client-Name": "3",
-        "X-YouTube-Client-Version": "19.09.37",
+        "User-Agent": mobile ? MOBILE_UA : DESKTOP_UA,
+        "Accept-Language": "en-US,en;q=0.9",
       },
-      body: JSON.stringify({
-        videoId,
-        context: {
-          client: {
-            clientName: "ANDROID",
-            clientVersion: "19.09.37",
-            androidSdkVersion: 34,
-            hl: "en",
-            gl: "US",
-          },
-        },
-      }),
     });
-    if (r.ok) return await r.json();
+    if (!r.ok) return null;
+    return extractInitialPlayerResponse(await r.text());
   } catch {
     /* fall through */
   }
   return null;
+}
+
+async function getPlayerResponse(videoId: string): Promise<any | null> {
+  return (await getWatchPagePlayerResponse(videoId, true)) ?? (await getWatchPagePlayerResponse(videoId, false));
 }
 
 function pickAudioFormat(player: any): AdaptiveFormat | null {
@@ -106,11 +118,21 @@ export async function fetchYouTubeTranscript(videoId: string, preferredLang?: st
     );
   }
 
-  const audioRes = await fetch(fmt.url);
+  const audioRes = await fetch(fmt.url, {
+    headers: {
+      "User-Agent": MOBILE_UA,
+      Referer: `https://m.youtube.com/watch?v=${videoId}`,
+    },
+  });
   if (!audioRes.ok) {
     throw new Error(`Failed to download audio: ${audioRes.status}`);
   }
   const audioBuf = await audioRes.arrayBuffer();
+  if (audioBuf.byteLength > 40 * 1024 * 1024) {
+    throw new Error(
+      `Audio stream is too large (${Math.round(audioBuf.byteLength / 1024 / 1024)}MB). Please use a shorter video.`
+    );
+  }
 
   // Derive extension from mimeType (e.g. audio/mp4 -> m4a, audio/webm -> webm)
   const mime = fmt.mimeType.split(";")[0];
