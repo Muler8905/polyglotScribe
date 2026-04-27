@@ -22,10 +22,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => {
       setSession(s);
       setUser(s?.user ?? null);
+      currentToken = s?.access_token ?? null;
     });
     supabase.auth.getSession().then(({ data }) => {
       setSession(data.session);
       setUser(data.session?.user ?? null);
+      currentToken = data.session?.access_token ?? null;
       setLoading(false);
     });
     return () => sub.subscription.unsubscribe();
