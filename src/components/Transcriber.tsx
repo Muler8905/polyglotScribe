@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useScribe } from "@elevenlabs/react";
+import { useScribe, CommitStrategy } from "@elevenlabs/react";
 import { toast } from "sonner";
 import s from "./Transcriber.module.css";
 import { LANGUAGES } from "@/lib/languages";
@@ -163,9 +163,9 @@ function LivePanel({ onSaved }: Props) {
 
   const scribe = useScribe({
     modelId: "scribe_v2_realtime",
-    commitStrategy: "vad",
-    onPartialTranscript: (d: any) => setPartial(d?.text ?? ""),
-    onCommittedTranscript: (d: any) => {
+    commitStrategy: CommitStrategy.Vad,
+    onPartialTranscript: (d: { text: string }) => setPartial(d?.text ?? ""),
+    onCommittedTranscript: (d: { text: string }) => {
       const t = (d?.text ?? "").trim();
       if (t) setCommitted((prev) => [...prev, t]);
       setPartial("");
