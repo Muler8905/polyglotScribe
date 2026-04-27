@@ -166,6 +166,36 @@ async function fetchAudioResponse(url: string, videoId: string): Promise<Respons
   );
 }
 
+async function downloadAudioInChunks(url: string, videoId: string, expectedLength?: number): Promise<ArrayBuffer> {
+  const totalBytes = expectedLength && expectedLength > 0 ? expectedLength : undefined;
+  const chunkSize = 256 * 1024;
+  const parts: Uint8Array[] = [];
+  let loaded = 0;
+
+  while (true) {
+    const rangeEnd = totalBytes ? Math.min(loaded + chunkSize - 1, totalBytes - 1) : loaded + chunkSize - 1;
+    const response = await fetchAudioResponse(url, videoId, `bytes=${loaded}-${rangeEnd}`);
+    const buffer = new Uint8Array(await response.arrayBuffer());
+    if (buffer.byteLength === 0) break;
+
+    parts.push(buffer);
+    loaded += buffer.byteLength;
+
+    if (totalBytes ? loaded >= totalBytes : buffer.byteLength < chunkSize) {
+      break;
+    }
+  }
+
+  const merged = new Uint8Array(loaded);
+  let offset = 0;
+  for (const part of parts) {
+    merged.set(part, offset);
+    offset += part.byteLength;
+  }
+
+  return merged.buffer;
+}
+
 export async function fetchYouTubeTranscript(videoId: string, preferredLang?: string) {
   const player = await getPlayerResponse(videoId);
   if (!player) throw new Error("Could not load video metadata from YouTube.");
