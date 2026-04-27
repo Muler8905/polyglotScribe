@@ -436,7 +436,7 @@ function FilePanel({ onSaved }: Props) {
 function YouTubePanel({ onSaved }: Props) {
   const [url, setUrl] = useState("");
   const [targetLang, setTargetLang] = useState("amh");
-  const [preferredCaption, setPreferredCaption] = useState("en");
+  const [preferredCaption, setPreferredCaption] = useState("eng");
   const [transcript, setTranscript] = useState("");
   const [translation, setTranslation] = useState("");
   const [detectedLang, setDetectedLang] = useState("eng");
@@ -495,12 +495,10 @@ function YouTubePanel({ onSaved }: Props) {
           />
         </div>
         <div className={s.field}>
-          <label className={s.label}>Caption language</label>
+          <label className={s.label}>Spoken language</label>
           <select className={s.select} value={preferredCaption} onChange={(e) => setPreferredCaption(e.target.value)}>
-            <option value="en">English</option>
-            <option value="am">Amharic</option>
-            <option value="om">Afaan Oromo</option>
-            <option value="so">Somali</option>
+            <option value="auto">Auto-detect</option>
+            {LANGUAGES.map((l) => (<option key={l.code} value={l.code}>{l.label}</option>))}
           </select>
         </div>
         <div className={s.field}>
@@ -512,7 +510,7 @@ function YouTubePanel({ onSaved }: Props) {
       </div>
       <div className={s.actions}>
         <button className={`${s.btn} ${s.btnPrimary}`} onClick={fetchCaptions} disabled={!url.trim() || busy}>
-          {busy ? "Fetching…" : "Fetch Captions"}
+          {busy ? "Transcribing…" : "Transcribe Audio"}
         </button>
       </div>
 

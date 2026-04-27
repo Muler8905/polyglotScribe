@@ -1,4 +1,8 @@
-// Fetch YouTube captions (no API key needed for public auto-captions via timedtext)
+// Extract audio from a YouTube video and transcribe it via ElevenLabs Scribe.
+// Pure-JS approach: parse ytInitialPlayerResponse for an audio-only adaptive stream URL,
+// fetch the audio bytes, and forward to ElevenLabs speech-to-text.
+import { transcribeFile } from "@/server/elevenlabs.server";
+
 export function extractVideoId(url: string): string | null {
   try {
     const u = new URL(url);
@@ -15,106 +19,111 @@ export function extractVideoId(url: string): string | null {
   return null;
 }
 
-interface CaptionTrack {
-  baseUrl: string;
-  languageCode: string;
-  kind?: string;
-  name?: { simpleText?: string };
+interface AdaptiveFormat {
+  itag: number;
+  url?: string;
+  signatureCipher?: string;
+  cipher?: string;
+  mimeType: string;
+  bitrate: number;
+  contentLength?: string;
+  audioQuality?: string;
 }
 
 async function getPlayerResponse(videoId: string): Promise<any | null> {
-  const watchUrl = `https://www.youtube.com/watch?v=${videoId}&hl=en`;
-  const res = await fetch(watchUrl, {
-    headers: {
-      "User-Agent":
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0 Safari/537.36",
-      "Accept-Language": "en-US,en;q=0.9",
-    },
-  });
-  if (!res.ok) return null;
-  const html = await res.text();
-  const m = html.match(/ytInitialPlayerResponse\s*=\s*(\{.+?\})\s*;\s*(?:var|<\/script>)/s);
-  if (!m) return null;
+  // Use the Android InnerTube client — returns plain audio URLs without
+  // signature ciphers, which we cannot decrypt in a Worker.
   try {
-    return JSON.parse(m[1]);
+    const r = await fetch("https://www.youtube.com/youtubei/v1/player?prettyPrint=false", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "User-Agent": "com.google.android.youtube/19.09.37 (Linux; U; Android 14)",
+        "X-YouTube-Client-Name": "3",
+        "X-YouTube-Client-Version": "19.09.37",
+      },
+      body: JSON.stringify({
+        videoId,
+        context: {
+          client: {
+            clientName: "ANDROID",
+            clientVersion: "19.09.37",
+            androidSdkVersion: 34,
+            hl: "en",
+            gl: "US",
+          },
+        },
+      }),
+    });
+    if (r.ok) return await r.json();
   } catch {
-    return null;
+    /* fall through */
   }
+  return null;
 }
 
-function decodeXml(s: string) {
-  return s
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(parseInt(n, 10)));
-}
-
-async function fetchCaptionXml(baseUrl: string): Promise<string> {
-  const res = await fetch(baseUrl);
-  if (!res.ok) throw new Error(`Caption fetch failed: ${res.status}`);
-  const xml = await res.text();
-  // Extract <text ...>content</text>
-  const matches = [...xml.matchAll(/<text[^>]*>([\s\S]*?)<\/text>/g)];
-  return matches
-    .map((m) => decodeXml(m[1].replace(/<[^>]+>/g, "")).replace(/\s+/g, " ").trim())
-    .filter(Boolean)
-    .join(" ");
-}
-
-async function fetchTimedTextList(videoId: string): Promise<CaptionTrack[]> {
-  // Fallback: legacy timedtext list endpoint
-  const res = await fetch(
-    `https://video.google.com/timedtext?type=list&v=${videoId}`
-  );
-  if (!res.ok) return [];
-  const xml = await res.text();
-  const tracks: CaptionTrack[] = [];
-  for (const m of xml.matchAll(/<track[^>]*lang_code="([^"]+)"[^>]*(?:kind="([^"]*)")?[^>]*\/>/g)) {
-    const lang = m[1];
-    const kind = m[2];
-    const baseUrl = `https://video.google.com/timedtext?lang=${encodeURIComponent(lang)}&v=${videoId}${kind ? `&kind=${kind}` : ""}`;
-    tracks.push({ baseUrl, languageCode: lang, kind });
-  }
-  return tracks;
+function pickAudioFormat(player: any): AdaptiveFormat | null {
+  const fmts: AdaptiveFormat[] =
+    player?.streamingData?.adaptiveFormats ?? [];
+  const audios = fmts
+    .filter((f) => f.mimeType?.startsWith("audio/") && f.url && !f.signatureCipher && !f.cipher)
+    .sort((a, b) => (a.bitrate ?? 0) - (b.bitrate ?? 0)); // lowest bitrate first (smaller = faster)
+  // Prefer the smallest decent-quality stream to keep payload small for Scribe
+  return audios[0] ?? null;
 }
 
 export async function fetchYouTubeTranscript(videoId: string, preferredLang?: string) {
   const player = await getPlayerResponse(videoId);
-  const title: string = player?.videoDetails?.title || `YouTube ${videoId}`;
-  let tracks: CaptionTrack[] =
-    player?.captions?.playerCaptionsTracklistRenderer?.captionTracks ?? [];
+  if (!player) throw new Error("Could not load video metadata from YouTube.");
 
-  if (!tracks.length) {
-    tracks = await fetchTimedTextList(videoId);
-  }
-
-  if (!tracks.length) {
+  const playability = player.playabilityStatus?.status;
+  if (playability && playability !== "OK") {
     throw new Error(
-      "No captions found. YouTube may be blocking caption access for this video, or it has none. Try a video with manually-added captions (look for the [CC] badge), or use the File or Live transcription mode instead."
+      `Video unavailable (${playability}): ${player.playabilityStatus?.reason ?? "unknown reason"}`
     );
   }
 
-  // Pick preferred language, then English, then first
-  const pick =
-    (preferredLang && tracks.find((t) => t.languageCode.startsWith(preferredLang))) ||
-    tracks.find((t) => t.languageCode.startsWith("en")) ||
-    tracks[0];
-
-  let text = "";
-  try {
-    text = await fetchCaptionXml(pick.baseUrl);
-  } catch {
-    text = "";
-  }
-
-  if (!text.trim()) {
+  const title: string = player.videoDetails?.title || `YouTube ${videoId}`;
+  const lengthSec = parseInt(player.videoDetails?.lengthSeconds ?? "0", 10);
+  if (lengthSec && lengthSec > 60 * 30) {
     throw new Error(
-      "Captions exist but couldn't be downloaded (YouTube returned empty). Try another video, or use File/Live transcription."
+      `Video is too long (${Math.round(lengthSec / 60)} min). Please use a video under 30 minutes.`
     );
   }
 
-  return { title, text, languageCode: pick.languageCode };
+  const fmt = pickAudioFormat(player);
+  if (!fmt?.url) {
+    throw new Error(
+      "Could not extract an audio stream from this video. It may be age-restricted, private, or region-blocked."
+    );
+  }
+
+  // Cap at ~40MB to stay within reasonable upload limits
+  const contentLength = parseInt(fmt.contentLength ?? "0", 10);
+  if (contentLength && contentLength > 40 * 1024 * 1024) {
+    throw new Error(
+      `Audio stream is too large (${Math.round(contentLength / 1024 / 1024)}MB). Please use a shorter video.`
+    );
+  }
+
+  const audioRes = await fetch(fmt.url);
+  if (!audioRes.ok) {
+    throw new Error(`Failed to download audio: ${audioRes.status}`);
+  }
+  const audioBuf = await audioRes.arrayBuffer();
+
+  // Derive extension from mimeType (e.g. audio/mp4 -> m4a, audio/webm -> webm)
+  const mime = fmt.mimeType.split(";")[0];
+  const ext = mime.includes("webm") ? "webm" : mime.includes("mp4") ? "m4a" : "audio";
+  const blob = new Blob([audioBuf], { type: mime });
+  // Wrap as File-like for FormData filename
+  const file = new File([blob], `${videoId}.${ext}`, { type: mime });
+
+  const result = await transcribeFile(file, preferredLang && preferredLang !== "auto" ? preferredLang : undefined);
+
+  return {
+    title,
+    text: result.text,
+    languageCode: result.language_code ?? preferredLang ?? "auto",
+  };
 }
