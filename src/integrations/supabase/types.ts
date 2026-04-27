@@ -14,7 +14,78 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          display_name: string | null
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      transcriptions: {
+        Row: {
+          created_at: string
+          duration_seconds: number | null
+          id: string
+          source_lang: string | null
+          source_url: string | null
+          target_lang: string | null
+          title: string
+          transcript: string
+          translation: string | null
+          type: Database["public"]["Enums"]["transcription_type"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          duration_seconds?: number | null
+          id?: string
+          source_lang?: string | null
+          source_url?: string | null
+          target_lang?: string | null
+          title: string
+          transcript?: string
+          translation?: string | null
+          type: Database["public"]["Enums"]["transcription_type"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          duration_seconds?: number | null
+          id?: string
+          source_lang?: string | null
+          source_url?: string | null
+          target_lang?: string | null
+          title?: string
+          transcript?: string
+          translation?: string | null
+          type?: Database["public"]["Enums"]["transcription_type"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +94,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      transcription_type: "live" | "file" | "youtube"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +221,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      transcription_type: ["live", "file", "youtube"],
+    },
   },
 } as const
