@@ -29,7 +29,9 @@ export function Shell({
   const list = useServerFn(listTranscriptions);
 
   useEffect(() => {
-    list({}).then((r) => setItems(r.items as HistoryItem[])).catch(() => {});
+    list({})
+      .then((r) => setItems(((r as { items?: HistoryItem[] })?.items ?? []) as HistoryItem[]))
+      .catch(() => setItems([]));
   }, [list, refreshKey]);
 
   const handleSignOut = async () => {
