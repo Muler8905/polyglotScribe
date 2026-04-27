@@ -1,0 +1,73 @@
+import { Link, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState, type ReactNode } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import s from "./Shell.module.css";
+import { useAuth } from "@/lib/auth-context";
+import { listTranscriptions } from "@/server/transcription.functions";
+
+interface HistoryItem {
+  id: string;
+  title: string;
+  type: "live" | "file" | "youtube";
+  source_lang: string | null;
+  target_lang: string | null;
+  created_at: string;
+}
+
+export function Shell({
+  children,
+  activeId,
+  refreshKey,
+}: {
+  children: ReactNode;
+  activeId?: string;
+  refreshKey?: number;
+}) {
+  const { user, signOut } = useAuth();
+  const nav = useNavigate();
+  const [items, setItems] = useState<HistoryItem[]>([]);
+  const list = useServerFn(listTranscriptions);
+
+  useEffect(() => {
+    list({}).then((r) => setItems(r.items as HistoryItem[])).catch(() => {});
+  }, [list, refreshKey]);
+
+  const handleSignOut = async () => {
+    await signOut();
+    nav({ to: "/auth" });
+  };
+
+  return (
+    <div className={s.shell}>
+      <aside className={s.sidebar}>
+        <Link to="/dashboard" className={s.brand} style={{ textDecoration: "none" }}>
+          <div className={s.brandMark} />
+          <div>Polyglot Scribe</div>
+        </Link>
+        <div className={s.user}>{user?.email}</div>
+
+        <div className={s.historyTitle}>History</div>
+        <div className={s.historyList}>
+          {items.length === 0 && <div className={s.user}>No transcriptions yet.</div>}
+          {items.map((it) => (
+            <Link
+              key={it.id}
+              to="/transcription/$id"
+              params={{ id: it.id }}
+              className={`${s.historyItem} ${activeId === it.id ? s.active : ""}`}
+            >
+              <div className={s.historyItemTitle}>{it.title}</div>
+              <div className={s.historyMeta}>
+                <span className={s.badge}>{it.type}</span>
+                <span>{new Date(it.created_at).toLocaleDateString()}</span>
+              </div>
+            </Link>
+          ))}
+        </div>
+
+        <button className={s.signout} onClick={handleSignOut}>Sign out</button>
+      </aside>
+      <main className={s.main}>{children}</main>
+    </div>
+  );
+}
