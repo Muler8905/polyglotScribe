@@ -1,0 +1,214 @@
+.tabs {
+  display: flex;
+  gap: 0.25rem;
+  background: var(--card);
+  padding: 0.3rem;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  width: fit-content;
+  margin-bottom: 1.5rem;
+}
+.tab {
+  background: transparent;
+  border: none;
+  padding: 0.55rem 1.1rem;
+  border-radius: 9px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--muted-foreground);
+  transition: all 0.15s;
+}
+.tab:hover { color: var(--foreground); }
+.tab.active {
+  background: var(--gradient-primary);
+  color: var(--primary-foreground);
+  box-shadow: var(--shadow-elegant);
+}
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.5rem;
+  box-shadow: var(--shadow-card);
+}
+.cardHeader {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 1.25rem;
+}
+.cardTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--foreground);
+}
+.cardSubtitle {
+  font-size: 0.85rem;
+  color: var(--muted-foreground);
+}
+.row {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  align-items: end;
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  flex: 1;
+  min-width: 180px;
+}
+.label {
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--muted-foreground);
+}
+.input,
+.select {
+  padding: 0.6rem 0.75rem;
+  border-radius: 9px;
+  border: 1px solid var(--input);
+  background: var(--background);
+  font-size: 0.9rem;
+  color: var(--foreground);
+  font-family: inherit;
+}
+.input:focus,
+.select:focus {
+  outline: none;
+  border-color: var(--ring);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 20%, transparent);
+}
+.btn {
+  padding: 0.6rem 1.1rem;
+  border-radius: 9px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--foreground);
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.15s;
+}
+.btn:hover:not(:disabled) { background: var(--muted); }
+.btn:disabled { opacity: 0.55; cursor: not-allowed; }
+.btnPrimary {
+  background: var(--gradient-primary);
+  color: var(--primary-foreground);
+  border-color: transparent;
+  box-shadow: var(--shadow-elegant);
+}
+.btnPrimary:hover:not(:disabled) {
+  background: var(--gradient-primary);
+  filter: brightness(1.05);
+}
+.btnDanger {
+  background: var(--destructive);
+  color: var(--destructive-foreground);
+  border-color: transparent;
+}
+.btnDanger:hover:not(:disabled) { filter: brightness(1.05); }
+.actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+.transcriptGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+@media (max-width: 880px) {
+  .transcriptGrid { grid-template-columns: 1fr; }
+}
+.pane {
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: 11px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  min-height: 220px;
+}
+.paneHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+.paneTitle {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--foreground);
+}
+.paneActions { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+.iconBtn {
+  background: var(--muted);
+  border: none;
+  border-radius: 7px;
+  padding: 0.35rem 0.65rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+  color: var(--foreground);
+}
+.iconBtn:hover { background: var(--accent); }
+.transcriptText {
+  font-size: 0.95rem;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  color: var(--foreground);
+  flex: 1;
+  overflow-y: auto;
+  max-height: 480px;
+}
+.partial {
+  color: var(--muted-foreground);
+  font-style: italic;
+}
+.recordDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--destructive);
+  display: inline-block;
+  margin-right: 0.4rem;
+  animation: pulse 1.4s infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(1.3); }
+}
+.empty {
+  color: var(--muted-foreground);
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 2rem 0;
+}
+.dropZone {
+  border: 2px dashed var(--border);
+  border-radius: 11px;
+  padding: 2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.15s;
+  background: var(--muted);
+}
+.dropZone:hover { border-color: var(--ring); background: var(--accent); }
+.dropZone.dragging { border-color: var(--primary); background: color-mix(in oklab, var(--primary) 10%, transparent); }
+.fileInput { display: none; }
+.fileName {
+  font-weight: 500;
+  color: var(--foreground);
+  margin-top: 0.5rem;
+}
+.statusLine {
+  font-size: 0.85rem;
+  color: var(--muted-foreground);
+  display: flex;
+  align-items: center;
+}

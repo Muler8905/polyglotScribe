@@ -1,0 +1,96 @@
+.wrap {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  background: var(--gradient-surface);
+}
+.card {
+  width: 100%;
+  max-width: 420px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: var(--shadow-card);
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 1.5rem;
+}
+.brandMark {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--gradient-primary);
+  box-shadow: var(--shadow-elegant);
+}
+.brandName { font-size: 1.1rem; font-weight: 700; color: var(--foreground); }
+.title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+  color: var(--foreground);
+}
+.subtitle {
+  color: var(--muted-foreground);
+  font-size: 0.88rem;
+  margin-bottom: 1.5rem;
+}
+.form { display: flex; flex-direction: column; gap: 0.85rem; }
+.field { display: flex; flex-direction: column; gap: 0.35rem; }
+.label { font-size: 0.8rem; font-weight: 500; color: var(--foreground); }
+.input {
+  padding: 0.65rem 0.8rem;
+  border-radius: 9px;
+  border: 1px solid var(--input);
+  background: var(--background);
+  font-size: 0.95rem;
+  color: var(--foreground);
+}
+.input:focus {
+  outline: none;
+  border-color: var(--ring);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--ring) 20%, transparent);
+}
+.submit {
+  margin-top: 0.5rem;
+  padding: 0.7rem;
+  border: none;
+  border-radius: 9px;
+  background: var(--gradient-primary);
+  color: var(--primary-foreground);
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  box-shadow: var(--shadow-elegant);
+}
+.submit:disabled { opacity: 0.6; cursor: not-allowed; }
+.toggle {
+  background: transparent;
+  border: none;
+  color: var(--primary);
+  cursor: pointer;
+  font-size: 0.85rem;
+  margin-top: 1rem;
+  text-align: center;
+  width: 100%;
+}
+.error {
+  color: var(--destructive);
+  font-size: 0.85rem;
+  background: color-mix(in oklab, var(--destructive) 10%, transparent);
+  border: 1px solid color-mix(in oklab, var(--destructive) 25%, transparent);
+  padding: 0.55rem 0.7rem;
+  border-radius: 8px;
+}
+.notice {
+  color: var(--muted-foreground);
+  font-size: 0.85rem;
+  background: var(--muted);
+  padding: 0.55rem 0.7rem;
+  border-radius: 8px;
+}
