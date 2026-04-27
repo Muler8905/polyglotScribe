@@ -9,9 +9,22 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiTranscribeFileRouteImport } from './routes/api.transcribe-file'
+import { Route as AppDashboardRouteImport } from './routes/_app.dashboard'
+import { Route as AppTranscriptionIdRouteImport } from './routes/_app.transcription.$id'
 
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppRoute = AppRouteImport.update({
+  id: '/_app',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -22,35 +35,88 @@ const ApiTranscribeFileRoute = ApiTranscribeFileRouteImport.update({
   path: '/api/transcribe-file',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppDashboardRoute = AppDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppTranscriptionIdRoute = AppTranscriptionIdRouteImport.update({
+  id: '/transcription/$id',
+  path: '/transcription/$id',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/dashboard': typeof AppDashboardRoute
   '/api/transcribe-file': typeof ApiTranscribeFileRoute
+  '/transcription/$id': typeof AppTranscriptionIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/dashboard': typeof AppDashboardRoute
   '/api/transcribe-file': typeof ApiTranscribeFileRoute
+  '/transcription/$id': typeof AppTranscriptionIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_app': typeof AppRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/_app/dashboard': typeof AppDashboardRoute
   '/api/transcribe-file': typeof ApiTranscribeFileRoute
+  '/_app/transcription/$id': typeof AppTranscriptionIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/api/transcribe-file'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/dashboard'
+    | '/api/transcribe-file'
+    | '/transcription/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/api/transcribe-file'
-  id: '__root__' | '/' | '/api/transcribe-file'
+  to:
+    | '/'
+    | '/auth'
+    | '/dashboard'
+    | '/api/transcribe-file'
+    | '/transcription/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/_app'
+    | '/auth'
+    | '/_app/dashboard'
+    | '/api/transcribe-file'
+    | '/_app/transcription/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AppRoute: typeof AppRouteWithChildren
+  AuthRoute: typeof AuthRoute
   ApiTranscribeFileRoute: typeof ApiTranscribeFileRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_app': {
+      id: '/_app'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -65,11 +131,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiTranscribeFileRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_app/dashboard': {
+      id: '/_app/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AppDashboardRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/transcription/$id': {
+      id: '/_app/transcription/$id'
+      path: '/transcription/$id'
+      fullPath: '/transcription/$id'
+      preLoaderRoute: typeof AppTranscriptionIdRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
+interface AppRouteChildren {
+  AppDashboardRoute: typeof AppDashboardRoute
+  AppTranscriptionIdRoute: typeof AppTranscriptionIdRoute
+}
+
+const AppRouteChildren: AppRouteChildren = {
+  AppDashboardRoute: AppDashboardRoute,
+  AppTranscriptionIdRoute: AppTranscriptionIdRoute,
+}
+
+const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AppRoute: AppRouteWithChildren,
+  AuthRoute: AuthRoute,
   ApiTranscribeFileRoute: ApiTranscribeFileRoute,
 }
 export const routeTree = rootRouteImport
