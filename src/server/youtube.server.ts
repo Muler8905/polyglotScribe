@@ -64,17 +64,36 @@ async function fetchCaptionXml(baseUrl: string): Promise<string> {
     .join(" ");
 }
 
+async function fetchTimedTextList(videoId: string): Promise<CaptionTrack[]> {
+  // Fallback: legacy timedtext list endpoint
+  const res = await fetch(
+    `https://video.google.com/timedtext?type=list&v=${videoId}`
+  );
+  if (!res.ok) return [];
+  const xml = await res.text();
+  const tracks: CaptionTrack[] = [];
+  for (const m of xml.matchAll(/<track[^>]*lang_code="([^"]+)"[^>]*(?:kind="([^"]*)")?[^>]*\/>/g)) {
+    const lang = m[1];
+    const kind = m[2];
+    const baseUrl = `https://video.google.com/timedtext?lang=${encodeURIComponent(lang)}&v=${videoId}${kind ? `&kind=${kind}` : ""}`;
+    tracks.push({ baseUrl, languageCode: lang, kind });
+  }
+  return tracks;
+}
+
 export async function fetchYouTubeTranscript(videoId: string, preferredLang?: string) {
   const player = await getPlayerResponse(videoId);
-  if (!player) throw new Error("Could not load video metadata");
-  const title: string =
-    player.videoDetails?.title || `YouTube ${videoId}`;
-  const tracks: CaptionTrack[] =
-    player.captions?.playerCaptionsTracklistRenderer?.captionTracks ?? [];
+  const title: string = player?.videoDetails?.title || `YouTube ${videoId}`;
+  let tracks: CaptionTrack[] =
+    player?.captions?.playerCaptionsTracklistRenderer?.captionTracks ?? [];
+
+  if (!tracks.length) {
+    tracks = await fetchTimedTextList(videoId);
+  }
 
   if (!tracks.length) {
     throw new Error(
-      "No captions available for this video. Try a different video that has captions enabled."
+      "No captions found. YouTube may be blocking caption access for this video, or it has none. Try a video with manually-added captions (look for the [CC] badge), or use the File or Live transcription mode instead."
     );
   }
 
@@ -84,6 +103,18 @@ export async function fetchYouTubeTranscript(videoId: string, preferredLang?: st
     tracks.find((t) => t.languageCode.startsWith("en")) ||
     tracks[0];
 
-  const text = await fetchCaptionXml(pick.baseUrl);
+  let text = "";
+  try {
+    text = await fetchCaptionXml(pick.baseUrl);
+  } catch {
+    text = "";
+  }
+
+  if (!text.trim()) {
+    throw new Error(
+      "Captions exist but couldn't be downloaded (YouTube returned empty). Try another video, or use File/Live transcription."
+    );
+  }
+
   return { title, text, languageCode: pick.languageCode };
 }
