@@ -146,12 +146,12 @@ function pickAudioFormat(player: any): AdaptiveFormat | null {
   return audios[0] ?? null;
 }
 
-async function fetchAudioResponse(url: string, videoId: string): Promise<Response> {
+async function fetchAudioResponse(url: string, videoId: string, range?: string): Promise<Response> {
   const attempts: RequestInit[] = [
-    {},
-    { headers: { "User-Agent": IOS_APP_UA, Referer: `https://www.youtube.com/watch?v=${videoId}` } },
-    { headers: { "User-Agent": MOBILE_UA, Referer: `https://m.youtube.com/watch?v=${videoId}` } },
-    { headers: { "User-Agent": DESKTOP_UA, Referer: `https://www.youtube.com/watch?v=${videoId}` } },
+    { headers: range ? { Range: range } : undefined },
+    { headers: { "User-Agent": IOS_APP_UA, Referer: `https://www.youtube.com/watch?v=${videoId}`, ...(range ? { Range: range } : {}) } },
+    { headers: { "User-Agent": MOBILE_UA, Referer: `https://m.youtube.com/watch?v=${videoId}`, ...(range ? { Range: range } : {}) } },
+    { headers: { "User-Agent": DESKTOP_UA, Referer: `https://www.youtube.com/watch?v=${videoId}`, ...(range ? { Range: range } : {}) } },
   ];
 
   let lastResponse: Response | null = null;
@@ -230,8 +230,7 @@ export async function fetchYouTubeTranscript(videoId: string, preferredLang?: st
     );
   }
 
-  const audioRes = await fetchAudioResponse(fmt.url, videoId);
-  const audioBuf = await audioRes.arrayBuffer();
+  const audioBuf = await downloadAudioInChunks(fmt.url, videoId, contentLength || undefined);
   if (audioBuf.byteLength > 40 * 1024 * 1024) {
     throw new Error(
       `Audio stream is too large (${Math.round(audioBuf.byteLength / 1024 / 1024)}MB). Please use a shorter video.`
