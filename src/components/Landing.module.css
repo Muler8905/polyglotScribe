@@ -140,15 +140,19 @@
   border-radius: 16px;
   padding: 1.75rem;
   transition: transform 0.2s, box-shadow 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
 }
 .feat:hover { transform: translateY(-2px); box-shadow: var(--shadow-elegant); }
 .featIcon {
-  width: 48px; height: 48px;
-  border-radius: 12px;
+  width: 56px; height: 56px;
+  border-radius: 14px;
   background: var(--gradient-primary);
   display: flex; align-items: center; justify-content: center;
-  font-size: 1.5rem;
-  margin-bottom: 1rem;
+  font-size: 1.6rem;
+  margin: 0 auto 1rem;
 }
 .featTitle { font-weight: 700; margin-bottom: 0.5rem; font-size: 1.1rem; }
 .featDesc { color: var(--muted-foreground); font-size: 0.95rem; line-height: 1.6; }
