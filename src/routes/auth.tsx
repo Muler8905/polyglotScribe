@@ -50,6 +50,9 @@ function AuthPage() {
   return (
     <div className={s.wrap}>
       <div className={s.card}>
+        <Link to="/" style={{ display: "inline-block", color: "var(--muted-foreground)", textDecoration: "none", fontSize: "0.9rem", marginBottom: "1rem" }}>
+          ← Back to home
+        </Link>
         <div className={s.brand}>
           <div className={s.brandMark} />
           <span className={s.brandName}>Polyglot Scribe</span>
