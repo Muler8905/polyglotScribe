@@ -265,10 +265,11 @@
   color: var(--foreground);
 }
 .mobileMenu a:hover { background: var(--muted); }
-.navMobileTools { display: flex; gap: 0.5rem; align-items: center; }
+.navMobileTools { display: none; gap: 0.5rem; align-items: center; }
 
 @media (max-width: 760px) {
   .navLinks { display: none; }
+  .navMobileTools { display: flex; }
   .menuBtn { display: inline-flex; }
   .nav { padding: 0.85rem 1.25rem; }
   .hero { padding: 3rem 1.25rem 4rem; }
