@@ -84,8 +84,6 @@ function Landing() {
           <a href="#features" className={s.navLink}>Features</a>
           <a href="#how" className={s.navLink}>How it works</a>
           <a href="#cases" className={s.navLink}>Use cases</a>
-          <Link to="/docs" className={s.navLink}>Docs</Link>
-          <Link to="/support" className={s.navLink}>Support</Link>
           <ThemeToggle />
           <Link to="/auth" className={`${s.linkBtn} ${s.linkGhost}`}>Sign in</Link>
           <Link to="/auth" className={`${s.linkBtn} ${s.linkPrimary}`}>Get started</Link>
