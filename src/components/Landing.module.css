@@ -202,10 +202,20 @@
   border-radius: 12px;
   padding: 1.25rem 1.4rem;
 }
-.caseEmoji { font-size: 1.5rem; }
+.caseEmoji {
+  font-size: 1.6rem;
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  background: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
 .caseText { font-size: 0.95rem; color: var(--foreground); }
 .caseTitle { font-weight: 600; margin-bottom: 0.2rem; }
 .caseDesc { color: var(--muted-foreground); font-size: 0.88rem; }
+@media (max-width: 480px) {
+  .case { flex-direction: column; align-items: center; text-align: center; }
+}
 
 /* CTA SECTION */
 .ctaSection {
