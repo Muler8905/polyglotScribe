@@ -9,6 +9,9 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SupportRouteImport } from './routes/support'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as DocsRouteImport } from './routes/docs'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
@@ -16,6 +19,21 @@ import { Route as ApiTranscribeFileRouteImport } from './routes/api.transcribe-f
 import { Route as AppDashboardRouteImport } from './routes/_app.dashboard'
 import { Route as AppTranscriptionIdRouteImport } from './routes/_app.transcription.$id'
 
+const SupportRoute = SupportRouteImport.update({
+  id: '/support',
+  path: '/support',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DocsRoute = DocsRouteImport.update({
+  id: '/docs',
+  path: '/docs',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
@@ -49,6 +67,9 @@ const AppTranscriptionIdRoute = AppTranscriptionIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/docs': typeof DocsRoute
+  '/privacy': typeof PrivacyRoute
+  '/support': typeof SupportRoute
   '/dashboard': typeof AppDashboardRoute
   '/api/transcribe-file': typeof ApiTranscribeFileRoute
   '/transcription/$id': typeof AppTranscriptionIdRoute
@@ -56,6 +77,9 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/docs': typeof DocsRoute
+  '/privacy': typeof PrivacyRoute
+  '/support': typeof SupportRoute
   '/dashboard': typeof AppDashboardRoute
   '/api/transcribe-file': typeof ApiTranscribeFileRoute
   '/transcription/$id': typeof AppTranscriptionIdRoute
@@ -65,6 +89,9 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_app': typeof AppRouteWithChildren
   '/auth': typeof AuthRoute
+  '/docs': typeof DocsRoute
+  '/privacy': typeof PrivacyRoute
+  '/support': typeof SupportRoute
   '/_app/dashboard': typeof AppDashboardRoute
   '/api/transcribe-file': typeof ApiTranscribeFileRoute
   '/_app/transcription/$id': typeof AppTranscriptionIdRoute
@@ -74,6 +101,9 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/docs'
+    | '/privacy'
+    | '/support'
     | '/dashboard'
     | '/api/transcribe-file'
     | '/transcription/$id'
@@ -81,6 +111,9 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/docs'
+    | '/privacy'
+    | '/support'
     | '/dashboard'
     | '/api/transcribe-file'
     | '/transcription/$id'
@@ -89,6 +122,9 @@ export interface FileRouteTypes {
     | '/'
     | '/_app'
     | '/auth'
+    | '/docs'
+    | '/privacy'
+    | '/support'
     | '/_app/dashboard'
     | '/api/transcribe-file'
     | '/_app/transcription/$id'
@@ -98,11 +134,35 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AppRoute: typeof AppRouteWithChildren
   AuthRoute: typeof AuthRoute
+  DocsRoute: typeof DocsRoute
+  PrivacyRoute: typeof PrivacyRoute
+  SupportRoute: typeof SupportRoute
   ApiTranscribeFileRoute: typeof ApiTranscribeFileRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/support': {
+      id: '/support'
+      path: '/support'
+      fullPath: '/support'
+      preLoaderRoute: typeof SupportRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/docs': {
+      id: '/docs'
+      path: '/docs'
+      fullPath: '/docs'
+      preLoaderRoute: typeof DocsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
@@ -164,6 +224,9 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AppRoute: AppRouteWithChildren,
   AuthRoute: AuthRoute,
+  DocsRoute: DocsRoute,
+  PrivacyRoute: PrivacyRoute,
+  SupportRoute: SupportRoute,
   ApiTranscribeFileRoute: ApiTranscribeFileRoute,
 }
 export const routeTree = rootRouteImport
