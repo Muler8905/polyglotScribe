@@ -140,15 +140,19 @@
   border-radius: 16px;
   padding: 1.75rem;
   transition: transform 0.2s, box-shadow 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
 }
 .feat:hover { transform: translateY(-2px); box-shadow: var(--shadow-elegant); }
 .featIcon {
-  width: 48px; height: 48px;
-  border-radius: 12px;
+  width: 56px; height: 56px;
+  border-radius: 14px;
   background: var(--gradient-primary);
   display: flex; align-items: center; justify-content: center;
-  font-size: 1.5rem;
-  margin-bottom: 1rem;
+  font-size: 1.6rem;
+  margin: 0 auto 1rem;
 }
 .featTitle { font-weight: 700; margin-bottom: 0.5rem; font-size: 1.1rem; }
 .featDesc { color: var(--muted-foreground); font-size: 0.95rem; line-height: 1.6; }
@@ -167,15 +171,19 @@
   border-radius: 14px;
   padding: 1.5rem;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
 }
 .stepNum {
-  width: 32px; height: 32px;
+  width: 36px; height: 36px;
   border-radius: 50%;
   background: var(--gradient-primary);
   color: var(--primary-foreground);
   display: flex; align-items: center; justify-content: center;
-  font-weight: 700; font-size: 0.9rem;
-  margin-bottom: 0.75rem;
+  font-weight: 700; font-size: 0.95rem;
+  margin: 0 auto 0.75rem;
 }
 .stepTitle { font-weight: 600; margin-bottom: 0.4rem; }
 .stepDesc { color: var(--muted-foreground); font-size: 0.88rem; line-height: 1.55; }
@@ -194,10 +202,20 @@
   border-radius: 12px;
   padding: 1.25rem 1.4rem;
 }
-.caseEmoji { font-size: 1.5rem; }
+.caseEmoji {
+  font-size: 1.6rem;
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  background: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
 .caseText { font-size: 0.95rem; color: var(--foreground); }
 .caseTitle { font-weight: 600; margin-bottom: 0.2rem; }
 .caseDesc { color: var(--muted-foreground); font-size: 0.88rem; }
+@media (max-width: 480px) {
+  .case { flex-direction: column; align-items: center; text-align: center; }
+}
 
 /* CTA SECTION */
 .ctaSection {
@@ -265,10 +283,11 @@
   color: var(--foreground);
 }
 .mobileMenu a:hover { background: var(--muted); }
-.navMobileTools { display: flex; gap: 0.5rem; align-items: center; }
+.navMobileTools { display: none; gap: 0.5rem; align-items: center; }
 
 @media (max-width: 760px) {
   .navLinks { display: none; }
+  .navMobileTools { display: flex; }
   .menuBtn { display: inline-flex; }
   .nav { padding: 0.85rem 1.25rem; }
   .hero { padding: 3rem 1.25rem 4rem; }

@@ -1,4 +1,4 @@
-import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
 import s from "@/components/Auth.module.css";
 import { useAuth } from "@/lib/auth-context";
@@ -50,6 +50,9 @@ function AuthPage() {
   return (
     <div className={s.wrap}>
       <div className={s.card}>
+        <Link to="/" style={{ display: "inline-block", color: "var(--muted-foreground)", textDecoration: "none", fontSize: "0.9rem", marginBottom: "1rem" }}>
+          ← Back to home
+        </Link>
         <div className={s.brand}>
           <div className={s.brandMark} />
           <span className={s.brandName}>Polyglot Scribe</span>
