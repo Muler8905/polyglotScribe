@@ -164,6 +164,7 @@ function LivePanel({ onSaved }: Props) {
   const scribe = useScribe({
     modelId: "scribe_v2_realtime",
     commitStrategy: CommitStrategy.VAD,
+    languageCode: sourceLang,
     onPartialTranscript: (d: { text: string }) => setPartial(d?.text ?? ""),
     onCommittedTranscript: (d: { text: string }) => {
       const t = (d?.text ?? "").trim();
@@ -175,19 +176,34 @@ function LivePanel({ onSaved }: Props) {
   const start = useCallback(async () => {
     setConnecting(true);
     try {
-      await navigator.mediaDevices.getUserMedia({ audio: true });
-      const { token } = await getToken({});
+      await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+          channelCount: 1,
+          sampleRate: 16000,
+        },
+      });
+      const { token } = await getToken();
       await scribe.connect({
         token,
-        microphone: { echoCancellation: true, noiseSuppression: true },
+        languageCode: sourceLang,
+        sampleRate: 16000,
+        microphone: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+          channelCount: 1,
+        },
       });
-      toast.success("Recording started");
+      toast.success(`Listening in ${labelOf(sourceLang)}…`);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed to start");
     } finally {
       setConnecting(false);
     }
-  }, [getToken, scribe]);
+  }, [getToken, scribe, sourceLang]);
 
   const stop = useCallback(async () => {
     await scribe.disconnect();
