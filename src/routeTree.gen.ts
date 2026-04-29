@@ -17,6 +17,7 @@ import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ApiTranscribeFileRouteImport } from './routes/api.transcribe-file'
 import { Route as AppDashboardRouteImport } from './routes/_app.dashboard'
+import { Route as AppAdminRouteImport } from './routes/_app.admin'
 import { Route as AppTranscriptionIdRouteImport } from './routes/_app.transcription.$id'
 
 const SupportRoute = SupportRouteImport.update({
@@ -58,6 +59,11 @@ const AppDashboardRoute = AppDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AppRoute,
 } as any)
+const AppAdminRoute = AppAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppTranscriptionIdRoute = AppTranscriptionIdRouteImport.update({
   id: '/transcription/$id',
   path: '/transcription/$id',
@@ -70,6 +76,7 @@ export interface FileRoutesByFullPath {
   '/docs': typeof DocsRoute
   '/privacy': typeof PrivacyRoute
   '/support': typeof SupportRoute
+  '/admin': typeof AppAdminRoute
   '/dashboard': typeof AppDashboardRoute
   '/api/transcribe-file': typeof ApiTranscribeFileRoute
   '/transcription/$id': typeof AppTranscriptionIdRoute
@@ -80,6 +87,7 @@ export interface FileRoutesByTo {
   '/docs': typeof DocsRoute
   '/privacy': typeof PrivacyRoute
   '/support': typeof SupportRoute
+  '/admin': typeof AppAdminRoute
   '/dashboard': typeof AppDashboardRoute
   '/api/transcribe-file': typeof ApiTranscribeFileRoute
   '/transcription/$id': typeof AppTranscriptionIdRoute
@@ -92,6 +100,7 @@ export interface FileRoutesById {
   '/docs': typeof DocsRoute
   '/privacy': typeof PrivacyRoute
   '/support': typeof SupportRoute
+  '/_app/admin': typeof AppAdminRoute
   '/_app/dashboard': typeof AppDashboardRoute
   '/api/transcribe-file': typeof ApiTranscribeFileRoute
   '/_app/transcription/$id': typeof AppTranscriptionIdRoute
@@ -104,6 +113,7 @@ export interface FileRouteTypes {
     | '/docs'
     | '/privacy'
     | '/support'
+    | '/admin'
     | '/dashboard'
     | '/api/transcribe-file'
     | '/transcription/$id'
@@ -114,6 +124,7 @@ export interface FileRouteTypes {
     | '/docs'
     | '/privacy'
     | '/support'
+    | '/admin'
     | '/dashboard'
     | '/api/transcribe-file'
     | '/transcription/$id'
@@ -125,6 +136,7 @@ export interface FileRouteTypes {
     | '/docs'
     | '/privacy'
     | '/support'
+    | '/_app/admin'
     | '/_app/dashboard'
     | '/api/transcribe-file'
     | '/_app/transcription/$id'
@@ -198,6 +210,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppDashboardRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/admin': {
+      id: '/_app/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AppAdminRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/transcription/$id': {
       id: '/_app/transcription/$id'
       path: '/transcription/$id'
@@ -209,11 +228,13 @@ declare module '@tanstack/react-router' {
 }
 
 interface AppRouteChildren {
+  AppAdminRoute: typeof AppAdminRoute
   AppDashboardRoute: typeof AppDashboardRoute
   AppTranscriptionIdRoute: typeof AppTranscriptionIdRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppAdminRoute: AppAdminRoute,
   AppDashboardRoute: AppDashboardRoute,
   AppTranscriptionIdRoute: AppTranscriptionIdRoute,
 }

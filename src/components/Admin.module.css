@@ -1,0 +1,110 @@
+.page {
+  min-height: 100vh;
+  background: var(--background);
+  color: var(--foreground);
+  padding: 1rem 1.5rem 3rem;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0 1rem;
+  gap: 1rem;
+}
+.back, .signout {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.85rem;
+  border-radius: 9px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--foreground);
+  text-decoration: none;
+  font-size: 0.88rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+.back:hover, .signout:hover { background: var(--muted); }
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+.heroBanner {
+  background: var(--gradient-primary, linear-gradient(135deg, var(--primary), var(--primary)));
+  color: var(--primary-foreground);
+  border-radius: 18px;
+  padding: 1.75rem;
+  margin-bottom: 1.5rem;
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 1.5rem;
+  align-items: center;
+  box-shadow: var(--shadow-elegant, 0 10px 30px -12px rgba(0, 0, 0, 0.25));
+}
+.eyebrow { font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; opacity: 0.85; font-weight: 600; }
+.title { margin: 0.4rem 0 0.35rem; font-size: clamp(1.3rem, 2vw, 1.7rem); font-weight: 700; }
+.subtitle { margin: 0; opacity: 0.92; font-size: 0.95rem; }
+.statRow { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; }
+.stat { background: color-mix(in oklab, white 14%, transparent); border: 1px solid color-mix(in oklab, white 22%, transparent); border-radius: 12px; padding: 0.65rem 0.85rem; }
+.statLabel { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.85; font-weight: 600; }
+.statValue { font-size: 1.1rem; font-weight: 700; margin-top: 0.15rem; }
+@media (max-width: 760px) {
+  .heroBanner { grid-template-columns: 1fr; }
+}
+
+.tabs { display: flex; gap: 0.5rem; margin-bottom: 1rem; border-bottom: 1px solid var(--border); }
+.tab { padding: 0.7rem 1rem; background: transparent; border: none; color: var(--muted-foreground); font-weight: 600; cursor: pointer; border-bottom: 2px solid transparent; }
+.tab:hover { color: var(--foreground); }
+.tabActive { color: var(--primary); border-bottom-color: var(--primary); }
+
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 1.25rem; }
+.cardHeader { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; gap: 1rem; flex-wrap: wrap; }
+.cardHeader h3 { margin: 0 0 0.2rem; }
+.muted { color: var(--muted-foreground); font-size: 0.88rem; margin: 0; }
+
+.tableWrap { overflow-x: auto; }
+.table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+.table th { text-align: left; padding: 0.65rem 0.5rem; color: var(--muted-foreground); font-weight: 600; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid var(--border); }
+.table td { padding: 0.7rem 0.5rem; border-bottom: 1px solid var(--border); vertical-align: middle; }
+.suspendedRow { opacity: 0.55; }
+
+.userName { font-weight: 600; }
+.userId { font-size: 0.75rem; color: var(--muted-foreground); font-family: ui-monospace, monospace; }
+
+.roleAdmin, .roleUser { padding: 0.3rem 0.7rem; border-radius: 999px; border: 1px solid var(--border); cursor: pointer; font-size: 0.78rem; font-weight: 600; }
+.roleAdmin { background: var(--primary); color: var(--primary-foreground); border-color: var(--primary); }
+.roleUser { background: var(--muted); color: var(--foreground); }
+
+.creditInput { width: 80px; padding: 0.35rem 0.5rem; border-radius: 8px; border: 1px solid var(--border); background: var(--background); color: var(--foreground); font-size: 0.9rem; }
+
+.flagRow { display: inline-flex; gap: 0.25rem; }
+.flag { width: 26px; height: 26px; border-radius: 6px; border: 1px solid var(--border); cursor: pointer; font-weight: 700; font-size: 0.75rem; }
+.flagOn { background: var(--primary); color: var(--primary-foreground); border-color: var(--primary); }
+.flagOff { background: var(--muted); color: var(--muted-foreground); }
+
+.active, .suspended { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.3rem 0.6rem; border-radius: 999px; font-size: 0.78rem; font-weight: 600; border: 1px solid var(--border); cursor: pointer; }
+.active { background: oklch(0.95 0.05 150); color: oklch(0.35 0.12 150); border-color: oklch(0.85 0.08 150); }
+.suspended { background: oklch(0.95 0.05 25); color: oklch(0.4 0.15 25); border-color: oklch(0.85 0.1 25); }
+
+.danger { padding: 0.4rem; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: oklch(0.55 0.18 25); cursor: pointer; }
+.danger:hover { background: oklch(0.95 0.05 25); }
+.primary { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.55rem 1rem; border-radius: 10px; background: var(--gradient-primary, var(--primary)); color: var(--primary-foreground); border: none; font-weight: 600; cursor: pointer; }
+
+.heroGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1rem; }
+.heroCard { border: 1px solid var(--border); border-radius: 12px; overflow: hidden; background: var(--background); }
+.heroThumb { width: 100%; aspect-ratio: 16/9; background-size: cover; background-position: center; background-color: var(--muted); }
+.heroBody { padding: 0.75rem; }
+.heroCaption { font-size: 0.88rem; margin-bottom: 0.6rem; color: var(--foreground); }
+.heroActions { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; }
+.empty { grid-column: 1 / -1; text-align: center; padding: 2rem; color: var(--muted-foreground); display: flex; flex-direction: column; align-items: center; gap: 0.5rem; }
+
+.loading { padding: 2rem; text-align: center; color: var(--muted-foreground); }
+.denied { min-height: 60vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.75rem; color: var(--muted-foreground); text-align: center; padding: 2rem; }
+.denied h1 { color: var(--foreground); margin: 0; }
+.linkBtn { margin-top: 1rem; padding: 0.6rem 1.2rem; background: var(--primary); color: var(--primary-foreground); border-radius: 10px; text-decoration: none; font-weight: 600; }

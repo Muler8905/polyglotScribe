@@ -38,6 +38,21 @@
   font-size: 0.95rem;
   max-width: 56ch;
 }
+.adminLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.85rem;
+  padding: 0.45rem 0.85rem;
+  border-radius: 999px;
+  background: color-mix(in oklab, white 22%, transparent);
+  border: 1px solid color-mix(in oklab, white 32%, transparent);
+  color: var(--primary-foreground);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.82rem;
+}
+.adminLink:hover { background: color-mix(in oklab, white 32%, transparent); }
 .statRow {
   position: relative;
   z-index: 1;
