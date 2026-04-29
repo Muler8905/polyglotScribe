@@ -34,6 +34,11 @@ function Dashboard() {
           <p className={s.subtitle}>
             Transcribe and translate speech across English, Amharic, Afaan Oromo, and Somali.
           </p>
+          {isAdmin && (
+            <Link to="/admin" className={s.adminLink}>
+              <Shield size={14} /> Open Admin Console
+            </Link>
+          )}
         </div>
         <div className={s.statRow}>
           <div className={s.stat}>
