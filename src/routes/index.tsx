@@ -4,6 +4,7 @@ import { motion, type Variants } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import s from "@/components/Landing.module.css";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { HeroSlideshow } from "@/components/HeroSlideshow";
 
 export const Route = createFileRoute("/")({
   beforeLoad: async () => {
@@ -144,6 +145,7 @@ function Landing() {
             <span className={s.langBadge}>🇪🇹 Afaan Oromo</span>
             <span className={s.langBadge}>🇸🇴 Somali (Soomaali)</span>
           </div>
+          <HeroSlideshow />
         </motion.div>
       </section>
 
