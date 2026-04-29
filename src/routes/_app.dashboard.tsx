@@ -1,8 +1,10 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
+import { Shield } from "lucide-react";
 import { Shell } from "@/components/Shell";
 import { Transcriber } from "@/components/Transcriber";
 import { useAuth } from "@/lib/auth-context";
+import { useIsAdmin } from "@/lib/use-admin";
 import s from "@/components/Dashboard.module.css";
 
 export const Route = createFileRoute("/_app/dashboard")({
@@ -13,6 +15,7 @@ export const Route = createFileRoute("/_app/dashboard")({
 function Dashboard() {
   const [refreshKey, setRefreshKey] = useState(0);
   const { user } = useAuth();
+  const { isAdmin } = useIsAdmin();
   const displayName =
     (user?.user_metadata?.display_name as string | undefined) ||
     user?.email?.split("@")[0] ||

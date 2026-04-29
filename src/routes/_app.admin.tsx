@@ -101,7 +101,15 @@ function AdminPage() {
   }
 
   const updateToken = async (userId: string, patch: Partial<UserRow>) => {
-    const dbPatch: Record<string, unknown> = {};
+    const dbPatch: {
+      credits?: number;
+      suspended?: boolean;
+      feature_live?: boolean;
+      feature_file?: boolean;
+      feature_youtube?: boolean;
+      feature_translate?: boolean;
+      feature_tts?: boolean;
+    } = {};
     if (patch.credits !== undefined) dbPatch.credits = patch.credits;
     if (patch.suspended !== undefined) dbPatch.suspended = patch.suspended;
     if (patch.feature_live !== undefined) dbPatch.feature_live = patch.feature_live;
