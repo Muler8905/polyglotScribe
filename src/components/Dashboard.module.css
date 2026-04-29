@@ -37,11 +37,6 @@
   opacity: 0.92;
   font-size: 0.95rem;
   max-width: 56ch;
-.subtitle {
-  margin: 0;
-  opacity: 0.92;
-  font-size: 0.95rem;
-  max-width: 56ch;
 }
 .adminLink {
   display: inline-flex;
