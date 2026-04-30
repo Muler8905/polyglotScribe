@@ -449,42 +449,104 @@ function FilePanel({ onSaved }: Props) {
 /* YOUTUBE                                                              */
 /* ------------------------------------------------------------------ */
 
+function extractYouTubeId(url: string): string | null {
+  try {
+    const u = new URL(url);
+    if (u.hostname.includes("youtu.be")) return u.pathname.slice(1) || null;
+    if (u.searchParams.get("v")) return u.searchParams.get("v");
+    const m = u.pathname.match(/\/(embed|shorts)\/([^/?]+)/);
+    if (m) return m[2];
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 function YouTubePanel({ onSaved }: Props) {
   const [url, setUrl] = useState("");
+  const [videoId, setVideoId] = useState<string | null>(null);
+  const [sourceLang, setSourceLang] = useState("eng");
   const [targetLang, setTargetLang] = useState("amh");
-  const [preferredCaption, setPreferredCaption] = useState("eng");
-  const [transcript, setTranscript] = useState("");
+  const [committed, setCommitted] = useState<string[]>([]);
+  const [partial, setPartial] = useState("");
   const [translation, setTranslation] = useState("");
-  const [detectedLang, setDetectedLang] = useState("eng");
-  const [transcriptionId, setTranscriptionId] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
   const [translating, setTranslating] = useState(false);
-  const tts = useTTS();
-  const ytFn = useServerFn(transcribeYouTube);
-  const translateSaved = useServerFn(translateTranscription);
+  const [saving, setSaving] = useState(false);
+  const [connecting, setConnecting] = useState(false);
 
-  const fetchCaptions = async () => {
-    if (!url.trim()) return;
-    setBusy(true);
+  const transcript = committed.join(" ").trim();
+  const tts = useTTS();
+  const getToken = useServerFn(getScribeToken);
+  const translateFn = useServerFn(translateAdhoc);
+  const saveFn = useServerFn(saveTranscription);
+
+  const scribe = useScribe({
+    modelId: "scribe_v2_realtime",
+    commitStrategy: CommitStrategy.VAD,
+    languageCode: sourceLang,
+    onPartialTranscript: (d: { text: string }) => setPartial(d?.text ?? ""),
+    onCommittedTranscript: (d: { text: string }) => {
+      const t = (d?.text ?? "").trim();
+      if (t) setCommitted((prev) => [...prev, t]);
+      setPartial("");
+    },
+  });
+
+  const loadVideo = () => {
+    const id = extractYouTubeId(url.trim());
+    if (!id) {
+      toast.error("Invalid YouTube URL");
+      return;
+    }
+    setVideoId(id);
+    setCommitted([]);
+    setPartial("");
+    setTranslation("");
+    toast.success("Video loaded — press ▶ on the player, then Start Listening");
+  };
+
+  const startListening = async () => {
+    setConnecting(true);
     try {
-      const r = await ytFn({ data: { url, preferredLang: preferredCaption } });
-      setTranscript(r.text);
-      setTranscriptionId(r.id);
-      setDetectedLang(r.languageCode || "eng");
-      toast.success(`Captions loaded (${r.languageCode})`);
-      onSaved?.();
+      await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: false,
+          noiseSuppression: false,
+          autoGainControl: true,
+          channelCount: 1,
+          sampleRate: 16000,
+        },
+      });
+      const { token } = await getToken();
+      await scribe.connect({
+        token,
+        languageCode: sourceLang,
+        sampleRate: 16000,
+        microphone: {
+          echoCancellation: false,
+          noiseSuppression: false,
+          autoGainControl: true,
+          channelCount: 1,
+        },
+      });
+      toast.success(`Listening to video audio in ${labelOf(sourceLang)}…`);
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Failed to fetch captions");
+      toast.error(e instanceof Error ? e.message : "Failed to start");
     } finally {
-      setBusy(false);
+      setConnecting(false);
     }
   };
 
+  const stopListening = async () => {
+    await scribe.disconnect();
+    toast.info("Stopped listening");
+  };
+
   const translate = async () => {
-    if (!transcriptionId) return;
+    if (!transcript) return;
     setTranslating(true);
     try {
-      const { translation } = await translateSaved({ data: { transcriptionId, targetLang } });
+      const { translation } = await translateFn({ data: { text: transcript, targetLang, sourceLang } });
       setTranslation(translation);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Translation failed");
@@ -493,11 +555,37 @@ function YouTubePanel({ onSaved }: Props) {
     }
   };
 
+  const save = async () => {
+    if (!transcript || !videoId) return;
+    setSaving(true);
+    try {
+      await saveFn({
+        data: {
+          type: "youtube",
+          title: `YouTube — ${videoId}`,
+          transcript,
+          sourceLang,
+          targetLang: translation ? targetLang : undefined,
+          translation: translation || undefined,
+          sourceUrl: `https://youtu.be/${videoId}`,
+        },
+      });
+      toast.success("Saved to history");
+      onSaved?.();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Save failed");
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
     <div className={s.card}>
       <div className={s.cardHeader}>
-        <div className={s.cardTitle}>YouTube Transcription</div>
-        <div className={s.cardSubtitle}>Paste a YouTube URL — we fetch its captions instantly.</div>
+        <div className={s.cardTitle}>YouTube Live Transcription</div>
+        <div className={s.cardSubtitle}>
+          Paste a URL → click Transcribe → press play on the video. Words appear in real time as the video speaks.
+        </div>
       </div>
       <div className={s.row}>
         <div className={s.field} style={{ flex: 2 }}>
@@ -512,8 +600,7 @@ function YouTubePanel({ onSaved }: Props) {
         </div>
         <div className={s.field}>
           <label className={s.label}>Spoken language</label>
-          <select className={s.select} value={preferredCaption} onChange={(e) => setPreferredCaption(e.target.value)}>
-            <option value="auto">Auto-detect</option>
+          <select className={s.select} value={sourceLang} onChange={(e) => setSourceLang(e.target.value)}>
             {LANGUAGES.map((l) => (<option key={l.code} value={l.code}>{l.label}</option>))}
           </select>
         </div>
@@ -525,20 +612,52 @@ function YouTubePanel({ onSaved }: Props) {
         </div>
       </div>
       <div className={s.actions}>
-        <button className={`${s.btn} ${s.btnPrimary}`} onClick={fetchCaptions} disabled={!url.trim() || busy}>
-          {busy ? "Transcribing…" : "Transcribe Audio"}
+        <button className={`${s.btn} ${s.btnPrimary}`} onClick={loadVideo} disabled={!url.trim()}>
+          ▶ Transcribe
         </button>
+        {videoId && !scribe.isConnected && (
+          <button className={s.btn} onClick={startListening} disabled={connecting}>
+            {connecting ? "Connecting…" : "🎙️ Start Listening"}
+          </button>
+        )}
+        {scribe.isConnected && (
+          <button className={`${s.btn} ${s.btnDanger}`} onClick={stopListening}>⏹ Stop</button>
+        )}
+        <button className={s.btn} onClick={save} disabled={!transcript || saving}>
+          {saving ? "Saving…" : "💾 Save"}
+        </button>
+        {scribe.isConnected && (
+          <span className={s.statusLine}><span className={s.recordDot} />Listening…</span>
+        )}
       </div>
+
+      {videoId && (
+        <div className={s.videoCard}>
+          <div className={s.videoFrame}>
+            <iframe
+              src={`https://www.youtube.com/embed/${videoId}?autoplay=0&rel=0`}
+              title="YouTube video"
+              frameBorder={0}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          </div>
+          <div className={s.videoHint}>
+            💡 Play the video out loud (speakers) so the microphone can hear it. For best results, use a quiet room.
+          </div>
+        </div>
+      )}
 
       <ResultPanes
         transcript={transcript}
+        partial={partial}
         translation={translation}
-        sourceLang={detectedLang}
+        sourceLang={sourceLang}
         targetLang={targetLang}
         onTranslate={translate}
         translating={translating}
         speaking={tts.speaking}
-        onSpeak={(w) => tts.play(w, w === "src" ? transcript : translation, w === "src" ? detectedLang : targetLang)}
+        onSpeak={(w) => tts.play(w, w === "src" ? transcript : translation, w === "src" ? sourceLang : targetLang)}
       />
     </div>
   );
