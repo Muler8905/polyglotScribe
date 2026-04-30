@@ -492,6 +492,31 @@ function YouTubePanel({ onSaved }: Props) {
     },
   });
 
+  // Auto-translate continuously while listening: re-translate whenever new
+  // committed text arrives, debounced to avoid hammering the API.
+  const lastTranslatedRef = useRef("");
+  useEffect(() => {
+    if (!scribe.isConnected) return;
+    if (!transcript) return;
+    if (transcript === lastTranslatedRef.current) return;
+    const handle = setTimeout(async () => {
+      const snapshot = transcript;
+      try {
+        setTranslating(true);
+        const { translation: live } = await translateFn({
+          data: { text: snapshot, targetLang, sourceLang },
+        });
+        lastTranslatedRef.current = snapshot;
+        setTranslation(live);
+      } catch {
+        // silent during live mode — user still has manual Translate button
+      } finally {
+        setTranslating(false);
+      }
+    }, 800);
+    return () => clearTimeout(handle);
+  }, [transcript, scribe.isConnected, targetLang, sourceLang, translateFn]);
+
   const loadVideo = () => {
     const id = extractYouTubeId(url.trim());
     if (!id) {
