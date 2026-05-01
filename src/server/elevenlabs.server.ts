@@ -18,9 +18,14 @@ export async function createScribeRealtimeToken(): Promise<string> {
 export async function transcribeFile(file: Blob, languageCode?: string) {
   const fd = new FormData();
   fd.append("file", file);
+  // Highest-accuracy ElevenLabs Scribe model
   fd.append("model_id", "scribe_v2");
-  fd.append("tag_audio_events", "false");
-  fd.append("diarize", "false");
+  // Tag laughter / applause / music so transcripts read naturally
+  fd.append("tag_audio_events", "true");
+  // Speaker labels improve readability for multi-speaker audio
+  fd.append("diarize", "true");
+  // Word-level timestamps help downstream alignment / translation
+  fd.append("timestamps_granularity", "word");
   if (languageCode && languageCode !== "auto") fd.append("language_code", languageCode);
 
   const r = await fetch("https://api.elevenlabs.io/v1/speech-to-text", {
