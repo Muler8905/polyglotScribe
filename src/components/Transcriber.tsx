@@ -88,8 +88,9 @@ function ResultPanes(props: {
           </div>
         </div>
         <div className={s.transcriptText}>
-          {transcript || <span className={s.empty}>Transcript will appear here.</span>}
-          {partial && <span className={s.partial}> {partial}</span>}
+          {!transcript && !partial && <span className={s.empty}>Transcript will appear here.</span>}
+          {transcript}
+          {partial && <span className={s.partial}>{transcript ? " " : ""}{partial}</span>}
         </div>
       </div>
 
@@ -165,13 +166,32 @@ function LivePanel({ onSaved }: Props) {
     modelId: "scribe_v2_realtime",
     commitStrategy: CommitStrategy.VAD,
     languageCode: sourceLang,
-    onPartialTranscript: (d: { text: string }) => setPartial(d?.text ?? ""),
-    onCommittedTranscript: (d: { text: string }) => {
-      const t = (d?.text ?? "").trim();
+    onPartialTranscript: (d: any) => {
+      const t = typeof d === "string" ? d : d?.text ?? d?.transcript ?? "";
+      setPartial(t);
+    },
+    onCommittedTranscript: (d: any) => {
+      const t = (typeof d === "string" ? d : d?.text ?? d?.transcript ?? "").trim();
       if (t) setCommitted((prev) => [...prev, t]);
       setPartial("");
     },
   });
+
+  // Fallback: mirror the hook's own state in case the callbacks above
+  // don't fire (SDK shape differences across versions).
+  const hookPartial = (scribe as any).partialTranscript as string | undefined;
+  const hookCommitted = (scribe as any).committedTranscripts as
+    | Array<{ id?: string; text?: string }>
+    | undefined;
+  useEffect(() => {
+    if (typeof hookPartial === "string") setPartial(hookPartial);
+  }, [hookPartial]);
+  useEffect(() => {
+    if (Array.isArray(hookCommitted) && hookCommitted.length) {
+      const texts = hookCommitted.map((c) => (c?.text ?? "").trim()).filter(Boolean);
+      if (texts.length) setCommitted(texts);
+    }
+  }, [hookCommitted]);
 
   const start = useCallback(async () => {
     setConnecting(true);
@@ -484,13 +504,31 @@ function YouTubePanel({ onSaved }: Props) {
     modelId: "scribe_v2_realtime",
     commitStrategy: CommitStrategy.VAD,
     languageCode: sourceLang,
-    onPartialTranscript: (d: { text: string }) => setPartial(d?.text ?? ""),
-    onCommittedTranscript: (d: { text: string }) => {
-      const t = (d?.text ?? "").trim();
+    onPartialTranscript: (d: any) => {
+      const t = typeof d === "string" ? d : d?.text ?? d?.transcript ?? "";
+      setPartial(t);
+    },
+    onCommittedTranscript: (d: any) => {
+      const t = (typeof d === "string" ? d : d?.text ?? d?.transcript ?? "").trim();
       if (t) setCommitted((prev) => [...prev, t]);
       setPartial("");
     },
   });
+
+  // Fallback: mirror the hook's own state if callback shape differs.
+  const hookPartial = (scribe as any).partialTranscript as string | undefined;
+  const hookCommitted = (scribe as any).committedTranscripts as
+    | Array<{ id?: string; text?: string }>
+    | undefined;
+  useEffect(() => {
+    if (typeof hookPartial === "string") setPartial(hookPartial);
+  }, [hookPartial]);
+  useEffect(() => {
+    if (Array.isArray(hookCommitted) && hookCommitted.length) {
+      const texts = hookCommitted.map((c) => (c?.text ?? "").trim()).filter(Boolean);
+      if (texts.length) setCommitted(texts);
+    }
+  }, [hookCommitted]);
 
   // Auto-translate continuously while listening: re-translate whenever new
   // committed text arrives, debounced to avoid hammering the API.
