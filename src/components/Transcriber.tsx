@@ -88,8 +88,9 @@ function ResultPanes(props: {
           </div>
         </div>
         <div className={s.transcriptText}>
-          {transcript || <span className={s.empty}>Transcript will appear here.</span>}
-          {partial && <span className={s.partial}> {partial}</span>}
+          {!transcript && !partial && <span className={s.empty}>Transcript will appear here.</span>}
+          {transcript}
+          {partial && <span className={s.partial}>{transcript ? " " : ""}{partial}</span>}
         </div>
       </div>
 
