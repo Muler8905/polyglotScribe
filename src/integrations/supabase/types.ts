@@ -68,6 +68,98 @@ export type Database = {
         }
         Relationships: []
       }
+      subscription_payments: {
+        Row: {
+          amount_etb: number
+          chapa_ref: string | null
+          checkout_url: string | null
+          created_at: string
+          credits_awarded: number
+          id: string
+          plan_id: string
+          status: Database["public"]["Enums"]["payment_status"]
+          tx_ref: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount_etb: number
+          chapa_ref?: string | null
+          checkout_url?: string | null
+          created_at?: string
+          credits_awarded?: number
+          id?: string
+          plan_id: string
+          status?: Database["public"]["Enums"]["payment_status"]
+          tx_ref: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount_etb?: number
+          chapa_ref?: string | null
+          checkout_url?: string | null
+          created_at?: string
+          credits_awarded?: number
+          id?: string
+          plan_id?: string
+          status?: Database["public"]["Enums"]["payment_status"]
+          tx_ref?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscription_payments_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "subscription_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      subscription_plans: {
+        Row: {
+          active: boolean
+          created_at: string
+          credits: number
+          description: string | null
+          highlight: boolean
+          id: string
+          name: string
+          price_etb: number
+          slug: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          credits: number
+          description?: string | null
+          highlight?: boolean
+          id?: string
+          name: string
+          price_etb: number
+          slug: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          credits?: number
+          description?: string | null
+          highlight?: boolean
+          id?: string
+          name?: string
+          price_etb?: number
+          slug?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       transcriptions: {
         Row: {
           created_at: string
@@ -185,6 +277,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
+      payment_status: "pending" | "success" | "failed" | "cancelled"
       transcription_type: "live" | "file" | "youtube"
     }
     CompositeTypes: {
@@ -314,6 +407,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
+      payment_status: ["pending", "success", "failed", "cancelled"],
       transcription_type: ["live", "file", "youtube"],
     },
   },
