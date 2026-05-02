@@ -168,6 +168,15 @@ function AdminPage() {
     setHero((arr) => arr.map((x) => (x.id === h.id ? { ...x, active: !x.active } : x)));
   };
 
+  const saveHeroCaption = async (id: string, caption: string) => {
+    const { error } = await supabase
+      .from("hero_images")
+      .update({ caption: caption.trim() || null })
+      .eq("id", id);
+    if (error) return toast.error(error.message);
+    toast.success("Caption saved");
+  };
+
   const deleteHero = async (id: string) => {
     if (!confirm("Delete this hero image?")) return;
     const { error } = await supabase.from("hero_images").delete().eq("id", id);
@@ -299,7 +308,21 @@ function AdminPage() {
               <div key={h.id} className={s.heroCard}>
                 <div className={s.heroThumb} style={{ backgroundImage: `url(${h.image_url})` }} />
                 <div className={s.heroBody}>
-                  <div className={s.heroCaption}>{h.caption || "(no caption)"}</div>
+                  <label className={s.muted} style={{ fontSize: "0.72rem", textTransform: "uppercase", letterSpacing: "0.06em", display: "block", marginBottom: "0.3rem" }}>
+                    Caption
+                  </label>
+                  <textarea
+                    className={s.creditInput}
+                    style={{ width: "100%", minHeight: "60px", marginBottom: "0.6rem", resize: "vertical", fontFamily: "inherit", fontSize: "0.85rem" }}
+                    defaultValue={h.caption ?? ""}
+                    placeholder="Enter slide caption…"
+                    onBlur={(e) => {
+                      if ((e.target.value.trim() || null) !== (h.caption ?? null)) {
+                        saveHeroCaption(h.id, e.target.value);
+                        setHero((arr) => arr.map((x) => x.id === h.id ? { ...x, caption: e.target.value.trim() || null } : x));
+                      }
+                    }}
+                  />
                   <div className={s.heroActions}>
                     <button className={h.active ? s.active : s.suspended} onClick={() => toggleHero(h)}>
                       {h.active ? "Active" : "Hidden"}
