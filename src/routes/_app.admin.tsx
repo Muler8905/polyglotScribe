@@ -168,6 +168,15 @@ function AdminPage() {
     setHero((arr) => arr.map((x) => (x.id === h.id ? { ...x, active: !x.active } : x)));
   };
 
+  const saveHeroCaption = async (id: string, caption: string) => {
+    const { error } = await supabase
+      .from("hero_images")
+      .update({ caption: caption.trim() || null })
+      .eq("id", id);
+    if (error) return toast.error(error.message);
+    toast.success("Caption saved");
+  };
+
   const deleteHero = async (id: string) => {
     if (!confirm("Delete this hero image?")) return;
     const { error } = await supabase.from("hero_images").delete().eq("id", id);

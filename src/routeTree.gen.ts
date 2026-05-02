@@ -15,9 +15,12 @@ import { Route as DocsRouteImport } from './routes/docs'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PaymentSuccessRouteImport } from './routes/payment.success'
 import { Route as ApiTranscribeFileRouteImport } from './routes/api.transcribe-file'
+import { Route as AppPricingRouteImport } from './routes/_app.pricing'
 import { Route as AppDashboardRouteImport } from './routes/_app.dashboard'
 import { Route as AppAdminRouteImport } from './routes/_app.admin'
+import { Route as ApiPublicChapaWebhookRouteImport } from './routes/api.public.chapa-webhook'
 import { Route as AppTranscriptionIdRouteImport } from './routes/_app.transcription.$id'
 
 const SupportRoute = SupportRouteImport.update({
@@ -49,10 +52,20 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PaymentSuccessRoute = PaymentSuccessRouteImport.update({
+  id: '/payment/success',
+  path: '/payment/success',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiTranscribeFileRoute = ApiTranscribeFileRouteImport.update({
   id: '/api/transcribe-file',
   path: '/api/transcribe-file',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AppPricingRoute = AppPricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppDashboardRoute = AppDashboardRouteImport.update({
   id: '/dashboard',
@@ -63,6 +76,11 @@ const AppAdminRoute = AppAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
   getParentRoute: () => AppRoute,
+} as any)
+const ApiPublicChapaWebhookRoute = ApiPublicChapaWebhookRouteImport.update({
+  id: '/api/public/chapa-webhook',
+  path: '/api/public/chapa-webhook',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AppTranscriptionIdRoute = AppTranscriptionIdRouteImport.update({
   id: '/transcription/$id',
@@ -78,8 +96,11 @@ export interface FileRoutesByFullPath {
   '/support': typeof SupportRoute
   '/admin': typeof AppAdminRoute
   '/dashboard': typeof AppDashboardRoute
+  '/pricing': typeof AppPricingRoute
   '/api/transcribe-file': typeof ApiTranscribeFileRoute
+  '/payment/success': typeof PaymentSuccessRoute
   '/transcription/$id': typeof AppTranscriptionIdRoute
+  '/api/public/chapa-webhook': typeof ApiPublicChapaWebhookRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -89,8 +110,11 @@ export interface FileRoutesByTo {
   '/support': typeof SupportRoute
   '/admin': typeof AppAdminRoute
   '/dashboard': typeof AppDashboardRoute
+  '/pricing': typeof AppPricingRoute
   '/api/transcribe-file': typeof ApiTranscribeFileRoute
+  '/payment/success': typeof PaymentSuccessRoute
   '/transcription/$id': typeof AppTranscriptionIdRoute
+  '/api/public/chapa-webhook': typeof ApiPublicChapaWebhookRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -102,8 +126,11 @@ export interface FileRoutesById {
   '/support': typeof SupportRoute
   '/_app/admin': typeof AppAdminRoute
   '/_app/dashboard': typeof AppDashboardRoute
+  '/_app/pricing': typeof AppPricingRoute
   '/api/transcribe-file': typeof ApiTranscribeFileRoute
+  '/payment/success': typeof PaymentSuccessRoute
   '/_app/transcription/$id': typeof AppTranscriptionIdRoute
+  '/api/public/chapa-webhook': typeof ApiPublicChapaWebhookRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -115,8 +142,11 @@ export interface FileRouteTypes {
     | '/support'
     | '/admin'
     | '/dashboard'
+    | '/pricing'
     | '/api/transcribe-file'
+    | '/payment/success'
     | '/transcription/$id'
+    | '/api/public/chapa-webhook'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -126,8 +156,11 @@ export interface FileRouteTypes {
     | '/support'
     | '/admin'
     | '/dashboard'
+    | '/pricing'
     | '/api/transcribe-file'
+    | '/payment/success'
     | '/transcription/$id'
+    | '/api/public/chapa-webhook'
   id:
     | '__root__'
     | '/'
@@ -138,8 +171,11 @@ export interface FileRouteTypes {
     | '/support'
     | '/_app/admin'
     | '/_app/dashboard'
+    | '/_app/pricing'
     | '/api/transcribe-file'
+    | '/payment/success'
     | '/_app/transcription/$id'
+    | '/api/public/chapa-webhook'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -150,6 +186,8 @@ export interface RootRouteChildren {
   PrivacyRoute: typeof PrivacyRoute
   SupportRoute: typeof SupportRoute
   ApiTranscribeFileRoute: typeof ApiTranscribeFileRoute
+  PaymentSuccessRoute: typeof PaymentSuccessRoute
+  ApiPublicChapaWebhookRoute: typeof ApiPublicChapaWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -196,12 +234,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/payment/success': {
+      id: '/payment/success'
+      path: '/payment/success'
+      fullPath: '/payment/success'
+      preLoaderRoute: typeof PaymentSuccessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/transcribe-file': {
       id: '/api/transcribe-file'
       path: '/api/transcribe-file'
       fullPath: '/api/transcribe-file'
       preLoaderRoute: typeof ApiTranscribeFileRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_app/pricing': {
+      id: '/_app/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof AppPricingRouteImport
+      parentRoute: typeof AppRoute
     }
     '/_app/dashboard': {
       id: '/_app/dashboard'
@@ -217,6 +269,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAdminRouteImport
       parentRoute: typeof AppRoute
     }
+    '/api/public/chapa-webhook': {
+      id: '/api/public/chapa-webhook'
+      path: '/api/public/chapa-webhook'
+      fullPath: '/api/public/chapa-webhook'
+      preLoaderRoute: typeof ApiPublicChapaWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_app/transcription/$id': {
       id: '/_app/transcription/$id'
       path: '/transcription/$id'
@@ -230,12 +289,14 @@ declare module '@tanstack/react-router' {
 interface AppRouteChildren {
   AppAdminRoute: typeof AppAdminRoute
   AppDashboardRoute: typeof AppDashboardRoute
+  AppPricingRoute: typeof AppPricingRoute
   AppTranscriptionIdRoute: typeof AppTranscriptionIdRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppAdminRoute: AppAdminRoute,
   AppDashboardRoute: AppDashboardRoute,
+  AppPricingRoute: AppPricingRoute,
   AppTranscriptionIdRoute: AppTranscriptionIdRoute,
 }
 
@@ -249,6 +310,8 @@ const rootRouteChildren: RootRouteChildren = {
   PrivacyRoute: PrivacyRoute,
   SupportRoute: SupportRoute,
   ApiTranscribeFileRoute: ApiTranscribeFileRoute,
+  PaymentSuccessRoute: PaymentSuccessRoute,
+  ApiPublicChapaWebhookRoute: ApiPublicChapaWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
