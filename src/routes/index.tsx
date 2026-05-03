@@ -2,9 +2,11 @@ import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useState } from "react";
 import { motion, type Variants } from "framer-motion";
 import { Menu, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import s from "@/components/Landing.module.css";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { HeroSlideshow } from "@/components/HeroSlideshow";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
 export const Route = createFileRoute("/")({
   beforeLoad: async () => {
@@ -73,6 +75,7 @@ const cases = [
 
 function Landing() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { t } = useTranslation();
 
   return (
     <div className={s.page}>
@@ -82,14 +85,16 @@ function Landing() {
           <span>Polyglot Scribe</span>
         </Link>
         <nav className={s.navLinks}>
-          <a href="#features" className={s.navLink}>Features</a>
-          <a href="#how" className={s.navLink}>How it works</a>
-          <a href="#cases" className={s.navLink}>Use cases</a>
+          <a href="#features" className={s.navLink}>{t("nav.features")}</a>
+          <a href="#how" className={s.navLink}>{t("nav.how")}</a>
+          <a href="#cases" className={s.navLink}>{t("nav.cases")}</a>
           <ThemeToggle />
-          <Link to="/auth" className={`${s.linkBtn} ${s.linkGhost}`}>Sign in</Link>
-          <Link to="/auth" className={`${s.linkBtn} ${s.linkPrimary}`}>Get started</Link>
+          <LanguageSwitcher />
+          <Link to="/auth" className={`${s.linkBtn} ${s.linkGhost}`}>{t("nav.signin")}</Link>
+          <Link to="/auth" className={`${s.linkBtn} ${s.linkPrimary}`}>{t("nav.getStarted")}</Link>
         </nav>
         <div className={s.navMobileTools}>
+          <LanguageSwitcher compact />
           <ThemeToggle />
           <button
             className={s.menuBtn}
