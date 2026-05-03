@@ -2,6 +2,7 @@ import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-ro
 import { useState, type FormEvent } from "react";
 import s from "@/components/Auth.module.css";
 import { useAuth } from "@/lib/auth-context";
+import { lovable } from "@/integrations/lovable";
 
 export const Route = createFileRoute("/auth")({
   beforeLoad: async () => {
