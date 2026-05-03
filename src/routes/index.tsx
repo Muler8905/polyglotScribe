@@ -128,21 +128,17 @@ function Landing() {
         >
           <span className={s.kicker}>
             <span className={s.dot} />
-            Live · Audio File · YouTube · 4 Languages
+            {t("hero.kicker")}
           </span>
           <h1 className={s.title}>
-            Transcribe anything you hear,
+            {t("hero.title1")}
             <br />
-            then <span className={s.gradient}>translate it instantly</span>.
+            {t("hero.title2")} <span className={s.gradient}>{t("hero.title3")}</span>.
           </h1>
-          <p className={s.subtitle}>
-            Real-time microphone transcription, audio-file transcription, and YouTube audio transcription —
-            with side-by-side translation across English, Amharic, Afaan Oromo, and Somali, plus natural
-            text-to-speech playback.
-          </p>
+          <p className={s.subtitle}>{t("hero.subtitle")}</p>
           <div className={s.ctaRow}>
-            <Link to="/auth" className={s.cta}>Start free →</Link>
-            <a href="#features" className={s.ctaSecondary}>See how it works</a>
+            <Link to="/auth" className={s.cta}>{t("hero.ctaPrimary")}</Link>
+            <a href="#features" className={s.ctaSecondary}>{t("hero.ctaSecondary")}</a>
           </div>
           <div className={s.languages}>
             <span className={s.langBadge}>🇬🇧 English</span>
@@ -156,10 +152,8 @@ function Landing() {
 
       {/* FEATURES */}
       <section id="features" className={s.section}>
-        <h2 className={s.sectionTitle}>Three ways to transcribe</h2>
-        <p className={s.sectionSubtitle}>
-          Whether it's a live meeting, an uploaded recording, or a YouTube video — Polyglot Scribe handles it.
-        </p>
+        <h2 className={s.sectionTitle}>{t("sections.featuresTitle")}</h2>
+        <p className={s.sectionSubtitle}>{t("sections.featuresSubtitle")}</p>
         <div className={s.features}>
           {features.map((f, i) => (
             <motion.div
@@ -182,8 +176,8 @@ function Landing() {
 
       {/* HOW IT WORKS */}
       <section id="how" className={s.section} style={{ paddingTop: 0 }}>
-        <h2 className={s.sectionTitle}>How it works</h2>
-        <p className={s.sectionSubtitle}>From sound to translated text in four simple steps.</p>
+        <h2 className={s.sectionTitle}>{t("sections.howTitle")}</h2>
+        <p className={s.sectionSubtitle}>{t("sections.howSubtitle")}</p>
         <div className={s.steps}>
           {steps.map((st, i) => (
             <motion.div
@@ -206,8 +200,8 @@ function Landing() {
 
       {/* USE CASES */}
       <section id="cases" className={s.section} style={{ paddingTop: 0 }}>
-        <h2 className={s.sectionTitle}>Built for everyone</h2>
-        <p className={s.sectionSubtitle}>Scribe works for journalists, students, podcasters, businesses, and beyond.</p>
+        <h2 className={s.sectionTitle}>{t("sections.casesTitle")}</h2>
+        <p className={s.sectionSubtitle}>{t("sections.casesSubtitle")}</p>
         <div className={s.cases}>
           {cases.map((c, i) => (
             <motion.div
@@ -233,11 +227,9 @@ function Landing() {
       {/* CTA */}
       <section className={s.ctaSection}>
         <div className={s.ctaSectionInner}>
-          <h2 className={s.ctaSectionTitle}>Ready to start transcribing?</h2>
-          <p className={s.ctaSectionDesc}>
-            Create your free account and turn voice into text and translation in seconds.
-          </p>
-          <Link to="/auth" className={s.ctaWhite}>Get started — it's free</Link>
+          <h2 className={s.ctaSectionTitle}>{t("sections.ctaTitle")}</h2>
+          <p className={s.ctaSectionDesc}>{t("sections.ctaDesc")}</p>
+          <Link to="/auth" className={s.ctaWhite}>{t("sections.ctaBtn")}</Link>
         </div>
       </section>
 
