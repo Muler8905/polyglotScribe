@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import s from "./Shell.module.css";
 import { useAuth } from "@/lib/auth-context";
 import { listTranscriptions } from "@/server/transcription.functions";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
 interface HistoryItem {
   id: string;
