@@ -17,6 +17,7 @@ import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PaymentSuccessRouteImport } from './routes/payment.success'
 import { Route as ApiTranscribeFileRouteImport } from './routes/api.transcribe-file'
+import { Route as AppSettingsRouteImport } from './routes/_app.settings'
 import { Route as AppPricingRouteImport } from './routes/_app.pricing'
 import { Route as AppDashboardRouteImport } from './routes/_app.dashboard'
 import { Route as AppAdminRouteImport } from './routes/_app.admin'
@@ -62,6 +63,11 @@ const ApiTranscribeFileRoute = ApiTranscribeFileRouteImport.update({
   path: '/api/transcribe-file',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AppSettingsRoute = AppSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppPricingRoute = AppPricingRouteImport.update({
   id: '/pricing',
   path: '/pricing',
@@ -97,6 +103,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AppAdminRoute
   '/dashboard': typeof AppDashboardRoute
   '/pricing': typeof AppPricingRoute
+  '/settings': typeof AppSettingsRoute
   '/api/transcribe-file': typeof ApiTranscribeFileRoute
   '/payment/success': typeof PaymentSuccessRoute
   '/transcription/$id': typeof AppTranscriptionIdRoute
@@ -111,6 +118,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AppAdminRoute
   '/dashboard': typeof AppDashboardRoute
   '/pricing': typeof AppPricingRoute
+  '/settings': typeof AppSettingsRoute
   '/api/transcribe-file': typeof ApiTranscribeFileRoute
   '/payment/success': typeof PaymentSuccessRoute
   '/transcription/$id': typeof AppTranscriptionIdRoute
@@ -127,6 +135,7 @@ export interface FileRoutesById {
   '/_app/admin': typeof AppAdminRoute
   '/_app/dashboard': typeof AppDashboardRoute
   '/_app/pricing': typeof AppPricingRoute
+  '/_app/settings': typeof AppSettingsRoute
   '/api/transcribe-file': typeof ApiTranscribeFileRoute
   '/payment/success': typeof PaymentSuccessRoute
   '/_app/transcription/$id': typeof AppTranscriptionIdRoute
@@ -143,6 +152,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/dashboard'
     | '/pricing'
+    | '/settings'
     | '/api/transcribe-file'
     | '/payment/success'
     | '/transcription/$id'
@@ -157,6 +167,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/dashboard'
     | '/pricing'
+    | '/settings'
     | '/api/transcribe-file'
     | '/payment/success'
     | '/transcription/$id'
@@ -172,6 +183,7 @@ export interface FileRouteTypes {
     | '/_app/admin'
     | '/_app/dashboard'
     | '/_app/pricing'
+    | '/_app/settings'
     | '/api/transcribe-file'
     | '/payment/success'
     | '/_app/transcription/$id'
@@ -248,6 +260,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiTranscribeFileRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_app/settings': {
+      id: '/_app/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AppSettingsRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/pricing': {
       id: '/_app/pricing'
       path: '/pricing'
@@ -290,6 +309,7 @@ interface AppRouteChildren {
   AppAdminRoute: typeof AppAdminRoute
   AppDashboardRoute: typeof AppDashboardRoute
   AppPricingRoute: typeof AppPricingRoute
+  AppSettingsRoute: typeof AppSettingsRoute
   AppTranscriptionIdRoute: typeof AppTranscriptionIdRoute
 }
 
@@ -297,6 +317,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppAdminRoute: AppAdminRoute,
   AppDashboardRoute: AppDashboardRoute,
   AppPricingRoute: AppPricingRoute,
+  AppSettingsRoute: AppSettingsRoute,
   AppTranscriptionIdRoute: AppTranscriptionIdRoute,
 }
 
