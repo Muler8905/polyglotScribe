@@ -67,6 +67,7 @@ export function Shell({
           ))}
         </div>
 
+        <Link to="/settings" className={s.signout} style={{ textDecoration: "none", textAlign: "center" }}>⚙ Settings</Link>
         <button className={s.signout} onClick={handleSignOut}>Sign out</button>
       </aside>
       <main className={s.main}>{children}</main>
