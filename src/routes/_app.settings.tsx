@@ -1,6 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useTranslation, Trans } from "react-i18next";
+import { User, Lock, CreditCard, Settings as SettingsIcon } from "lucide-react";
 import { Shell } from "@/components/Shell";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { toast } from "sonner";
@@ -10,8 +14,12 @@ export const Route = createFileRoute("/_app/settings")({
   component: SettingsPage,
 });
 
+type Tab = "profile" | "account" | "billing" | "preferences";
+
 function SettingsPage() {
   const { user } = useAuth();
+  const { t } = useTranslation();
+  const [tab, setTab] = useState<Tab>("profile");
   const [displayName, setDisplayName] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
   const [credits, setCredits] = useState<number | null>(null);
@@ -54,7 +62,7 @@ function SettingsPage() {
 
   const card: React.CSSProperties = {
     background: "var(--card)", border: "1px solid var(--border)", borderRadius: 14,
-    padding: "1.5rem", marginBottom: "1.25rem",
+    padding: "1.5rem",
   };
   const input: React.CSSProperties = {
     width: "100%", padding: "0.6rem 0.8rem", borderRadius: 9,
@@ -68,61 +76,128 @@ function SettingsPage() {
   };
   const label: React.CSSProperties = { fontSize: "0.82rem", fontWeight: 500, marginBottom: "0.3rem", display: "block" };
 
+  const tabs: { id: Tab; label: string; icon: React.ReactNode }[] = [
+    { id: "profile", label: t("settings.tabProfile"), icon: <User size={16} /> },
+    { id: "account", label: t("settings.tabAccount"), icon: <Lock size={16} /> },
+    { id: "billing", label: t("settings.tabBilling"), icon: <CreditCard size={16} /> },
+    { id: "preferences", label: t("settings.tabPreferences"), icon: <SettingsIcon size={16} /> },
+  ];
+
+  const sectionHeader = (title: string, desc: string) => (
+    <div style={{ marginBottom: "1.25rem" }}>
+      <h2 style={{ fontSize: "1.15rem", fontWeight: 600, margin: 0 }}>{title}</h2>
+      <p style={{ color: "var(--muted-foreground)", fontSize: "0.88rem", margin: "0.25rem 0 0" }}>{desc}</p>
+    </div>
+  );
+
   return (
     <Shell>
-      <h1 style={{ fontSize: "1.75rem", fontWeight: 700, marginBottom: "1.5rem" }}>Settings</h1>
+      <div style={{ maxWidth: 880, margin: "0 auto" }}>
+        <h1 style={{ fontSize: "1.75rem", fontWeight: 700, marginBottom: "1.5rem" }}>{t("settings.title")}</h1>
 
-      <div style={card}>
-        <h2 style={{ fontSize: "1.1rem", fontWeight: 600, marginBottom: "1rem" }}>Profile</h2>
-        <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "1rem" }}>
-          {avatarUrl ? (
-            <img src={avatarUrl} alt="" style={{ width: 64, height: 64, borderRadius: "50%", objectFit: "cover" }} />
-          ) : (
-            <div style={{ width: 64, height: 64, borderRadius: "50%", background: "var(--gradient-primary)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--primary-foreground)", fontWeight: 700, fontSize: "1.5rem" }}>
-              {(displayName || user?.email || "?").charAt(0).toUpperCase()}
-            </div>
-          )}
+        <div style={{ display: "grid", gridTemplateColumns: "220px 1fr", gap: "1.5rem", alignItems: "start" }}>
+          <nav style={{ display: "flex", flexDirection: "column", gap: 4, position: "sticky", top: 16 }}>
+            {tabs.map((tb) => (
+              <button
+                key={tb.id}
+                onClick={() => setTab(tb.id)}
+                style={{
+                  display: "flex", alignItems: "center", gap: "0.6rem",
+                  padding: "0.65rem 0.85rem", borderRadius: 9, border: "none",
+                  background: tab === tb.id ? "var(--muted)" : "transparent",
+                  color: "var(--foreground)", fontSize: "0.92rem",
+                  fontWeight: tab === tb.id ? 600 : 500, cursor: "pointer",
+                  textAlign: "left",
+                }}
+              >
+                {tb.icon} {tb.label}
+              </button>
+            ))}
+          </nav>
+
           <div>
-            <div style={{ fontWeight: 600 }}>{displayName || "Unnamed"}</div>
-            <div style={{ color: "var(--muted-foreground)", fontSize: "0.85rem" }}>{user?.email}</div>
+            {tab === "profile" && (
+              <div style={card}>
+                {sectionHeader(t("settings.profileHeading"), t("settings.profileDesc"))}
+                <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "1.25rem" }}>
+                  {avatarUrl ? (
+                    <img src={avatarUrl} alt="" style={{ width: 72, height: 72, borderRadius: "50%", objectFit: "cover" }} />
+                  ) : (
+                    <div style={{ width: 72, height: 72, borderRadius: "50%", background: "var(--gradient-primary)", display: "flex", alignItems: "center", justifyContent: "center", color: "var(--primary-foreground)", fontWeight: 700, fontSize: "1.6rem" }}>
+                      {(displayName || user?.email || "?").charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                  <div>
+                    <div style={{ fontWeight: 600, fontSize: "1rem" }}>{displayName || "Unnamed"}</div>
+                    <div style={{ color: "var(--muted-foreground)", fontSize: "0.85rem" }}>{user?.email}</div>
+                  </div>
+                </div>
+                <div style={{ marginBottom: "0.85rem" }}>
+                  <label style={label}>{t("settings.displayName")}</label>
+                  <input style={input} value={displayName} onChange={(e) => setDisplayName(e.target.value)} />
+                </div>
+                <div style={{ marginBottom: "1.25rem" }}>
+                  <label style={label}>{t("settings.avatarUrl")}</label>
+                  <input style={input} value={avatarUrl} onChange={(e) => setAvatarUrl(e.target.value)} placeholder="https://…" />
+                </div>
+                <button style={btn} onClick={saveProfile} disabled={savingProfile}>
+                  {savingProfile ? t("settings.saving") : t("settings.saveProfile")}
+                </button>
+              </div>
+            )}
+
+            {tab === "account" && (
+              <div style={card}>
+                {sectionHeader(t("settings.accountHeading"), t("settings.accountDesc"))}
+                <div style={{ marginBottom: "0.85rem" }}>
+                  <label style={label}>{t("settings.newPassword")}</label>
+                  <input style={input} type="password" value={pwd} onChange={(e) => setPwd(e.target.value)} />
+                </div>
+                <div style={{ marginBottom: "1.25rem" }}>
+                  <label style={label}>{t("settings.confirmPassword")}</label>
+                  <input style={input} type="password" value={pwd2} onChange={(e) => setPwd2(e.target.value)} />
+                </div>
+                <button style={btn} onClick={changePassword} disabled={savingPwd}>
+                  {savingPwd ? t("settings.updating") : t("settings.updatePassword")}
+                </button>
+              </div>
+            )}
+
+            {tab === "billing" && (
+              <div style={card}>
+                {sectionHeader(t("settings.creditsHeading"), "")}
+                <p style={{ color: "var(--muted-foreground)", fontSize: "0.95rem", marginBottom: "1.25rem" }}>
+                  <Trans
+                    i18nKey="settings.creditsDesc"
+                    values={{ credits: credits ?? "…" }}
+                    components={[<strong style={{ color: "var(--foreground)" }} />]}
+                  />
+                </p>
+                <Link to="/pricing" style={{ ...btn, display: "inline-block", textDecoration: "none" }}>
+                  {t("settings.viewPlans")}
+                </Link>
+              </div>
+            )}
+
+            {tab === "preferences" && (
+              <div style={card}>
+                {sectionHeader(t("settings.prefsHeading"), t("settings.prefsDesc"))}
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0.85rem 0", borderBottom: "1px solid var(--border)" }}>
+                  <div>
+                    <div style={{ fontWeight: 500 }}>{t("settings.language")}</div>
+                  </div>
+                  <LanguageSwitcher />
+                </div>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "0.85rem 0" }}>
+                  <div>
+                    <div style={{ fontWeight: 500 }}>{t("settings.theme")}</div>
+                  </div>
+                  <ThemeToggle />
+                </div>
+              </div>
+            )}
           </div>
         </div>
-        <div style={{ marginBottom: "0.85rem" }}>
-          <label style={label}>Display name</label>
-          <input style={input} value={displayName} onChange={(e) => setDisplayName(e.target.value)} />
-        </div>
-        <div style={{ marginBottom: "1rem" }}>
-          <label style={label}>Avatar URL (optional)</label>
-          <input style={input} value={avatarUrl} onChange={(e) => setAvatarUrl(e.target.value)} placeholder="https://…" />
-        </div>
-        <button style={btn} onClick={saveProfile} disabled={savingProfile}>
-          {savingProfile ? "Saving…" : "Save profile"}
-        </button>
-      </div>
-
-      <div style={card}>
-        <h2 style={{ fontSize: "1.1rem", fontWeight: 600, marginBottom: "0.5rem" }}>Credits</h2>
-        <p style={{ color: "var(--muted-foreground)", fontSize: "0.9rem", marginBottom: "1rem" }}>
-          You have <strong style={{ color: "var(--foreground)" }}>{credits ?? "…"}</strong> credits remaining.
-          New accounts start with 60 free credits. Each transcription minute, translation, or TTS request uses credits.
-          Top up anytime from the Pricing page.
-        </p>
-        <Link to="/pricing" style={{ ...btn, display: "inline-block", textDecoration: "none" }}>View plans</Link>
-      </div>
-
-      <div style={card}>
-        <h2 style={{ fontSize: "1.1rem", fontWeight: 600, marginBottom: "1rem" }}>Change password</h2>
-        <div style={{ marginBottom: "0.85rem" }}>
-          <label style={label}>New password</label>
-          <input style={input} type="password" value={pwd} onChange={(e) => setPwd(e.target.value)} />
-        </div>
-        <div style={{ marginBottom: "1rem" }}>
-          <label style={label}>Confirm new password</label>
-          <input style={input} type="password" value={pwd2} onChange={(e) => setPwd2(e.target.value)} />
-        </div>
-        <button style={btn} onClick={changePassword} disabled={savingPwd}>
-          {savingPwd ? "Updating…" : "Update password"}
-        </button>
       </div>
     </Shell>
   );

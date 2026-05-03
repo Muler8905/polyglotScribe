@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import s from "./Shell.module.css";
 import { useAuth } from "@/lib/auth-context";
 import { listTranscriptions } from "@/server/transcription.functions";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
 interface HistoryItem {
   id: string;
@@ -47,6 +48,7 @@ export function Shell({
           <div>Polyglot Scribe</div>
         </Link>
         <div className={s.user}>{user?.email}</div>
+        <div style={{ padding: "0.5rem 0" }}><LanguageSwitcher compact /></div>
 
         <div className={s.historyTitle}>History</div>
         <div className={s.historyList}>
