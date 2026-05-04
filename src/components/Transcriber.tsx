@@ -279,12 +279,12 @@ function LivePanel({ onSaved }: Props) {
   return (
     <div className={s.card}>
       <div className={s.cardHeader}>
-        <div className={s.cardTitle}>Live Transcription</div>
-        <div className={s.cardSubtitle}>Speak into your microphone — words appear in real time.</div>
+        <div className={s.cardTitle}>{t("transcriber.liveTitle")}</div>
+        <div className={s.cardSubtitle}>{t("transcriber.liveDesc")}</div>
       </div>
       <div className={s.row}>
         <div className={s.field}>
-          <label className={s.label}>Spoken language</label>
+          <label className={s.label}>{t("transcriber.spokenLang")}</label>
           <select className={s.select} value={sourceLang} onChange={(e) => setSourceLang(e.target.value)}>
             {LANGUAGES.map((l) => (
               <option key={l.code} value={l.code}>{l.label}</option>
@@ -292,7 +292,7 @@ function LivePanel({ onSaved }: Props) {
           </select>
         </div>
         <div className={s.field}>
-          <label className={s.label}>Translate to</label>
+          <label className={s.label}>{t("transcriber.translateTo")}</label>
           <select className={s.select} value={targetLang} onChange={(e) => setTargetLang(e.target.value)}>
             {LANGUAGES.map((l) => (
               <option key={l.code} value={l.code}>{l.label}</option>
@@ -303,19 +303,19 @@ function LivePanel({ onSaved }: Props) {
       <div className={s.actions}>
         {!scribe.isConnected ? (
           <button className={`${s.btn} ${s.btnPrimary}`} onClick={start} disabled={connecting}>
-            {connecting ? "Connecting…" : "🎙️ Start recording"}
+            {connecting ? t("transcriber.connecting") : t("transcriber.start")}
           </button>
         ) : (
           <button className={`${s.btn} ${s.btnDanger}`} onClick={stop}>
-            ⏹ Stop
+            {t("transcriber.stop")}
           </button>
         )}
-        <button className={s.btn} onClick={clear} disabled={!transcript && !partial}>Clear</button>
+        <button className={s.btn} onClick={clear} disabled={!transcript && !partial}>{t("transcriber.clear")}</button>
         <button className={s.btn} onClick={save} disabled={!transcript || saving}>
-          {saving ? "Saving…" : "💾 Save"}
+          {saving ? t("transcriber.saving") : t("transcriber.save")}
         </button>
         {scribe.isConnected && (
-          <span className={s.statusLine}><span className={s.recordDot} />Listening…</span>
+          <span className={s.statusLine}><span className={s.recordDot} />{t("transcriber.listening")}</span>
         )}
       </div>
 
