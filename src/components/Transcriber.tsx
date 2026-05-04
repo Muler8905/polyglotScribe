@@ -339,6 +339,7 @@ function LivePanel({ onSaved }: Props) {
 /* ------------------------------------------------------------------ */
 
 function FilePanel({ onSaved }: Props) {
+  const { t } = useTranslation();
   const [file, setFile] = useState<File | null>(null);
   const [sourceLang, setSourceLang] = useState("eng");
   const [targetLang, setTargetLang] = useState("amh");
@@ -408,8 +409,8 @@ function FilePanel({ onSaved }: Props) {
   return (
     <div className={s.card}>
       <div className={s.cardHeader}>
-        <div className={s.cardTitle}>Transcribe Audio File</div>
-        <div className={s.cardSubtitle}>Upload an MP3, WAV, M4A, or video file.</div>
+        <div className={s.cardTitle}>{t("transcriber.fileTitle")}</div>
+        <div className={s.cardSubtitle}>{t("transcriber.fileDesc")}</div>
       </div>
 
       <div
@@ -423,7 +424,7 @@ function FilePanel({ onSaved }: Props) {
           onFile(e.dataTransfer.files?.[0] ?? null);
         }}
       >
-        <div>📤 Drop file or click to browse</div>
+        <div>{t("transcriber.drop")}</div>
         {file && <div className={s.fileName}>{file.name} ({(file.size / 1024 / 1024).toFixed(1)} MB)</div>}
         <input
           ref={fileInput}
@@ -436,13 +437,13 @@ function FilePanel({ onSaved }: Props) {
 
       <div className={s.row} style={{ marginTop: "1rem" }}>
         <div className={s.field}>
-          <label className={s.label}>Audio language</label>
+          <label className={s.label}>{t("transcriber.audioLang")}</label>
           <select className={s.select} value={sourceLang} onChange={(e) => setSourceLang(e.target.value)}>
             {LANGUAGES.map((l) => (<option key={l.code} value={l.code}>{l.label}</option>))}
           </select>
         </div>
         <div className={s.field}>
-          <label className={s.label}>Translate to</label>
+          <label className={s.label}>{t("transcriber.translateTo")}</label>
           <select className={s.select} value={targetLang} onChange={(e) => setTargetLang(e.target.value)}>
             {LANGUAGES.map((l) => (<option key={l.code} value={l.code}>{l.label}</option>))}
           </select>
@@ -451,7 +452,7 @@ function FilePanel({ onSaved }: Props) {
 
       <div className={s.actions}>
         <button className={`${s.btn} ${s.btnPrimary}`} onClick={transcribe} disabled={!file || busy}>
-          {busy ? "Transcribing…" : "Transcribe"}
+          {busy ? t("transcriber.transcribing") : t("transcriber.transcribe")}
         </button>
       </div>
 
@@ -487,6 +488,7 @@ function extractYouTubeId(url: string): string | null {
 }
 
 function YouTubePanel({ onSaved }: Props) {
+  const { t } = useTranslation();
   const [url, setUrl] = useState("");
   const [videoId, setVideoId] = useState<string | null>(null);
   const [sourceLang, setSourceLang] = useState("eng");
