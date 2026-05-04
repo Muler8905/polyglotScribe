@@ -150,6 +150,7 @@ function useTTS() {
 /* ------------------------------------------------------------------ */
 
 function LivePanel({ onSaved }: Props) {
+  const { t } = useTranslation();
   const [sourceLang, setSourceLang] = useState("eng");
   const [targetLang, setTargetLang] = useState("amh");
   const [committed, setCommitted] = useState<string[]>([]);
