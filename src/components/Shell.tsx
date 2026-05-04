@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, type ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 import { useServerFn } from "@tanstack/react-start";
 import s from "./Shell.module.css";
 import { useAuth } from "@/lib/auth-context";
@@ -25,6 +26,7 @@ export function Shell({
   refreshKey?: number;
 }) {
   const { user, signOut } = useAuth();
+  const { t } = useTranslation();
   const nav = useNavigate();
   const [items, setItems] = useState<HistoryItem[]>([]);
   const list = useServerFn(listTranscriptions);
@@ -50,9 +52,9 @@ export function Shell({
         <div className={s.user}>{user?.email}</div>
         <div style={{ padding: "0.5rem 0" }}><LanguageSwitcher compact /></div>
 
-        <div className={s.historyTitle}>History</div>
+        <div className={s.historyTitle}>{t("shell.history")}</div>
         <div className={s.historyList}>
-          {items.length === 0 && <div className={s.user}>No transcriptions yet.</div>}
+          {items.length === 0 && <div className={s.user}>{t("shell.noHistory")}</div>}
           {items.map((it) => (
             <Link
               key={it.id}
@@ -69,8 +71,8 @@ export function Shell({
           ))}
         </div>
 
-        <Link to="/settings" className={s.signout} style={{ textDecoration: "none", textAlign: "center" }}>⚙ Settings</Link>
-        <button className={s.signout} onClick={handleSignOut}>Sign out</button>
+        <Link to="/settings" className={s.signout} style={{ textDecoration: "none", textAlign: "center" }}>{t("shell.settings")}</Link>
+        <button className={s.signout} onClick={handleSignOut}>{t("shell.signout")}</button>
       </aside>
       <main className={s.main}>{children}</main>
     </div>

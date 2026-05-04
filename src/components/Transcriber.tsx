@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useScribe, CommitStrategy } from "@elevenlabs/react";
 import { toast } from "sonner";
 import s from "./Transcriber.module.css";
@@ -22,18 +23,19 @@ interface Props {
 
 export function Transcriber({ onSaved }: Props) {
   const [tab, setTab] = useState<Tab>("live");
+  const { t } = useTranslation();
 
   return (
     <div>
       <div className={s.tabs}>
         <button className={`${s.tab} ${tab === "live" ? s.active : ""}`} onClick={() => setTab("live")}>
-          🎙️ Live
+          {t("transcriber.tabLive")}
         </button>
         <button className={`${s.tab} ${tab === "file" ? s.active : ""}`} onClick={() => setTab("file")}>
-          📁 Audio File
+          {t("transcriber.tabFile")}
         </button>
         <button className={`${s.tab} ${tab === "youtube" ? s.active : ""}`} onClick={() => setTab("youtube")}>
-          ▶️ YouTube
+          {t("transcriber.tabYouTube")}
         </button>
       </div>
 
@@ -60,12 +62,13 @@ function ResultPanes(props: {
   onSpeak: (which: "src" | "tgt") => void;
 }) {
   const { transcript, partial, translation, sourceLang, targetLang, onTranslate, translating, speaking, onSpeak } = props;
+  const { t } = useTranslation();
 
-  const copy = (t: string) => {
-    navigator.clipboard.writeText(t).then(() => toast.success("Copied"));
+  const copy = (txt: string) => {
+    navigator.clipboard.writeText(txt).then(() => toast.success(t("transcriber.copied")));
   };
-  const download = (t: string, name: string) => {
-    const blob = new Blob([t], { type: "text/plain" });
+  const download = (txt: string, name: string) => {
+    const blob = new Blob([txt], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -78,17 +81,17 @@ function ResultPanes(props: {
     <div className={s.transcriptGrid}>
       <div className={s.pane}>
         <div className={s.paneHeader}>
-          <div className={s.paneTitle}>Transcript ({labelOf(sourceLang)})</div>
+          <div className={s.paneTitle}>{t("transcriber.transcript")} ({labelOf(sourceLang)})</div>
           <div className={s.paneActions}>
-            <button className={s.iconBtn} onClick={() => copy(transcript)} disabled={!transcript}>Copy</button>
-            <button className={s.iconBtn} onClick={() => download(transcript, "transcript.txt")} disabled={!transcript}>Download</button>
+            <button className={s.iconBtn} onClick={() => copy(transcript)} disabled={!transcript}>{t("transcriber.copy")}</button>
+            <button className={s.iconBtn} onClick={() => download(transcript, "transcript.txt")} disabled={!transcript}>{t("transcriber.download")}</button>
             <button className={s.iconBtn} onClick={() => onSpeak("src")} disabled={!transcript || speaking === "src"}>
-              {speaking === "src" ? "Playing…" : "🔊 Play"}
+              {speaking === "src" ? t("transcriber.playing") : t("transcriber.play")}
             </button>
           </div>
         </div>
         <div className={s.transcriptText}>
-          {!transcript && !partial && <span className={s.empty}>Transcript will appear here.</span>}
+          {!transcript && !partial && <span className={s.empty}>{t("transcriber.transcriptEmpty")}</span>}
           {transcript}
           {partial && <span className={s.partial}>{transcript ? " " : ""}{partial}</span>}
         </div>
@@ -96,19 +99,19 @@ function ResultPanes(props: {
 
       <div className={s.pane}>
         <div className={s.paneHeader}>
-          <div className={s.paneTitle}>Translation ({labelOf(targetLang)})</div>
+          <div className={s.paneTitle}>{t("transcriber.translation")} ({labelOf(targetLang)})</div>
           <div className={s.paneActions}>
             <button className={s.iconBtn} onClick={onTranslate} disabled={translating || !transcript}>
-              {translating ? "Translating…" : "Translate"}
+              {translating ? t("transcriber.translating") : t("transcriber.translate")}
             </button>
-            <button className={s.iconBtn} onClick={() => copy(translation)} disabled={!translation}>Copy</button>
+            <button className={s.iconBtn} onClick={() => copy(translation)} disabled={!translation}>{t("transcriber.copy")}</button>
             <button className={s.iconBtn} onClick={() => onSpeak("tgt")} disabled={!translation || speaking === "tgt"}>
-              {speaking === "tgt" ? "Playing…" : "🔊 Play"}
+              {speaking === "tgt" ? t("transcriber.playing") : t("transcriber.play")}
             </button>
           </div>
         </div>
         <div className={s.transcriptText}>
-          {translation || <span className={s.empty}>Click Translate to see the translation.</span>}
+          {translation || <span className={s.empty}>{t("transcriber.translationEmpty")}</span>}
         </div>
       </div>
     </div>
@@ -147,6 +150,7 @@ function useTTS() {
 /* ------------------------------------------------------------------ */
 
 function LivePanel({ onSaved }: Props) {
+  const { t } = useTranslation();
   const [sourceLang, setSourceLang] = useState("eng");
   const [targetLang, setTargetLang] = useState("amh");
   const [committed, setCommitted] = useState<string[]>([]);
@@ -275,12 +279,12 @@ function LivePanel({ onSaved }: Props) {
   return (
     <div className={s.card}>
       <div className={s.cardHeader}>
-        <div className={s.cardTitle}>Live Transcription</div>
-        <div className={s.cardSubtitle}>Speak into your microphone — words appear in real time.</div>
+        <div className={s.cardTitle}>{t("transcriber.liveTitle")}</div>
+        <div className={s.cardSubtitle}>{t("transcriber.liveDesc")}</div>
       </div>
       <div className={s.row}>
         <div className={s.field}>
-          <label className={s.label}>Spoken language</label>
+          <label className={s.label}>{t("transcriber.spokenLang")}</label>
           <select className={s.select} value={sourceLang} onChange={(e) => setSourceLang(e.target.value)}>
             {LANGUAGES.map((l) => (
               <option key={l.code} value={l.code}>{l.label}</option>
@@ -288,7 +292,7 @@ function LivePanel({ onSaved }: Props) {
           </select>
         </div>
         <div className={s.field}>
-          <label className={s.label}>Translate to</label>
+          <label className={s.label}>{t("transcriber.translateTo")}</label>
           <select className={s.select} value={targetLang} onChange={(e) => setTargetLang(e.target.value)}>
             {LANGUAGES.map((l) => (
               <option key={l.code} value={l.code}>{l.label}</option>
@@ -299,19 +303,19 @@ function LivePanel({ onSaved }: Props) {
       <div className={s.actions}>
         {!scribe.isConnected ? (
           <button className={`${s.btn} ${s.btnPrimary}`} onClick={start} disabled={connecting}>
-            {connecting ? "Connecting…" : "🎙️ Start recording"}
+            {connecting ? t("transcriber.connecting") : t("transcriber.start")}
           </button>
         ) : (
           <button className={`${s.btn} ${s.btnDanger}`} onClick={stop}>
-            ⏹ Stop
+            {t("transcriber.stop")}
           </button>
         )}
-        <button className={s.btn} onClick={clear} disabled={!transcript && !partial}>Clear</button>
+        <button className={s.btn} onClick={clear} disabled={!transcript && !partial}>{t("transcriber.clear")}</button>
         <button className={s.btn} onClick={save} disabled={!transcript || saving}>
-          {saving ? "Saving…" : "💾 Save"}
+          {saving ? t("transcriber.saving") : t("transcriber.save")}
         </button>
         {scribe.isConnected && (
-          <span className={s.statusLine}><span className={s.recordDot} />Listening…</span>
+          <span className={s.statusLine}><span className={s.recordDot} />{t("transcriber.listening")}</span>
         )}
       </div>
 
@@ -335,6 +339,7 @@ function LivePanel({ onSaved }: Props) {
 /* ------------------------------------------------------------------ */
 
 function FilePanel({ onSaved }: Props) {
+  const { t } = useTranslation();
   const [file, setFile] = useState<File | null>(null);
   const [sourceLang, setSourceLang] = useState("eng");
   const [targetLang, setTargetLang] = useState("amh");
@@ -404,8 +409,8 @@ function FilePanel({ onSaved }: Props) {
   return (
     <div className={s.card}>
       <div className={s.cardHeader}>
-        <div className={s.cardTitle}>Transcribe Audio File</div>
-        <div className={s.cardSubtitle}>Upload an MP3, WAV, M4A, or video file.</div>
+        <div className={s.cardTitle}>{t("transcriber.fileTitle")}</div>
+        <div className={s.cardSubtitle}>{t("transcriber.fileDesc")}</div>
       </div>
 
       <div
@@ -419,7 +424,7 @@ function FilePanel({ onSaved }: Props) {
           onFile(e.dataTransfer.files?.[0] ?? null);
         }}
       >
-        <div>📤 Drop file or click to browse</div>
+        <div>{t("transcriber.drop")}</div>
         {file && <div className={s.fileName}>{file.name} ({(file.size / 1024 / 1024).toFixed(1)} MB)</div>}
         <input
           ref={fileInput}
@@ -432,13 +437,13 @@ function FilePanel({ onSaved }: Props) {
 
       <div className={s.row} style={{ marginTop: "1rem" }}>
         <div className={s.field}>
-          <label className={s.label}>Audio language</label>
+          <label className={s.label}>{t("transcriber.audioLang")}</label>
           <select className={s.select} value={sourceLang} onChange={(e) => setSourceLang(e.target.value)}>
             {LANGUAGES.map((l) => (<option key={l.code} value={l.code}>{l.label}</option>))}
           </select>
         </div>
         <div className={s.field}>
-          <label className={s.label}>Translate to</label>
+          <label className={s.label}>{t("transcriber.translateTo")}</label>
           <select className={s.select} value={targetLang} onChange={(e) => setTargetLang(e.target.value)}>
             {LANGUAGES.map((l) => (<option key={l.code} value={l.code}>{l.label}</option>))}
           </select>
@@ -447,7 +452,7 @@ function FilePanel({ onSaved }: Props) {
 
       <div className={s.actions}>
         <button className={`${s.btn} ${s.btnPrimary}`} onClick={transcribe} disabled={!file || busy}>
-          {busy ? "Transcribing…" : "Transcribe"}
+          {busy ? t("transcriber.transcribing") : t("transcriber.transcribe")}
         </button>
       </div>
 
@@ -483,6 +488,7 @@ function extractYouTubeId(url: string): string | null {
 }
 
 function YouTubePanel({ onSaved }: Props) {
+  const { t } = useTranslation();
   const [url, setUrl] = useState("");
   const [videoId, setVideoId] = useState<string | null>(null);
   const [sourceLang, setSourceLang] = useState("eng");

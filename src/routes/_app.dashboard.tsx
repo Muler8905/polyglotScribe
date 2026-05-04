@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Shield, Sparkles, Coins, Lock } from "lucide-react";
 import { Shell } from "@/components/Shell";
 import { Transcriber } from "@/components/Transcriber";
@@ -14,6 +15,7 @@ export const Route = createFileRoute("/_app/dashboard")({
 });
 
 function Dashboard() {
+  const { t } = useTranslation();
   const [refreshKey, setRefreshKey] = useState(0);
   const { user } = useAuth();
   const { isAdmin } = useIsAdmin();
@@ -24,7 +26,7 @@ function Dashboard() {
     user?.email?.split("@")[0] ||
     "there";
   const hour = new Date().getHours();
-  const greeting = hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+  const greeting = hour < 12 ? t("dashboard.morning") : hour < 18 ? t("dashboard.afternoon") : t("dashboard.evening");
 
   useEffect(() => {
     if (!user) return;
@@ -43,41 +45,39 @@ function Dashboard() {
     <Shell refreshKey={refreshKey}>
       <header className={s.hero}>
         <div className={s.heroText}>
-          <div className={s.eyebrow}>Dashboard</div>
+          <div className={s.eyebrow}>{t("dashboard.title")}</div>
           <h1 className={s.title}>
             {greeting}, <span className={s.name}>{displayName}</span> 👋
           </h1>
-          <p className={s.subtitle}>
-            Transcribe and translate speech across English, Amharic, Afaan Oromo, and Somali.
-          </p>
+          <p className={s.subtitle}>{t("dashboard.subtitle")}</p>
           <div style={{ display: "flex", gap: "0.6rem", flexWrap: "wrap", marginTop: "0.85rem" }}>
             <Link to="/pricing" className={s.adminLink}>
-              <Sparkles size={14} /> Upgrade plan
+              <Sparkles size={14} /> {t("dashboard.upgrade")}
             </Link>
             {credits !== null && (
               <span className={s.adminLink} style={{ background: lowCredits || outOfCredits ? "color-mix(in oklab, oklch(0.7 0.18 25) 30%, transparent)" : undefined }}>
-                <Coins size={14} /> {credits} credits
+                <Coins size={14} /> {t("dashboard.credits", { count: credits })}
               </span>
             )}
             {isAdmin && (
               <Link to="/admin" className={s.adminLink}>
-                <Shield size={14} /> Admin Console
+                <Shield size={14} /> {t("dashboard.adminConsole")}
               </Link>
             )}
           </div>
         </div>
         <div className={s.statRow}>
           <div className={s.stat}>
-            <div className={s.statLabel}>Languages</div>
+            <div className={s.statLabel}>{t("dashboard.languages")}</div>
             <div className={s.statValue}>4</div>
           </div>
           <div className={s.stat}>
-            <div className={s.statLabel}>Modes</div>
-            <div className={s.statValue}>Live · File · YouTube</div>
+            <div className={s.statLabel}>{t("dashboard.modes")}</div>
+            <div className={s.statValue}>{t("dashboard.modesValue")}</div>
           </div>
           <div className={s.stat}>
-            <div className={s.statLabel}>Engine</div>
-            <div className={s.statValue}>Scribe v2 Realtime</div>
+            <div className={s.statLabel}>{t("dashboard.engine")}</div>
+            <div className={s.statValue}>{t("dashboard.engineValue")}</div>
           </div>
         </div>
       </header>
@@ -97,9 +97,9 @@ function Dashboard() {
           }}
         >
           <Lock size={48} style={{ color: "var(--primary)" }} />
-          <h2 style={{ margin: 0 }}>You're out of credits</h2>
+          <h2 style={{ margin: 0 }}>{t("dashboard.outOfCredits")}</h2>
           <p style={{ margin: 0, color: "var(--muted-foreground)", maxWidth: "44ch" }}>
-            Upgrade to a paid plan to keep transcribing and translating. Plans start at 500 ETB.
+            {t("dashboard.outOfCreditsDesc")}
           </p>
           <Link
             to="/pricing"
@@ -116,7 +116,7 @@ function Dashboard() {
               fontSize: "0.95rem",
             }}
           >
-            <Sparkles size={16} /> View plans
+            <Sparkles size={16} /> {t("settings.viewPlans")}
           </Link>
         </div>
       ) : (
