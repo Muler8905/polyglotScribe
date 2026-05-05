@@ -7,7 +7,14 @@ import { supabaseAdmin } from "@/integrations/supabase/client.server";
 // Returns { checkout_url, tx_ref } the client should redirect to.
 export const initiateChapaPayment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input) => z.object({ planSlug: z.string().min(1).max(64) }).parse(input))
+  .inputValidator((input) =>
+    z
+      .object({
+        planSlug: z.string().min(1).max(64),
+        paymentMethod: z.enum(["chapa", "ebirr"]).optional().default("chapa"),
+      })
+      .parse(input),
+  )
   .handler(async ({ data, context }) => {
     const { userId, supabase } = context;
     const CHAPA_SECRET = process.env.CHAPA_SECRET_KEY;
@@ -72,6 +79,7 @@ export const initiateChapaPayment = createServerFn({ method: "POST" })
         tx_ref,
         callback_url,
         return_url,
+        ...(data.paymentMethod === "ebirr" ? { payment_method: "ebirr" } : {}),
         customization: {
           title: `${plan.name} plan`.slice(0, 16),
           description: `${plan.credits} credits`.slice(0, 50),

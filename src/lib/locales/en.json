@@ -233,7 +233,10 @@
       "highest": "Highest priority processing",
       "bulk": "Bulk file uploads",
       "dedicated": "Dedicated support"
-    }
+    },
+    "methodLabel": "Payment method",
+    "methodChapa": "Chapa (Cards & Bank)",
+    "methodEbirr": "e-Birr (Telebirr)"
   },
   "payment": {
     "checking": "Confirming your payment…",

@@ -1,7 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowLeft, Check, Sparkles, Coins } from "lucide-react";
+import { ArrowLeft, Check, Sparkles, Coins, Smartphone } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
@@ -36,10 +37,12 @@ interface PaymentRow {
 
 function PricingPage() {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const [plans, setPlans] = useState<Plan[]>([]);
   const [credits, setCredits] = useState<number | null>(null);
   const [history, setHistory] = useState<PaymentRow[]>([]);
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+  const [method, setMethod] = useState<"chapa" | "ebirr">("chapa");
   const initiate = useServerFn(initiateChapaPayment);
 
   useEffect(() => {
@@ -69,12 +72,12 @@ function PricingPage() {
 
   const buy = async (slug: string) => {
     if (!user) {
-      toast.error("Please sign in first");
+      toast.error(t("pricing.signinFirst"));
       return;
     }
     setLoadingPlan(slug);
     try {
-      const res = await initiate({ data: { planSlug: slug } });
+      const res = await initiate({ data: { planSlug: slug, paymentMethod: method } });
       window.location.href = res.checkout_url;
     } catch (e) {
       toast.error((e as Error).message);
@@ -85,25 +88,25 @@ function PricingPage() {
   const featuresFor = (p: Plan): string[] => {
     if (p.slug === "starter")
       return [
-        `${p.credits} credits`,
-        "Live, File & YouTube transcription",
-        "All 4 languages",
-        "Email support",
+        t("pricing.feat.credits", { count: p.credits }),
+        t("pricing.feat.all3"),
+        t("pricing.feat.all4"),
+        t("pricing.feat.email"),
       ];
     if (p.slug === "pro")
       return [
-        `${p.credits} credits`,
-        "Everything in Starter",
-        "Priority transcription queue",
-        "Speaker diarization",
-        "Priority support",
+        t("pricing.feat.credits", { count: p.credits }),
+        t("pricing.feat.everyStarter"),
+        t("pricing.feat.priority"),
+        t("pricing.feat.diariz"),
+        t("pricing.feat.prioritySupport"),
       ];
     return [
-      `${p.credits} credits`,
-      "Everything in Pro",
-      "Highest priority processing",
-      "Bulk file uploads",
-      "Dedicated support",
+      t("pricing.feat.credits", { count: p.credits }),
+      t("pricing.feat.everyPro"),
+      t("pricing.feat.highest"),
+      t("pricing.feat.bulk"),
+      t("pricing.feat.dedicated"),
     ];
   };
 
@@ -113,27 +116,68 @@ function PricingPage() {
     <div className={s.page}>
       <div className={s.topbar}>
         <Link to="/dashboard" className={s.back}>
-          <ArrowLeft size={16} /> Dashboard
+          <ArrowLeft size={16} /> {t("pricing.back")}
         </Link>
         {credits !== null && (
           <span className={`${s.balance} ${lowCredits ? s.balanceLow : ""}`}>
-            <Coins size={14} /> {credits} credits left
+            <Coins size={14} /> {t("pricing.balance", { count: credits })}
           </span>
         )}
       </div>
 
       <header className={s.header}>
-        <div className={s.eyebrow}>Pricing</div>
-        <h1 className={s.title}>Upgrade your plan</h1>
-        <p className={s.subtitle}>
-          Pay securely in Ethiopian Birr via Chapa (Telebirr, CBE Birr, Cards). Credits never expire.
-        </p>
+        <div className={s.eyebrow}>{t("pricing.eyebrow")}</div>
+        <h1 className={s.title}>{t("pricing.title")}</h1>
+        <p className={s.subtitle}>{t("pricing.subtitle")}</p>
       </header>
+
+      <div
+        role="radiogroup"
+        aria-label={t("pricing.methodLabel")}
+        style={{
+          display: "flex",
+          gap: "0.75rem",
+          justifyContent: "center",
+          margin: "0 auto 2rem",
+          flexWrap: "wrap",
+        }}
+      >
+        {(["chapa", "ebirr"] as const).map((m) => {
+          const active = method === m;
+          return (
+            <button
+              key={m}
+              type="button"
+              role="radio"
+              aria-checked={active}
+              onClick={() => setMethod(m)}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "0.5rem",
+                padding: "0.65rem 1.1rem",
+                borderRadius: "999px",
+                border: active
+                  ? "1px solid hsl(var(--primary))"
+                  : "1px solid hsl(var(--border))",
+                background: active ? "hsl(var(--primary) / 0.12)" : "hsl(var(--card))",
+                color: active ? "hsl(var(--primary))" : "hsl(var(--foreground))",
+                fontWeight: 600,
+                cursor: "pointer",
+                transition: "all 0.15s",
+              }}
+            >
+              {m === "ebirr" ? <Smartphone size={16} /> : <Coins size={16} />}
+              {m === "chapa" ? t("pricing.methodChapa") : t("pricing.methodEbirr")}
+            </button>
+          );
+        })}
+      </div>
 
       <div className={s.grid}>
         {plans.map((p) => (
           <div key={p.id} className={`${s.card} ${p.highlight ? s.cardHighlight : ""}`}>
-            {p.highlight && <div className={s.popular}>Most Popular</div>}
+            {p.highlight && <div className={s.popular}>{t("pricing.popular")}</div>}
             <h3 className={s.planName}>{p.name}</h3>
             <p className={s.planDesc}>{p.description}</p>
             <div className={s.priceRow}>
@@ -141,7 +185,7 @@ function PricingPage() {
               <span className={s.currency}>ETB</span>
             </div>
             <div className={s.creditLine}>
-              <span className={s.creditCount}>{p.credits.toLocaleString()}</span> credits
+              <span className={s.creditCount}>{p.credits.toLocaleString()}</span> {t("pricing.credits")}
             </div>
             <ul className={s.featureList}>
               {featuresFor(p).map((f) => (
@@ -155,9 +199,9 @@ function PricingPage() {
               onClick={() => buy(p.slug)}
               disabled={loadingPlan === p.slug}
             >
-              {loadingPlan === p.slug ? "Redirecting…" : (
+              {loadingPlan === p.slug ? t("pricing.redirecting") : (
                 <>
-                  <Sparkles size={16} /> Get {p.name}
+                  <Sparkles size={16} /> {t("pricing.get", { name: p.name })}
                 </>
               )}
             </button>
@@ -165,21 +209,19 @@ function PricingPage() {
         ))}
       </div>
 
-      <p className={s.note}>
-        Secure payments powered by Chapa · Refunds processed within 7 business days
-      </p>
+      <p className={s.note}>{t("pricing.note")}</p>
 
       {history.length > 0 && (
         <div className={s.history}>
-          <h2 className={s.historyTitle}>Payment history</h2>
+          <h2 className={s.historyTitle}>{t("pricing.historyTitle")}</h2>
           <table className={s.historyTable}>
             <thead>
               <tr>
-                <th>Date</th>
-                <th>Plan</th>
-                <th>Amount</th>
-                <th>Credits</th>
-                <th>Status</th>
+                <th>{t("pricing.thDate")}</th>
+                <th>{t("pricing.thPlan")}</th>
+                <th>{t("pricing.thAmount")}</th>
+                <th>{t("pricing.thCredits")}</th>
+                <th>{t("pricing.thStatus")}</th>
               </tr>
             </thead>
             <tbody>

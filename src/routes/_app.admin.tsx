@@ -2,6 +2,7 @@ import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ArrowLeft, Trash2, Shield, ShieldOff, Plus, Image as ImageIcon } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { useIsAdmin } from "@/lib/use-admin";
@@ -44,6 +45,7 @@ interface HeroImage {
 function AdminPage() {
   const { isAdmin, loading } = useIsAdmin();
   const { user, signOut } = useAuth();
+  const { t } = useTranslation();
   const [tab, setTab] = useState<"users" | "hero">("users");
   const [users, setUsers] = useState<UserRow[]>([]);
   const [hero, setHero] = useState<HeroImage[]>([]);
@@ -87,15 +89,15 @@ function AdminPage() {
     if (isAdmin) loadAll();
   }, [isAdmin]);
 
-  if (loading) return <div className={s.loading}>Loading…</div>;
+  if (loading) return <div className={s.loading}>{t("admin.loading")}</div>;
 
   if (!isAdmin) {
     return (
       <div className={s.denied}>
         <Shield size={48} />
-        <h1>Admin access required</h1>
-        <p>Your account doesn't have admin privileges.</p>
-        <Link to="/dashboard" className={s.linkBtn}>← Back to dashboard</Link>
+        <h1>{t("admin.denied")}</h1>
+        <p>{t("admin.deniedDesc")}</p>
+        <Link to="/dashboard" className={s.linkBtn}>{t("admin.back")}</Link>
       </div>
     );
   }
@@ -123,34 +125,34 @@ function AdminPage() {
       return;
     }
     setUsers((u) => u.map((r) => (r.user_id === userId ? { ...r, ...patch } : r)));
-    toast.success("Updated");
+    toast.success(t("admin.updated"));
   };
 
   const toggleAdmin = async (row: UserRow) => {
     if (row.is_admin) {
       const { error } = await supabase.from("user_roles").delete().eq("user_id", row.user_id).eq("role", "admin");
       if (error) return toast.error(error.message);
-      toast.success("Admin role revoked");
+      toast.success(t("admin.adminRevoked"));
     } else {
       const { error } = await supabase.from("user_roles").insert({ user_id: row.user_id, role: "admin" });
       if (error) return toast.error(error.message);
-      toast.success("Admin role granted");
+      toast.success(t("admin.adminGranted"));
     }
     setUsers((u) => u.map((r) => (r.user_id === row.user_id ? { ...r, is_admin: !r.is_admin } : r)));
   };
 
   const deleteTranscriptions = async (userId: string) => {
-    if (!confirm("Delete ALL transcriptions for this user?")) return;
+    if (!confirm(t("admin.deleteAllConfirm"))) return;
     const { error } = await supabase.from("transcriptions").delete().eq("user_id", userId);
     if (error) return toast.error(error.message);
-    toast.success("Transcriptions deleted");
+    toast.success(t("admin.transcriptsDeleted"));
     loadAll();
   };
 
   const addHero = async () => {
-    const url = prompt("Image URL (https://...)");
+    const url = prompt(t("admin.promptUrl"));
     if (!url) return;
-    const caption = prompt("Caption (optional)") ?? "";
+    const caption = prompt(t("admin.promptCaption")) ?? "";
     const { error } = await supabase.from("hero_images").insert({
       image_url: url,
       caption: caption || null,
@@ -158,7 +160,7 @@ function AdminPage() {
       active: true,
     });
     if (error) return toast.error(error.message);
-    toast.success("Image added");
+    toast.success(t("admin.imageAdded"));
     loadAll();
   };
 
@@ -174,11 +176,11 @@ function AdminPage() {
       .update({ caption: caption.trim() || null })
       .eq("id", id);
     if (error) return toast.error(error.message);
-    toast.success("Caption saved");
+    toast.success(t("admin.captionSaved"));
   };
 
   const deleteHero = async (id: string) => {
-    if (!confirm("Delete this hero image?")) return;
+    if (!confirm(t("admin.confirmHeroDelete"))) return;
     const { error } = await supabase.from("hero_images").delete().eq("id", id);
     if (error) return toast.error(error.message);
     setHero((arr) => arr.filter((x) => x.id !== id));
@@ -188,46 +190,46 @@ function AdminPage() {
     <div className={s.page}>
       <header className={s.topbar}>
         <Link to="/dashboard" className={s.back}>
-          <ArrowLeft size={18} /> Dashboard
+          <ArrowLeft size={18} /> {t("admin.dashboard")}
         </Link>
         <div className={s.brand}>
-          <Shield size={20} /> Admin
+          <Shield size={20} /> {t("admin.title")}
         </div>
-        <button className={s.signout} onClick={() => signOut()}>Sign out</button>
+        <button className={s.signout} onClick={() => signOut()}>{t("admin.signout")}</button>
       </header>
 
       <div className={s.heroBanner}>
         <div>
-          <div className={s.eyebrow}>Admin Console</div>
-          <h1 className={s.title}>Welcome, {user?.email}</h1>
-          <p className={s.subtitle}>Manage users, tokens, feature access, and the landing hero slideshow.</p>
+          <div className={s.eyebrow}>{t("admin.eyebrow")}</div>
+          <h1 className={s.title}>{t("admin.welcome", { email: user?.email })}</h1>
+          <p className={s.subtitle}>{t("admin.subtitle")}</p>
         </div>
         <div className={s.statRow}>
-          <div className={s.stat}><div className={s.statLabel}>Users</div><div className={s.statValue}>{users.length}</div></div>
-          <div className={s.stat}><div className={s.statLabel}>Admins</div><div className={s.statValue}>{users.filter((u) => u.is_admin).length}</div></div>
-          <div className={s.stat}><div className={s.statLabel}>Hero images</div><div className={s.statValue}>{hero.length}</div></div>
+          <div className={s.stat}><div className={s.statLabel}>{t("admin.users")}</div><div className={s.statValue}>{users.length}</div></div>
+          <div className={s.stat}><div className={s.statLabel}>{t("admin.admins")}</div><div className={s.statValue}>{users.filter((u) => u.is_admin).length}</div></div>
+          <div className={s.stat}><div className={s.statLabel}>{t("admin.heroImages")}</div><div className={s.statValue}>{hero.length}</div></div>
         </div>
       </div>
 
       <div className={s.tabs}>
-        <button className={`${s.tab} ${tab === "users" ? s.tabActive : ""}`} onClick={() => setTab("users")}>Users & Tokens</button>
-        <button className={`${s.tab} ${tab === "hero" ? s.tabActive : ""}`} onClick={() => setTab("hero")}>Hero Slideshow</button>
+        <button className={`${s.tab} ${tab === "users" ? s.tabActive : ""}`} onClick={() => setTab("users")}>{t("admin.tabUsers")}</button>
+        <button className={`${s.tab} ${tab === "hero" ? s.tabActive : ""}`} onClick={() => setTab("hero")}>{t("admin.tabHero")}</button>
       </div>
 
       {tab === "users" && (
         <div className={s.card}>
-          {loadingData && <div className={s.loading}>Loading users…</div>}
-          {!loadingData && users.length === 0 && <div className={s.loading}>No users yet.</div>}
+          {loadingData && <div className={s.loading}>{t("admin.loadingUsers")}</div>}
+          {!loadingData && users.length === 0 && <div className={s.loading}>{t("admin.noUsers")}</div>}
           <div className={s.tableWrap}>
             <table className={s.table}>
               <thead>
                 <tr>
-                  <th>User</th>
-                  <th>Role</th>
-                  <th>Credits</th>
-                  <th>Features (Live/File/YT/Tx/TTS)</th>
-                  <th>Status</th>
-                  <th>Transcripts</th>
+                  <th>{t("admin.thUser")}</th>
+                  <th>{t("admin.thRole")}</th>
+                  <th>{t("admin.thCredits")}</th>
+                  <th>{t("admin.thFeatures")}</th>
+                  <th>{t("admin.thStatus")}</th>
+                  <th>{t("admin.thTranscripts")}</th>
                   <th></th>
                 </tr>
               </thead>
@@ -235,12 +237,12 @@ function AdminPage() {
                 {users.map((u) => (
                   <tr key={u.user_id} className={u.suspended ? s.suspendedRow : ""}>
                     <td>
-                      <div className={s.userName}>{u.display_name ?? "(no name)"}</div>
+                      <div className={s.userName}>{u.display_name ?? t("admin.noName")}</div>
                       <div className={s.userId}>{u.user_id.slice(0, 8)}…</div>
                     </td>
                     <td>
                       <button className={u.is_admin ? s.roleAdmin : s.roleUser} onClick={() => toggleAdmin(u)}>
-                        {u.is_admin ? "Admin" : "User"}
+                        {u.is_admin ? t("admin.roleAdmin") : t("admin.roleUser")}
                       </button>
                     </td>
                     <td>
@@ -271,7 +273,7 @@ function AdminPage() {
                         className={u.suspended ? s.suspended : s.active}
                         onClick={() => updateToken(u.user_id, { suspended: !u.suspended })}
                       >
-                        {u.suspended ? <><ShieldOff size={14} /> Suspended</> : <>Active</>}
+                        {u.suspended ? <><ShieldOff size={14} /> {t("admin.suspended")}</> : <>{t("admin.active")}</>}
                       </button>
                     </td>
                     <td>{u.transcript_count}</td>
@@ -292,16 +294,16 @@ function AdminPage() {
         <div className={s.card}>
           <div className={s.cardHeader}>
             <div>
-              <h3>Hero slideshow images</h3>
-              <p className={s.muted}>These appear on the landing page. Auto-rotates every 5 seconds.</p>
+              <h3>{t("admin.heroTitle")}</h3>
+              <p className={s.muted}>{t("admin.heroDesc")}</p>
             </div>
-            <button className={s.primary} onClick={addHero}><Plus size={16} /> Add image</button>
+            <button className={s.primary} onClick={addHero}><Plus size={16} /> {t("admin.addImage")}</button>
           </div>
           <div className={s.heroGrid}>
             {hero.length === 0 && (
               <div className={s.empty}>
                 <ImageIcon size={32} />
-                <p>No custom images yet — using built-in defaults.</p>
+                <p>{t("admin.noHeroImages")}</p>
               </div>
             )}
             {hero.map((h) => (
@@ -309,13 +311,13 @@ function AdminPage() {
                 <div className={s.heroThumb} style={{ backgroundImage: `url(${h.image_url})` }} />
                 <div className={s.heroBody}>
                   <label className={s.muted} style={{ fontSize: "0.72rem", textTransform: "uppercase", letterSpacing: "0.06em", display: "block", marginBottom: "0.3rem" }}>
-                    Caption
+                    {t("admin.caption")}
                   </label>
                   <textarea
                     className={s.creditInput}
                     style={{ width: "100%", minHeight: "60px", marginBottom: "0.6rem", resize: "vertical", fontFamily: "inherit", fontSize: "0.85rem" }}
                     defaultValue={h.caption ?? ""}
-                    placeholder="Enter slide caption…"
+                    placeholder={t("admin.captionPlaceholder")}
                     onBlur={(e) => {
                       if ((e.target.value.trim() || null) !== (h.caption ?? null)) {
                         saveHeroCaption(h.id, e.target.value);
@@ -325,7 +327,7 @@ function AdminPage() {
                   />
                   <div className={s.heroActions}>
                     <button className={h.active ? s.active : s.suspended} onClick={() => toggleHero(h)}>
-                      {h.active ? "Active" : "Hidden"}
+                      {h.active ? t("admin.active") : t("admin.hidden")}
                     </button>
                     <button className={s.danger} onClick={() => deleteHero(h.id)}><Trash2 size={14} /></button>
                   </div>

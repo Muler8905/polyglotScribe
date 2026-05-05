@@ -233,7 +233,10 @@
       "highest": "Mudnaan ugu sarreysa",
       "bulk": "Soo gelin fayl badan",
       "dedicated": "Taageero gaar ah"
-    }
+    },
+    "methodLabel": "Habka lacag-bixinta",
+    "methodChapa": "Chapa (Kaadh & Bangi)",
+    "methodEbirr": "e-Birr (Telebirr)"
   },
   "payment": {
     "checking": "Waa la xaqiijinayaa lacag-bixintaada…",
