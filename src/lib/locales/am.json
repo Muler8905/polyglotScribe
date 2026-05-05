@@ -233,7 +233,10 @@
       "highest": "ከፍተኛ ቅድሚያ ሂደት",
       "bulk": "የጅምላ ፋይል መስቀል",
       "dedicated": "ልዩ ድጋፍ"
-    }
+    },
+    "methodLabel": "የክፍያ ዘዴ",
+    "methodChapa": "Chapa (ካርድ እና ባንክ)",
+    "methodEbirr": "ኢ-ብር (ቴሌብር)"
   },
   "payment": {
     "checking": "ክፍያዎን በማረጋገጥ ላይ…",

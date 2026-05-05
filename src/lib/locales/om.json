@@ -233,7 +233,10 @@
       "highest": "Adeemsa dursaa olaanaa",
       "bulk": "Faayilii baay'ee ol-kaa'uu",
       "dedicated": "Deggersa addaa"
-    }
+    },
+    "methodLabel": "Mala kaffaltii",
+    "methodChapa": "Chapa (Kaardii fi Baankii)",
+    "methodEbirr": "e-Birr (Telebirr)"
   },
   "payment": {
     "checking": "Kaffaltii kee mirkaneessaa…",
