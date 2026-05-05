@@ -109,13 +109,13 @@ function Landing() {
 
       {/* MOBILE MENU */}
       <div className={`${s.mobileMenu} ${menuOpen ? s.open : ""}`}>
-        <a href="#features" onClick={() => setMenuOpen(false)}>Features</a>
-        <a href="#how" onClick={() => setMenuOpen(false)}>How it works</a>
-        <a href="#cases" onClick={() => setMenuOpen(false)}>Use cases</a>
-        <Link to="/docs" onClick={() => setMenuOpen(false)}>Documentation</Link>
-        <Link to="/support" onClick={() => setMenuOpen(false)}>Support</Link>
-        <Link to="/privacy" onClick={() => setMenuOpen(false)}>Privacy</Link>
-        <Link to="/auth" onClick={() => setMenuOpen(false)} className={`${s.linkBtn} ${s.linkPrimary}`} style={{ textAlign: "center", marginTop: "0.5rem" }}>Get started</Link>
+        <a href="#features" onClick={() => setMenuOpen(false)}>{t("nav.features")}</a>
+        <a href="#how" onClick={() => setMenuOpen(false)}>{t("nav.how")}</a>
+        <a href="#cases" onClick={() => setMenuOpen(false)}>{t("nav.cases")}</a>
+        <Link to="/docs" onClick={() => setMenuOpen(false)}>{t("nav.documentation")}</Link>
+        <Link to="/support" onClick={() => setMenuOpen(false)}>{t("nav.support")}</Link>
+        <Link to="/privacy" onClick={() => setMenuOpen(false)}>{t("nav.privacy")}</Link>
+        <Link to="/auth" onClick={() => setMenuOpen(false)} className={`${s.linkBtn} ${s.linkPrimary}`} style={{ textAlign: "center", marginTop: "0.5rem" }}>{t("nav.getStarted")}</Link>
       </div>
 
       {/* HERO */}
@@ -242,32 +242,30 @@ function Landing() {
                 <div className={s.brandMark} />
                 <span>Polyglot Scribe</span>
               </Link>
-              <p className={s.footerTagline}>
-                Live, file, and YouTube transcription with multilingual translation across English, Amharic, Afaan Oromo, and Somali.
-              </p>
+              <p className={s.footerTagline}>{t("footer.tagline")}</p>
             </div>
             <div className={s.footerCol}>
-              <h4>Product</h4>
-              <a href="#features">Features</a>
-              <a href="#how">How it works</a>
-              <a href="#cases">Use cases</a>
-              <Link to="/auth">Sign in</Link>
+              <h4>{t("footer.product")}</h4>
+              <a href="#features">{t("nav.features")}</a>
+              <a href="#how">{t("nav.how")}</a>
+              <a href="#cases">{t("nav.cases")}</a>
+              <Link to="/auth">{t("nav.signin")}</Link>
             </div>
             <div className={s.footerCol}>
-              <h4>Resources</h4>
-              <Link to="/docs">Documentation</Link>
-              <Link to="/support">Support</Link>
-              <a href="mailto:support@polyglotscribe.app">Contact us</a>
+              <h4>{t("footer.resources")}</h4>
+              <Link to="/docs">{t("nav.documentation")}</Link>
+              <Link to="/support">{t("nav.support")}</Link>
+              <a href="mailto:support@polyglotscribe.app">{t("footer.contact")}</a>
             </div>
             <div className={s.footerCol}>
-              <h4>Legal</h4>
-              <Link to="/privacy">Privacy policy</Link>
-              <Link to="/docs">Terms of use</Link>
+              <h4>{t("footer.legal")}</h4>
+              <Link to="/privacy">{t("nav.privacy")}</Link>
+              <Link to="/docs">{t("footer.terms")}</Link>
             </div>
           </div>
           <div className={s.footerBottom}>
-            <span>© {new Date().getFullYear()} Polyglot Scribe. All rights reserved.</span>
-            <span>Made with ❤️ for multilingual creators</span>
+            <span>© {new Date().getFullYear()} Polyglot Scribe. {t("footer.rights")}</span>
+            <span>{t("footer.made")}</span>
           </div>
         </div>
       </footer>
