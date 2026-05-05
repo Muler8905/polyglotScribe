@@ -2,6 +2,7 @@ import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ArrowLeft, Trash2, Shield, ShieldOff, Plus, Image as ImageIcon } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { useIsAdmin } from "@/lib/use-admin";
@@ -44,6 +45,7 @@ interface HeroImage {
 function AdminPage() {
   const { isAdmin, loading } = useIsAdmin();
   const { user, signOut } = useAuth();
+  const { t } = useTranslation();
   const [tab, setTab] = useState<"users" | "hero">("users");
   const [users, setUsers] = useState<UserRow[]>([]);
   const [hero, setHero] = useState<HeroImage[]>([]);
