@@ -50,28 +50,28 @@ const cardVariants: Variants = {
   }),
 };
 
-const features = [
-  { icon: "🎙️", title: "Live transcription", desc: "Speak into your microphone and watch words appear in real time with ultra-low latency. Perfect for meetings, lectures, interviews, and dictation." },
-  { icon: "📁", title: "Audio & video files", desc: "Drop an MP3, WAV, M4A, MP4, or any audio/video file. Get an accurate transcript powered by ElevenLabs Scribe v2." },
-  { icon: "▶️", title: "YouTube videos", desc: "Paste any YouTube URL — we transcribe the spoken audio directly, no captions required. Translate and listen back in your preferred language." },
-  { icon: "🌍", title: "Side-by-side translation", desc: "Translate any transcript between English, Amharic, Afaan Oromo, and Somali — view the original and translation side-by-side." },
-  { icon: "🔊", title: "Natural text-to-speech", desc: "Listen to any transcript or translation in a natural human voice powered by ElevenLabs multilingual TTS." },
-  { icon: "📚", title: "Saved history", desc: "Every transcription is securely saved to your account. Revisit, copy, download, or re-translate anything from your history." },
-];
+const featureItems = [
+  { icon: "🎙️", key: "live" },
+  { icon: "📁", key: "file" },
+  { icon: "▶️", key: "yt" },
+  { icon: "🌍", key: "translate" },
+  { icon: "🔊", key: "tts" },
+  { icon: "📚", key: "history" },
+] as const;
 
-const steps = [
-  { n: 1, title: "Sign up", desc: "Create a free account with your email — takes less than a minute." },
-  { n: 2, title: "Pick your source", desc: "Record live, upload an audio/video file, or paste a YouTube URL." },
-  { n: 3, title: "Translate", desc: "Choose a target language and get an accurate translation in seconds." },
-  { n: 4, title: "Listen, copy or save", desc: "Play with TTS, copy, download as text, or revisit anytime in your history." },
-];
+const stepItems = [
+  { n: 1, key: "s1" },
+  { n: 2, key: "s2" },
+  { n: 3, key: "s3" },
+  { n: 4, key: "s4" },
+] as const;
 
-const cases = [
-  { emoji: "📰", title: "Journalists & researchers", desc: "Transcribe interviews, then translate quotes for multilingual audiences." },
-  { emoji: "🎓", title: "Students & teachers", desc: "Capture lectures live or transcribe educational YouTube videos in your language." },
-  { emoji: "🎙️", title: "Podcasters & creators", desc: "Generate accurate show notes and translated subtitles to grow your audience." },
-  { emoji: "💼", title: "Teams & businesses", desc: "Document meetings live and share them across multilingual teams in Ethiopia and beyond." },
-];
+const caseItems = [
+  { emoji: "📰", key: "journalists" },
+  { emoji: "🎓", key: "students" },
+  { emoji: "🎙️", key: "podcasters" },
+  { emoji: "💼", key: "teams" },
+] as const;
 
 function Landing() {
   const [menuOpen, setMenuOpen] = useState(false);
