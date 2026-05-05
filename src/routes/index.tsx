@@ -155,9 +155,9 @@ function Landing() {
         <h2 className={s.sectionTitle}>{t("sections.featuresTitle")}</h2>
         <p className={s.sectionSubtitle}>{t("sections.featuresSubtitle")}</p>
         <div className={s.features}>
-          {features.map((f, i) => (
+          {featureItems.map((f, i) => (
             <motion.div
-              key={f.title}
+              key={f.key}
               className={s.feat}
               custom={i}
               variants={cardVariants}
@@ -167,8 +167,8 @@ function Landing() {
               whileHover={{ y: -6, scale: 1.02, transition: { type: "spring", stiffness: 300, damping: 18 } }}
             >
               <div className={s.featIcon}>{f.icon}</div>
-              <div className={s.featTitle}>{f.title}</div>
-              <div className={s.featDesc}>{f.desc}</div>
+              <div className={s.featTitle}>{t(`features.${f.key}Title`)}</div>
+              <div className={s.featDesc}>{t(`features.${f.key}Desc`)}</div>
             </motion.div>
           ))}
         </div>
@@ -179,7 +179,7 @@ function Landing() {
         <h2 className={s.sectionTitle}>{t("sections.howTitle")}</h2>
         <p className={s.sectionSubtitle}>{t("sections.howSubtitle")}</p>
         <div className={s.steps}>
-          {steps.map((st, i) => (
+          {stepItems.map((st, i) => (
             <motion.div
               key={st.n}
               className={s.step}
@@ -191,8 +191,8 @@ function Landing() {
               whileHover={{ y: -4, scale: 1.02, transition: { type: "spring", stiffness: 300, damping: 18 } }}
             >
               <div className={s.stepNum}>{st.n}</div>
-              <div className={s.stepTitle}>{st.title}</div>
-              <div className={s.stepDesc}>{st.desc}</div>
+              <div className={s.stepTitle}>{t(`steps.${st.key}Title`)}</div>
+              <div className={s.stepDesc}>{t(`steps.${st.key}Desc`)}</div>
             </motion.div>
           ))}
         </div>
@@ -203,9 +203,9 @@ function Landing() {
         <h2 className={s.sectionTitle}>{t("sections.casesTitle")}</h2>
         <p className={s.sectionSubtitle}>{t("sections.casesSubtitle")}</p>
         <div className={s.cases}>
-          {cases.map((c, i) => (
+          {caseItems.map((c, i) => (
             <motion.div
-              key={c.title}
+              key={c.key}
               className={s.case}
               custom={i}
               variants={cardVariants}
@@ -216,8 +216,8 @@ function Landing() {
             >
               <div className={s.caseEmoji}>{c.emoji}</div>
               <div className={s.caseText}>
-                <div className={s.caseTitle}>{c.title}</div>
-                <div className={s.caseDesc}>{c.desc}</div>
+                <div className={s.caseTitle}>{t(`cases.${c.key}Title`)}</div>
+                <div className={s.caseDesc}>{t(`cases.${c.key}Desc`)}</div>
               </div>
             </motion.div>
           ))}
