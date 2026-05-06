@@ -214,6 +214,98 @@ function PricingPage() {
           </table>
         </div>
       )}
+
+      {pendingPlan && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          onClick={() => loadingPlan === null && setPendingPlan(null)}
+          style={{
+            position: "fixed", inset: 0, background: "rgba(0,0,0,0.55)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            zIndex: 100, padding: "1rem",
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: "hsl(var(--card))", color: "hsl(var(--foreground))",
+              borderRadius: "16px", padding: "1.75rem", maxWidth: "420px", width: "100%",
+              border: "1px solid hsl(var(--border))",
+              boxShadow: "0 20px 50px -10px rgba(0,0,0,0.4)",
+            }}
+          >
+            <h3 style={{ margin: "0 0 0.4rem", fontSize: "1.2rem", fontWeight: 700 }}>
+              {t("pricing.choosePayment", { defaultValue: "Choose payment method" })}
+            </h3>
+            <p style={{ margin: "0 0 1.25rem", color: "hsl(var(--muted-foreground))", fontSize: "0.9rem" }}>
+              {pendingPlan.name} — {pendingPlan.price_etb.toLocaleString()} ETB
+            </p>
+
+            <div role="radiogroup" style={{ display: "grid", gap: "0.6rem", marginBottom: "1.25rem" }}>
+              {(["chapa", "ebirr"] as const).map((m) => {
+                const active = method === m;
+                return (
+                  <button
+                    key={m}
+                    type="button"
+                    role="radio"
+                    aria-checked={active}
+                    onClick={() => setMethod(m)}
+                    style={{
+                      display: "flex", alignItems: "center", gap: "0.7rem",
+                      padding: "0.85rem 1rem", borderRadius: "12px",
+                      border: active ? "2px solid hsl(var(--primary))" : "1px solid hsl(var(--border))",
+                      background: active ? "hsl(var(--primary) / 0.08)" : "hsl(var(--background))",
+                      color: "hsl(var(--foreground))",
+                      cursor: "pointer", textAlign: "left",
+                      fontWeight: 600,
+                    }}
+                  >
+                    {m === "ebirr" ? <Smartphone size={18} /> : <Coins size={18} />}
+                    <div style={{ display: "flex", flexDirection: "column" }}>
+                      <span>{m === "chapa" ? t("pricing.methodChapa") : t("pricing.methodEbirr")}</span>
+                      <span style={{ fontSize: "0.75rem", fontWeight: 400, color: "hsl(var(--muted-foreground))" }}>
+                        {m === "chapa"
+                          ? t("pricing.methodChapaDesc", { defaultValue: "Cards, bank transfer, mobile wallets" })
+                          : t("pricing.methodEbirrDesc", { defaultValue: "Pay with Telebirr / e-Birr wallet" })}
+                      </span>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div style={{ display: "flex", gap: "0.6rem", justifyContent: "flex-end" }}>
+              <button
+                type="button"
+                onClick={() => setPendingPlan(null)}
+                disabled={loadingPlan !== null}
+                style={{
+                  padding: "0.65rem 1.1rem", borderRadius: "9px",
+                  border: "1px solid hsl(var(--border))", background: "hsl(var(--background))",
+                  color: "hsl(var(--foreground))", cursor: "pointer", fontWeight: 500,
+                }}
+              >
+                {t("pricing.cancel", { defaultValue: "Cancel" })}
+              </button>
+              <button
+                type="button"
+                onClick={buy}
+                disabled={loadingPlan !== null}
+                className={s.cta}
+                style={{ minWidth: "140px" }}
+              >
+                {loadingPlan ? t("pricing.redirecting") : (
+                  <>
+                    <Sparkles size={16} /> {t("pricing.continue", { defaultValue: "Continue" })}
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
