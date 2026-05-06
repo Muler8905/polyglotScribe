@@ -70,11 +70,20 @@ function PricingPage() {
     }
   }, [user]);
 
-  const buy = async (slug: string) => {
+  const [pendingPlan, setPendingPlan] = useState<Plan | null>(null);
+
+  const openPlan = (p: Plan) => {
     if (!user) {
       toast.error(t("pricing.signinFirst"));
       return;
     }
+    setMethod("chapa");
+    setPendingPlan(p);
+  };
+
+  const buy = async () => {
+    if (!user || !pendingPlan) return;
+    const slug = pendingPlan.slug;
     setLoadingPlan(slug);
     try {
       const res = await initiate({ data: { planSlug: slug, paymentMethod: method } });
