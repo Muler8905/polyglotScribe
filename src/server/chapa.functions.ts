@@ -45,11 +45,25 @@ export const initiateChapaPayment = createServerFn({ method: "POST" })
 
     const tx_ref = `ps-${userId.slice(0, 8)}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
-    // Determine origin for callback/return URLs
-    const origin =
-      process.env.PUBLIC_APP_URL ||
-      (process.env.VITE_PUBLIC_APP_URL as string | undefined) ||
-      "https://id-preview--92fcb336-123f-4b4f-a6d2-bd4b05c6c381.lovable.app";
+    // Determine origin from the actual incoming request so callback/return
+    // URLs always match the domain the user is on (preview, published, custom).
+    const reqOrigin = getRequestHeader("origin");
+    const reqReferer = getRequestHeader("referer");
+    const forwardedHost = getRequestHeader("x-forwarded-host") ?? getRequestHeader("host");
+    const forwardedProto = getRequestHeader("x-forwarded-proto") ?? "https";
+    let origin: string;
+    if (reqOrigin && /^https?:\/\//.test(reqOrigin)) {
+      origin = reqOrigin;
+    } else if (reqReferer && /^https?:\/\//.test(reqReferer)) {
+      origin = new URL(reqReferer).origin;
+    } else if (forwardedHost) {
+      origin = `${forwardedProto}://${forwardedHost}`;
+    } else {
+      origin =
+        process.env.PUBLIC_APP_URL ||
+        (process.env.VITE_PUBLIC_APP_URL as string | undefined) ||
+        "https://id-preview--92fcb336-123f-4b4f-a6d2-bd4b05c6c381.lovable.app";
+    }
 
     const callback_url = `${origin}/api/public/chapa-webhook`;
     const return_url = `${origin}/payment/success?tx_ref=${encodeURIComponent(tx_ref)}`;
