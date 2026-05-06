@@ -163,7 +163,7 @@ function PricingPage() {
             </ul>
             <button
               className={s.cta}
-              onClick={() => buy(p.slug)}
+              onClick={() => openPlan(p)}
               disabled={loadingPlan === p.slug}
             >
               {loadingPlan === p.slug ? t("pricing.redirecting") : (
