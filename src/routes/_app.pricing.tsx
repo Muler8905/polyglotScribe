@@ -82,6 +82,8 @@ function PricingPage() {
       return;
     }
     setMethod("chapa");
+    setPhone("");
+    setEbirrStatus(null);
     setPendingPlan(p);
   };
 
@@ -90,8 +92,40 @@ function PricingPage() {
     const slug = pendingPlan.slug;
     setLoadingPlan(slug);
     try {
-      const res = await initiate({ data: { planSlug: slug, paymentMethod: method } });
-      window.location.href = res.checkout_url;
+      if (method === "ebirr") {
+        if (!/^(09|07)\d{8}$/.test(phone.trim())) {
+          toast.error(t("pricing.phoneInvalid", { defaultValue: "Enter a valid 10-digit phone (09… or 07…)" }));
+          setLoadingPlan(null);
+          return;
+        }
+        const res = await initiateEbirr({ data: { planSlug: slug, mobile: phone.trim(), type: "telebirr" } });
+        setEbirrStatus({ tx_ref: res.tx_ref, message: res.message, state: "waiting" });
+        // Poll verify
+        let attempts = 0;
+        const poll = async () => {
+          attempts++;
+          try {
+            const v = await verify({ data: { tx_ref: res.tx_ref } });
+            if (v.status === "success") {
+              setEbirrStatus({ tx_ref: res.tx_ref, message: t("pricing.ebirrSuccess", { defaultValue: "Payment received! Credits added." }), state: "success" });
+              setCredits((c) => (c ?? 0) + v.credits_awarded);
+              return;
+            }
+            if (v.status === "failed") {
+              setEbirrStatus({ tx_ref: res.tx_ref, message: t("pricing.ebirrFailed", { defaultValue: "Payment failed or was cancelled." }), state: "failed" });
+              return;
+            }
+            if (attempts < 60) setTimeout(poll, 3000);
+          } catch {
+            if (attempts < 60) setTimeout(poll, 3000);
+          }
+        };
+        setTimeout(poll, 3000);
+        setLoadingPlan(null);
+      } else {
+        const res = await initiate({ data: { planSlug: slug } });
+        window.location.href = res.checkout_url;
+      }
     } catch (e) {
       toast.error((e as Error).message);
       setLoadingPlan(null);
