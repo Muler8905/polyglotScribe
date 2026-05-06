@@ -43,7 +43,11 @@ function PricingPage() {
   const [history, setHistory] = useState<PaymentRow[]>([]);
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const [method, setMethod] = useState<"chapa" | "ebirr">("chapa");
+  const [phone, setPhone] = useState("");
+  const [ebirrStatus, setEbirrStatus] = useState<null | { tx_ref: string; message: string; state: "waiting" | "success" | "failed" }>(null);
   const initiate = useServerFn(initiateChapaPayment);
+  const initiateEbirr = useServerFn(initiateEbirrPayment);
+  const verify = useServerFn(verifyChapaPayment);
 
   useEffect(() => {
     supabase
