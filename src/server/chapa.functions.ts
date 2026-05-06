@@ -4,7 +4,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
-// Initiate a Chapa checkout session for a plan.
+// Initiate a Chapa hosted checkout session for a plan (cards/bank/all methods picker).
 // Returns { checkout_url, tx_ref } the client should redirect to.
 export const initiateChapaPayment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -12,7 +12,6 @@ export const initiateChapaPayment = createServerFn({ method: "POST" })
     z
       .object({
         planSlug: z.string().min(1).max(64),
-        paymentMethod: z.enum(["chapa", "ebirr"]).optional().default("chapa"),
       })
       .parse(input),
   )
