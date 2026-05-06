@@ -314,6 +314,54 @@ function PricingPage() {
               })}
             </div>
 
+            {method === "ebirr" && !ebirrStatus && (
+              <div style={{ marginBottom: "1.25rem" }}>
+                <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, marginBottom: "0.4rem" }}>
+                  {t("pricing.phoneLabel", { defaultValue: "Telebirr / e-Birr phone number" })}
+                </label>
+                <input
+                  type="tel"
+                  inputMode="numeric"
+                  placeholder="09xxxxxxxx"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  maxLength={10}
+                  style={{
+                    width: "100%", padding: "0.65rem 0.85rem", borderRadius: "10px",
+                    border: "1px solid var(--border)", background: "var(--background)",
+                    color: "var(--foreground)", fontSize: "0.95rem", fontWeight: 500,
+                  }}
+                />
+                <p style={{ margin: "0.4rem 0 0", fontSize: "0.75rem", color: "var(--muted-foreground)" }}>
+                  {t("pricing.phoneHint", { defaultValue: "10 digits, starting with 09 or 07. You'll receive a USSD prompt to confirm." })}
+                </p>
+              </div>
+            )}
+
+            {ebirrStatus && (
+              <div
+                style={{
+                  marginBottom: "1.25rem", padding: "0.9rem 1rem", borderRadius: "12px",
+                  border: "1px solid var(--border)",
+                  background: ebirrStatus.state === "success"
+                    ? "color-mix(in oklab, oklch(0.6 0.15 150) 14%, transparent)"
+                    : ebirrStatus.state === "failed"
+                    ? "color-mix(in oklab, oklch(0.6 0.18 25) 14%, transparent)"
+                    : "color-mix(in oklab, var(--primary) 10%, transparent)",
+                  fontSize: "0.9rem",
+                }}
+              >
+                <strong style={{ display: "block", marginBottom: "0.3rem" }}>
+                  {ebirrStatus.state === "success"
+                    ? t("pricing.ebirrSuccessTitle", { defaultValue: "Payment confirmed" })
+                    : ebirrStatus.state === "failed"
+                    ? t("pricing.ebirrFailedTitle", { defaultValue: "Payment failed" })
+                    : t("pricing.ebirrWaitingTitle", { defaultValue: "Awaiting confirmation on your phone…" })}
+                </strong>
+                <span>{ebirrStatus.message}</span>
+              </div>
+            )}
+
             <div style={{ display: "flex", gap: "0.6rem", justifyContent: "flex-end" }}>
               <button
                 type="button"
