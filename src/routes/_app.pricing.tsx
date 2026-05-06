@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
-import { initiateChapaPayment } from "@/server/chapa.functions";
+import { initiateChapaPayment, initiateEbirrPayment, verifyChapaPayment } from "@/server/chapa.functions";
 import s from "@/components/Pricing.module.css";
 
 export const Route = createFileRoute("/_app/pricing")({
@@ -43,7 +43,11 @@ function PricingPage() {
   const [history, setHistory] = useState<PaymentRow[]>([]);
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
   const [method, setMethod] = useState<"chapa" | "ebirr">("chapa");
+  const [phone, setPhone] = useState("");
+  const [ebirrStatus, setEbirrStatus] = useState<null | { tx_ref: string; message: string; state: "waiting" | "success" | "failed" }>(null);
   const initiate = useServerFn(initiateChapaPayment);
+  const initiateEbirr = useServerFn(initiateEbirrPayment);
+  const verify = useServerFn(verifyChapaPayment);
 
   useEffect(() => {
     supabase
@@ -78,6 +82,8 @@ function PricingPage() {
       return;
     }
     setMethod("chapa");
+    setPhone("");
+    setEbirrStatus(null);
     setPendingPlan(p);
   };
 
@@ -86,8 +92,40 @@ function PricingPage() {
     const slug = pendingPlan.slug;
     setLoadingPlan(slug);
     try {
-      const res = await initiate({ data: { planSlug: slug, paymentMethod: method } });
-      window.location.href = res.checkout_url;
+      if (method === "ebirr") {
+        if (!/^(09|07)\d{8}$/.test(phone.trim())) {
+          toast.error(t("pricing.phoneInvalid", { defaultValue: "Enter a valid 10-digit phone (09… or 07…)" }));
+          setLoadingPlan(null);
+          return;
+        }
+        const res = await initiateEbirr({ data: { planSlug: slug, mobile: phone.trim(), type: "telebirr" } });
+        setEbirrStatus({ tx_ref: res.tx_ref, message: res.message, state: "waiting" });
+        // Poll verify
+        let attempts = 0;
+        const poll = async () => {
+          attempts++;
+          try {
+            const v = await verify({ data: { tx_ref: res.tx_ref } });
+            if (v.status === "success") {
+              setEbirrStatus({ tx_ref: res.tx_ref, message: t("pricing.ebirrSuccess", { defaultValue: "Payment received! Credits added." }), state: "success" });
+              setCredits((c) => (c ?? 0) + v.credits_awarded);
+              return;
+            }
+            if (v.status === "failed") {
+              setEbirrStatus({ tx_ref: res.tx_ref, message: t("pricing.ebirrFailed", { defaultValue: "Payment failed or was cancelled." }), state: "failed" });
+              return;
+            }
+            if (attempts < 60) setTimeout(poll, 3000);
+          } catch {
+            if (attempts < 60) setTimeout(poll, 3000);
+          }
+        };
+        setTimeout(poll, 3000);
+        setLoadingPlan(null);
+      } else {
+        const res = await initiate({ data: { planSlug: slug } });
+        window.location.href = res.checkout_url;
+      }
     } catch (e) {
       toast.error((e as Error).message);
       setLoadingPlan(null);
@@ -276,6 +314,54 @@ function PricingPage() {
               })}
             </div>
 
+            {method === "ebirr" && !ebirrStatus && (
+              <div style={{ marginBottom: "1.25rem" }}>
+                <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, marginBottom: "0.4rem" }}>
+                  {t("pricing.phoneLabel", { defaultValue: "Telebirr / e-Birr phone number" })}
+                </label>
+                <input
+                  type="tel"
+                  inputMode="numeric"
+                  placeholder="09xxxxxxxx"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  maxLength={10}
+                  style={{
+                    width: "100%", padding: "0.65rem 0.85rem", borderRadius: "10px",
+                    border: "1px solid var(--border)", background: "var(--background)",
+                    color: "var(--foreground)", fontSize: "0.95rem", fontWeight: 500,
+                  }}
+                />
+                <p style={{ margin: "0.4rem 0 0", fontSize: "0.75rem", color: "var(--muted-foreground)" }}>
+                  {t("pricing.phoneHint", { defaultValue: "10 digits, starting with 09 or 07. You'll receive a USSD prompt to confirm." })}
+                </p>
+              </div>
+            )}
+
+            {ebirrStatus && (
+              <div
+                style={{
+                  marginBottom: "1.25rem", padding: "0.9rem 1rem", borderRadius: "12px",
+                  border: "1px solid var(--border)",
+                  background: ebirrStatus.state === "success"
+                    ? "color-mix(in oklab, oklch(0.6 0.15 150) 14%, transparent)"
+                    : ebirrStatus.state === "failed"
+                    ? "color-mix(in oklab, oklch(0.6 0.18 25) 14%, transparent)"
+                    : "color-mix(in oklab, var(--primary) 10%, transparent)",
+                  fontSize: "0.9rem",
+                }}
+              >
+                <strong style={{ display: "block", marginBottom: "0.3rem" }}>
+                  {ebirrStatus.state === "success"
+                    ? t("pricing.ebirrSuccessTitle", { defaultValue: "Payment confirmed" })
+                    : ebirrStatus.state === "failed"
+                    ? t("pricing.ebirrFailedTitle", { defaultValue: "Payment failed" })
+                    : t("pricing.ebirrWaitingTitle", { defaultValue: "Awaiting confirmation on your phone…" })}
+                </strong>
+                <span>{ebirrStatus.message}</span>
+              </div>
+            )}
+
             <div style={{ display: "flex", gap: "0.6rem", justifyContent: "flex-end" }}>
               <button
                 type="button"
@@ -287,21 +373,27 @@ function PricingPage() {
                   color: "var(--foreground)", cursor: "pointer", fontWeight: 500,
                 }}
               >
-                {t("pricing.cancel", { defaultValue: "Cancel" })}
+                {ebirrStatus?.state === "success"
+                  ? t("pricing.close", { defaultValue: "Close" })
+                  : t("pricing.cancel", { defaultValue: "Cancel" })}
               </button>
-              <button
-                type="button"
-                onClick={buy}
-                disabled={loadingPlan !== null}
-                className={s.cta}
-                style={{ minWidth: "140px" }}
-              >
-                {loadingPlan ? t("pricing.redirecting") : (
-                  <>
-                    <Sparkles size={16} /> {t("pricing.continue", { defaultValue: "Continue" })}
-                  </>
-                )}
-              </button>
+              {ebirrStatus?.state !== "success" && (
+                <button
+                  type="button"
+                  onClick={buy}
+                  disabled={loadingPlan !== null || ebirrStatus?.state === "waiting"}
+                  className={s.cta}
+                  style={{ minWidth: "140px" }}
+                >
+                  {loadingPlan || ebirrStatus?.state === "waiting"
+                    ? t("pricing.redirecting")
+                    : (
+                      <>
+                        <Sparkles size={16} /> {t("pricing.continue", { defaultValue: "Continue" })}
+                      </>
+                    )}
+                </button>
+              )}
             </div>
           </div>
         </div>

@@ -4,7 +4,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
 
-// Initiate a Chapa checkout session for a plan.
+// Initiate a Chapa hosted checkout session for a plan (cards/bank/all methods picker).
 // Returns { checkout_url, tx_ref } the client should redirect to.
 export const initiateChapaPayment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -12,7 +12,6 @@ export const initiateChapaPayment = createServerFn({ method: "POST" })
     z
       .object({
         planSlug: z.string().min(1).max(64),
-        paymentMethod: z.enum(["chapa", "ebirr"]).optional().default("chapa"),
       })
       .parse(input),
   )
@@ -94,7 +93,7 @@ export const initiateChapaPayment = createServerFn({ method: "POST" })
         tx_ref,
         callback_url,
         return_url,
-        ...(data.paymentMethod === "ebirr" ? { payment_method: "ebirr" } : {}),
+        
         customization: {
           title: `${plan.name} plan`.slice(0, 16),
           description: `${plan.credits} credits`.slice(0, 50),
@@ -124,6 +123,101 @@ export const initiateChapaPayment = createServerFn({ method: "POST" })
       .eq("tx_ref", tx_ref);
 
     return { checkout_url, tx_ref };
+  });
+
+// Direct-charge e-Birr / Telebirr USSD push (no Chapa hosted picker).
+export const initiateEbirrPayment = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input) =>
+    z
+      .object({
+        planSlug: z.string().min(1).max(64),
+        mobile: z
+          .string()
+          .trim()
+          .regex(/^(09|07)\d{8}$/, "Phone must be 10 digits starting with 09 or 07"),
+        type: z.enum(["telebirr", "ebirr", "cbebirr", "mpesa"]).optional().default("telebirr"),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { userId, supabase } = context;
+    const CHAPA_SECRET = process.env.CHAPA_SECRET_KEY;
+    if (!CHAPA_SECRET) throw new Error("CHAPA_SECRET_KEY is not configured");
+
+    const { data: plan, error: planErr } = await supabase
+      .from("subscription_plans")
+      .select("*")
+      .eq("slug", data.planSlug)
+      .eq("active", true)
+      .maybeSingle();
+    if (planErr) throw planErr;
+    if (!plan) throw new Error("Plan not found");
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("display_name")
+      .eq("user_id", userId)
+      .maybeSingle();
+    const { data: authUser } = await supabaseAdmin.auth.admin.getUserById(userId);
+    const email = authUser?.user?.email ?? `${userId}@example.com`;
+    const fullName = (profile?.display_name ?? email.split("@")[0]).trim();
+    const [firstName, ...rest] = fullName.split(/\s+/);
+    const lastName = rest.join(" ") || "User";
+
+    const tx_ref = `ps-${userId.slice(0, 8)}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+
+    const { error: insErr } = await supabase.from("subscription_payments").insert({
+      user_id: userId,
+      plan_id: plan.id,
+      tx_ref,
+      amount_etb: plan.price_etb,
+      status: "pending",
+    });
+    if (insErr) throw insErr;
+
+    const form = new URLSearchParams();
+    form.set("amount", String(plan.price_etb));
+    form.set("currency", "ETB");
+    form.set("tx_ref", tx_ref);
+    form.set("mobile", data.mobile);
+    form.set("email", email);
+    form.set("first_name", firstName || "User");
+    form.set("last_name", lastName);
+
+    const chargeRes = await fetch(
+      `https://api.chapa.co/v1/charges?type=${encodeURIComponent(data.type)}`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${CHAPA_SECRET}`,
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: form.toString(),
+      },
+    );
+    const chargeJson = (await chargeRes.json()) as {
+      status?: string;
+      message?: string;
+      data?: unknown;
+    };
+
+    if (!chargeRes.ok || chargeJson.status !== "success") {
+      await supabaseAdmin
+        .from("subscription_payments")
+        .update({ status: "failed" })
+        .eq("tx_ref", tx_ref);
+      throw new Error(
+        `${data.type} charge failed: ${chargeJson.message ?? chargeRes.statusText}`,
+      );
+    }
+
+    return {
+      tx_ref,
+      message:
+        chargeJson.message ??
+        "A payment request has been sent to your phone. Approve it via USSD to complete payment.",
+    };
   });
 
 // Verify a payment status (called from /payment/success page).
