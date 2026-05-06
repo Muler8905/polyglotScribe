@@ -93,7 +93,7 @@ export const initiateChapaPayment = createServerFn({ method: "POST" })
         tx_ref,
         callback_url,
         return_url,
-        ...(data.paymentMethod === "ebirr" ? { payment_method: "ebirr" } : {}),
+        
         customization: {
           title: `${plan.name} plan`.slice(0, 16),
           description: `${plan.credits} credits`.slice(0, 50),
