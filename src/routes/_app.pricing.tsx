@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
-import { initiateChapaPayment } from "@/server/chapa.functions";
+import { initiateChapaPayment, initiateEbirrPayment, verifyChapaPayment } from "@/server/chapa.functions";
 import s from "@/components/Pricing.module.css";
 
 export const Route = createFileRoute("/_app/pricing")({
