@@ -229,16 +229,16 @@ function PricingPage() {
           <div
             onClick={(e) => e.stopPropagation()}
             style={{
-              background: "hsl(var(--card))", color: "hsl(var(--foreground))",
+              background: "var(--card)", color: "var(--foreground)",
               borderRadius: "16px", padding: "1.75rem", maxWidth: "420px", width: "100%",
-              border: "1px solid hsl(var(--border))",
+              border: "1px solid var(--border)",
               boxShadow: "0 20px 50px -10px rgba(0,0,0,0.4)",
             }}
           >
             <h3 style={{ margin: "0 0 0.4rem", fontSize: "1.2rem", fontWeight: 700 }}>
               {t("pricing.choosePayment", { defaultValue: "Choose payment method" })}
             </h3>
-            <p style={{ margin: "0 0 1.25rem", color: "hsl(var(--muted-foreground))", fontSize: "0.9rem" }}>
+            <p style={{ margin: "0 0 1.25rem", color: "var(--muted-foreground)", fontSize: "0.9rem" }}>
               {pendingPlan.name} — {pendingPlan.price_etb.toLocaleString()} ETB
             </p>
 
@@ -255,9 +255,9 @@ function PricingPage() {
                     style={{
                       display: "flex", alignItems: "center", gap: "0.7rem",
                       padding: "0.85rem 1rem", borderRadius: "12px",
-                      border: active ? "2px solid hsl(var(--primary))" : "1px solid hsl(var(--border))",
-                      background: active ? "hsl(var(--primary) / 0.08)" : "hsl(var(--background))",
-                      color: "hsl(var(--foreground))",
+                      border: active ? "2px solid var(--primary)" : "1px solid var(--border)",
+                      background: active ? "color-mix(in oklab, var(--primary) 12%, transparent)" : "var(--background)",
+                      color: "var(--foreground)",
                       cursor: "pointer", textAlign: "left",
                       fontWeight: 600,
                     }}
@@ -265,7 +265,7 @@ function PricingPage() {
                     {m === "ebirr" ? <Smartphone size={18} /> : <Coins size={18} />}
                     <div style={{ display: "flex", flexDirection: "column" }}>
                       <span>{m === "chapa" ? t("pricing.methodChapa") : t("pricing.methodEbirr")}</span>
-                      <span style={{ fontSize: "0.75rem", fontWeight: 400, color: "hsl(var(--muted-foreground))" }}>
+                      <span style={{ fontSize: "0.75rem", fontWeight: 400, color: "var(--muted-foreground)" }}>
                         {m === "chapa"
                           ? t("pricing.methodChapaDesc", { defaultValue: "Cards, bank transfer, mobile wallets" })
                           : t("pricing.methodEbirrDesc", { defaultValue: "Pay with Telebirr / e-Birr wallet" })}
@@ -283,8 +283,8 @@ function PricingPage() {
                 disabled={loadingPlan !== null}
                 style={{
                   padding: "0.65rem 1.1rem", borderRadius: "9px",
-                  border: "1px solid hsl(var(--border))", background: "hsl(var(--background))",
-                  color: "hsl(var(--foreground))", cursor: "pointer", fontWeight: 500,
+                  border: "1px solid var(--border)", background: "var(--background)",
+                  color: "var(--foreground)", cursor: "pointer", fontWeight: 500,
                 }}
               >
                 {t("pricing.cancel", { defaultValue: "Cancel" })}
