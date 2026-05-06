@@ -373,21 +373,27 @@ function PricingPage() {
                   color: "var(--foreground)", cursor: "pointer", fontWeight: 500,
                 }}
               >
-                {t("pricing.cancel", { defaultValue: "Cancel" })}
+                {ebirrStatus?.state === "success"
+                  ? t("pricing.close", { defaultValue: "Close" })
+                  : t("pricing.cancel", { defaultValue: "Cancel" })}
               </button>
-              <button
-                type="button"
-                onClick={buy}
-                disabled={loadingPlan !== null}
-                className={s.cta}
-                style={{ minWidth: "140px" }}
-              >
-                {loadingPlan ? t("pricing.redirecting") : (
-                  <>
-                    <Sparkles size={16} /> {t("pricing.continue", { defaultValue: "Continue" })}
-                  </>
-                )}
-              </button>
+              {ebirrStatus?.state !== "success" && (
+                <button
+                  type="button"
+                  onClick={buy}
+                  disabled={loadingPlan !== null || ebirrStatus?.state === "waiting"}
+                  className={s.cta}
+                  style={{ minWidth: "140px" }}
+                >
+                  {loadingPlan || ebirrStatus?.state === "waiting"
+                    ? t("pricing.redirecting")
+                    : (
+                      <>
+                        <Sparkles size={16} /> {t("pricing.continue", { defaultValue: "Continue" })}
+                      </>
+                    )}
+                </button>
+              )}
             </div>
           </div>
         </div>
