@@ -2,6 +2,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { useServerFn } from "@tanstack/react-start";
+import { Menu, X } from "lucide-react";
 import s from "./Shell.module.css";
 import { useAuth } from "@/lib/auth-context";
 import { listTranscriptions } from "@/server/transcription.functions";
@@ -31,6 +32,8 @@ export function Shell({
   const [items, setItems] = useState<HistoryItem[]>([]);
   const list = useServerFn(listTranscriptions);
 
+  const [open, setOpen] = useState(false);
+
   useEffect(() => {
     list()
       .then((r) => setItems(((r as { items?: HistoryItem[] })?.items ?? []) as HistoryItem[]))
@@ -42,10 +45,16 @@ export function Shell({
     nav({ to: "/auth" });
   };
 
+  const close = () => setOpen(false);
+
   return (
     <div className={s.shell}>
-      <aside className={s.sidebar}>
-        <Link to="/dashboard" className={s.brand} style={{ textDecoration: "none" }}>
+      <button className={s.menuBtn} onClick={() => setOpen((o) => !o)} aria-label="Toggle menu">
+        {open ? <X size={20} /> : <Menu size={20} />}
+      </button>
+      <div className={`${s.overlay} ${open ? s.overlayOpen : ""}`} onClick={close} />
+      <aside className={`${s.sidebar} ${open ? s.sidebarOpen : ""}`}>
+        <Link to="/dashboard" className={s.brand} style={{ textDecoration: "none" }} onClick={close}>
           <div className={s.brandMark} />
           <div>Polyglot Scribe</div>
         </Link>
@@ -61,6 +70,7 @@ export function Shell({
               to="/transcription/$id"
               params={{ id: it.id }}
               className={`${s.historyItem} ${activeId === it.id ? s.active : ""}`}
+              onClick={close}
             >
               <div className={s.historyItemTitle}>{it.title}</div>
               <div className={s.historyMeta}>
@@ -71,7 +81,7 @@ export function Shell({
           ))}
         </div>
 
-        <Link to="/settings" className={s.signout} style={{ textDecoration: "none", textAlign: "center" }}>{t("shell.settings")}</Link>
+        <Link to="/settings" className={s.signout} style={{ textDecoration: "none", textAlign: "center" }} onClick={close}>{t("shell.settings")}</Link>
         <button className={s.signout} onClick={handleSignOut}>{t("shell.signout")}</button>
       </aside>
       <main className={s.main}>{children}</main>

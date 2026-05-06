@@ -1,21 +1,55 @@
 .shell {
   min-height: 100vh;
-  display: grid;
-  grid-template-columns: 280px 1fr;
   background: var(--gradient-surface);
+  position: relative;
 }
+.menuBtn {
+  position: fixed;
+  top: 14px;
+  left: 14px;
+  z-index: 60;
+  width: 40px;
+  height: 40px;
+  border-radius: 9px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--foreground);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: var(--shadow-elegant);
+}
+.menuBtn:hover { background: var(--muted); }
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 40;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s;
+}
+.overlayOpen { opacity: 1; pointer-events: auto; }
 .sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 280px;
   background: var(--sidebar);
   border-right: 1px solid var(--sidebar-border);
   padding: 1.25rem 1rem;
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  position: sticky;
-  top: 0;
-  height: 100vh;
   overflow-y: auto;
+  z-index: 50;
+  transform: translateX(-100%);
+  transition: transform 0.25s ease;
+  box-shadow: var(--shadow-elegant);
 }
+.sidebarOpen { transform: translateX(0); }
 .brand {
   display: flex;
   align-items: center;
@@ -23,6 +57,7 @@
   font-weight: 700;
   font-size: 1.05rem;
   color: var(--sidebar-foreground);
+  margin-left: 48px;
 }
 .brand-mark {
   width: 32px;
@@ -102,11 +137,8 @@
 .signout:hover { background: var(--muted); }
 .main {
   padding: 2rem;
+  padding-top: 4.5rem;
   max-width: 1200px;
   width: 100%;
   margin: 0 auto;
-}
-@media (max-width: 900px) {
-  .shell { grid-template-columns: 1fr; }
-  .sidebar { position: static; height: auto; }
 }
