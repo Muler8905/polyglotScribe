@@ -140,48 +140,6 @@ function PricingPage() {
         <p className={s.subtitle}>{t("pricing.subtitle")}</p>
       </header>
 
-      <div
-        role="radiogroup"
-        aria-label={t("pricing.methodLabel")}
-        style={{
-          display: "flex",
-          gap: "0.75rem",
-          justifyContent: "center",
-          margin: "0 auto 2rem",
-          flexWrap: "wrap",
-        }}
-      >
-        {(["chapa", "ebirr"] as const).map((m) => {
-          const active = method === m;
-          return (
-            <button
-              key={m}
-              type="button"
-              role="radio"
-              aria-checked={active}
-              onClick={() => setMethod(m)}
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "0.5rem",
-                padding: "0.65rem 1.1rem",
-                borderRadius: "999px",
-                border: active
-                  ? "1px solid hsl(var(--primary))"
-                  : "1px solid hsl(var(--border))",
-                background: active ? "hsl(var(--primary) / 0.12)" : "hsl(var(--card))",
-                color: active ? "hsl(var(--primary))" : "hsl(var(--foreground))",
-                fontWeight: 600,
-                cursor: "pointer",
-                transition: "all 0.15s",
-              }}
-            >
-              {m === "ebirr" ? <Smartphone size={16} /> : <Coins size={16} />}
-              {m === "chapa" ? t("pricing.methodChapa") : t("pricing.methodEbirr")}
-            </button>
-          );
-        })}
-      </div>
 
       <div className={s.grid}>
         {plans.map((p) => (
