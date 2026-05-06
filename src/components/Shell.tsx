@@ -2,6 +2,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { useServerFn } from "@tanstack/react-start";
+import { Menu, X } from "lucide-react";
 import s from "./Shell.module.css";
 import { useAuth } from "@/lib/auth-context";
 import { listTranscriptions } from "@/server/transcription.functions";
