@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { supabase } from "@/integrations/supabase/client";
 import hero1 from "@/assets/hero-1.jpg";
 import hero2 from "@/assets/hero-2.jpg";
 import hero3 from "@/assets/hero-3.jpg";
 import s from "./HeroSlideshow.module.css";
+import { apiClient } from "@/lib/api-client";
 
 const FALLBACK = [
   { url: hero1, caption: "Capture every voice in the room" },
@@ -22,16 +22,12 @@ export function HeroSlideshow() {
   const [index, setIndex] = useState(0);
 
   useEffect(() => {
-    supabase
-      .from("hero_images")
-      .select("image_url, caption")
-      .eq("active", true)
-      .order("sort_order", { ascending: true })
-      .then(({ data }) => {
-        if (data && data.length > 0) {
-          setSlides(data.map((d) => ({ url: d.image_url, caption: d.caption })));
-        }
-      });
+    apiClient.get("/app/hero-images?active=true").then((res) => {
+      const data = res.data?.items ?? [];
+      if (data.length > 0) {
+        setSlides(data.map((d: any) => ({ url: d.imageUrl, caption: d.caption })));
+      }
+    });
   }, []);
 
   useEffect(() => {

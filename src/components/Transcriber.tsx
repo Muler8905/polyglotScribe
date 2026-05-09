@@ -12,7 +12,7 @@ import {
   translateAdhoc,
   translateTranscription,
   transcribeYouTube,
-} from "@/server/transcription.functions";
+} from "@/serverFns/transcription.functions";
 import { authedFetch } from "@/lib/auth-context";
 
 type Tab = "live" | "file" | "youtube";

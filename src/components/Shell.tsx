@@ -5,7 +5,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { Menu, X } from "lucide-react";
 import s from "./Shell.module.css";
 import { useAuth } from "@/lib/auth-context";
-import { listTranscriptions } from "@/server/transcription.functions";
+import { listTranscriptions } from "@/serverFns/transcription.functions";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
 interface HistoryItem {
