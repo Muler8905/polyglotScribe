@@ -1,0 +1,199 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum AuthProvider {
+  local
+  google
+}
+
+enum UserRoleType {
+  user
+  admin
+}
+
+enum TranscriptionType {
+  live
+  file
+  youtube
+}
+
+enum TranscriptionStatus {
+  pending
+  processing
+  completed
+  failed
+}
+
+enum PaymentStatus {
+  pending
+  success
+  failed
+}
+
+model User {
+  id                       String       @id @default(cuid())
+  email                    String       @unique @db.VarChar(191)
+  passwordHash             String       @db.VarChar(191)
+  displayName              String       @db.VarChar(120)
+  avatarUrl                String?      @db.VarChar(2048)
+  isEmailVerified          Boolean      @default(false)
+
+  emailVerificationToken   String?      @db.VarChar(64)
+  emailVerificationExpires DateTime?
+  passwordResetToken       String?      @db.VarChar(191)
+  passwordResetExpires     DateTime?
+
+  googleId                 String?      @unique @db.VarChar(191)
+  provider                 AuthProvider @default(local)
+  lastLogin                DateTime?
+
+  profile                  Profile?
+  tokens                   UserToken?
+  roles                    UserRole[]
+  refreshTokens            RefreshToken[]
+  transcriptions           Transcription[]
+  payments                 SubscriptionPayment[]
+
+  createdAt                DateTime     @default(now())
+  updatedAt                DateTime     @updatedAt
+}
+
+model Profile {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  displayName String   @db.VarChar(120)
+  avatarUrl   String?  @db.VarChar(2048)
+  bio         String   @default("") @db.Text
+  preferences Json?
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model UserToken {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  credits         Int      @default(0)
+  suspended       Boolean  @default(false)
+
+  featureLive     Boolean  @default(true)
+  featureFile     Boolean  @default(true)
+  featureYoutube  Boolean  @default(true)
+  featureTranslate Boolean @default(true)
+  featureTts      Boolean  @default(true)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model UserRole {
+  id        String       @id @default(cuid())
+  userId    String
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role      UserRoleType @default(user)
+
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  @@unique([userId, role])
+  @@index([role])
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique @db.VarChar(512)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId, expiresAt])
+}
+
+model Transcription {
+  id              String             @id @default(cuid())
+  userId          String
+  user            User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  type            TranscriptionType
+  title           String             @db.VarChar(200)
+  sourceUrl       String?            @db.VarChar(2048)
+  sourceLang      String?            @db.VarChar(16)
+  targetLang      String?            @db.VarChar(16)
+  transcript      String             @default("") @db.LongText
+  translation     String?            @db.LongText
+  durationSeconds Int?
+  status          TranscriptionStatus @default(pending)
+  metadata        Json?
+
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+
+  @@index([userId, createdAt])
+  @@index([status])
+}
+
+model SubscriptionPlan {
+  id          String   @id @default(cuid())
+  slug        String   @unique @db.VarChar(64)
+  name        String   @db.VarChar(64)
+  description String?  @db.VarChar(255)
+  priceEtb    Int
+  credits     Int
+  highlight   Boolean  @default(false)
+  sortOrder   Int      @default(1)
+  active      Boolean  @default(true)
+
+  payments    SubscriptionPayment[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([active, sortOrder])
+}
+
+model SubscriptionPayment {
+  id             String       @id @default(cuid())
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  planId         String
+  plan           SubscriptionPlan @relation(fields: [planId], references: [id])
+
+  txRef          String       @unique @db.VarChar(128)
+  amountEtb      Int
+  checkoutUrl    String?      @db.VarChar(2048)
+  status         PaymentStatus @default(pending)
+  creditsAwarded Int          @default(0)
+  chapaRef       String?      @db.VarChar(191)
+
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@index([userId, createdAt])
+  @@index([status])
+}
+
+model HeroImage {
+  id        String   @id @default(cuid())
+  imageUrl  String   @db.VarChar(2048)
+  caption   String?  @db.VarChar(255)
+  sortOrder Int      @default(1)
+  active    Boolean  @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([active, sortOrder])
+}
+
