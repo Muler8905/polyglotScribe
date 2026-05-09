@@ -493,122 +493,40 @@ function YouTubePanel({ onSaved }: Props) {
   const [videoId, setVideoId] = useState<string | null>(null);
   const [sourceLang, setSourceLang] = useState("eng");
   const [targetLang, setTargetLang] = useState("amh");
-  const [committed, setCommitted] = useState<string[]>([]);
-  const [partial, setPartial] = useState("");
+  const [transcript, setTranscript] = useState("");
   const [translation, setTranslation] = useState("");
+  const [transcribing, setTranscribing] = useState(false);
   const [translating, setTranslating] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [connecting, setConnecting] = useState(false);
+  const [videoTitle, setVideoTitle] = useState("");
 
-  const transcript = committed.join(" ").trim();
   const tts = useTTS();
-  const getToken = useServerFn(getScribeToken);
+  const transcribeYT = useServerFn(transcribeYouTube);
   const translateFn = useServerFn(translateAdhoc);
-  const saveFn = useServerFn(saveTranscription);
 
-  const scribe = useScribe({
-    modelId: "scribe_v2_realtime",
-    commitStrategy: CommitStrategy.VAD,
-    languageCode: sourceLang,
-    onPartialTranscript: (d: any) => {
-      const t = typeof d === "string" ? d : d?.text ?? d?.transcript ?? "";
-      setPartial(t);
-    },
-    onCommittedTranscript: (d: any) => {
-      const t = (typeof d === "string" ? d : d?.text ?? d?.transcript ?? "").trim();
-      if (t) setCommitted((prev) => [...prev, t]);
-      setPartial("");
-    },
-  });
-
-  // Fallback: mirror the hook's own state if callback shape differs.
-  const hookPartial = (scribe as any).partialTranscript as string | undefined;
-  const hookCommitted = (scribe as any).committedTranscripts as
-    | Array<{ id?: string; text?: string }>
-    | undefined;
-  useEffect(() => {
-    if (typeof hookPartial === "string") setPartial(hookPartial);
-  }, [hookPartial]);
-  useEffect(() => {
-    if (Array.isArray(hookCommitted) && hookCommitted.length) {
-      const texts = hookCommitted.map((c) => (c?.text ?? "").trim()).filter(Boolean);
-      if (texts.length) setCommitted(texts);
-    }
-  }, [hookCommitted]);
-
-  // Auto-translate continuously while listening: re-translate whenever new
-  // committed text arrives, debounced to avoid hammering the API.
-  const lastTranslatedRef = useRef("");
-  useEffect(() => {
-    if (!scribe.isConnected) return;
-    if (!transcript) return;
-    if (transcript === lastTranslatedRef.current) return;
-    const handle = setTimeout(async () => {
-      const snapshot = transcript;
-      try {
-        setTranslating(true);
-        const { translation: live } = await translateFn({
-          data: { text: snapshot, targetLang, sourceLang },
-        });
-        lastTranslatedRef.current = snapshot;
-        setTranslation(live);
-      } catch {
-        // silent during live mode — user still has manual Translate button
-      } finally {
-        setTranslating(false);
-      }
-    }, 800);
-    return () => clearTimeout(handle);
-  }, [transcript, scribe.isConnected, targetLang, sourceLang, translateFn]);
-
-  const loadVideo = () => {
-    const id = extractYouTubeId(url.trim());
-    if (!id) {
-      toast.error("Invalid YouTube URL");
+  const transcribe = async () => {
+    if (!url.trim()) {
+      toast.error("Please enter a YouTube URL");
       return;
     }
-    setVideoId(id);
-    setCommitted([]);
-    setPartial("");
+
+    setTranscribing(true);
+    setTranscript("");
     setTranslation("");
-    toast.success("Video loaded — press ▶ on the player, then Start Listening");
-  };
+    setVideoTitle("");
+    setVideoId(null);
 
-  const startListening = async () => {
-    setConnecting(true);
     try {
-      await navigator.mediaDevices.getUserMedia({
-        audio: {
-          echoCancellation: false,
-          noiseSuppression: false,
-          autoGainControl: true,
-          channelCount: 1,
-          sampleRate: 16000,
-        },
-      });
-      const { token } = await getToken();
-      await scribe.connect({
-        token,
-        languageCode: sourceLang,
-        sampleRate: 16000,
-        microphone: {
-          echoCancellation: false,
-          noiseSuppression: false,
-          autoGainControl: true,
-          channelCount: 1,
-        },
-      });
-      toast.success(`Listening to video audio in ${labelOf(sourceLang)}…`);
+      const result = await transcribeYT({ data: { url: url.trim(), preferredLang: sourceLang } });
+      setTranscript(result.text);
+      setVideoTitle(result.title);
+      setVideoId(extractYouTubeId(url.trim()));
+      toast.success("YouTube video transcribed and saved!");
+      onSaved?.();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Failed to start");
+      toast.error(e instanceof Error ? e.message : "Transcription failed");
     } finally {
-      setConnecting(false);
+      setTranscribing(false);
     }
-  };
-
-  const stopListening = async () => {
-    await scribe.disconnect();
-    toast.info("Stopped listening");
   };
 
   const translate = async () => {
@@ -617,6 +535,7 @@ function YouTubePanel({ onSaved }: Props) {
     try {
       const { translation } = await translateFn({ data: { text: transcript, targetLang, sourceLang } });
       setTranslation(translation);
+      toast.success("Translation complete!");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Translation failed");
     } finally {
@@ -624,83 +543,45 @@ function YouTubePanel({ onSaved }: Props) {
     }
   };
 
-  const save = async () => {
-    if (!transcript || !videoId) return;
-    setSaving(true);
-    try {
-      await saveFn({
-        data: {
-          type: "youtube",
-          title: `YouTube — ${videoId}`,
-          transcript,
-          sourceLang,
-          targetLang: translation ? targetLang : undefined,
-          translation: translation || undefined,
-          sourceUrl: `https://youtu.be/${videoId}`,
-        },
-      });
-      toast.success("Saved to history");
-      onSaved?.();
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Save failed");
-    } finally {
-      setSaving(false);
-    }
-  };
-
   return (
     <div className={s.card}>
       <div className={s.cardHeader}>
-        <div className={s.cardTitle}>YouTube Live Transcription</div>
-        <div className={s.cardSubtitle}>
-          Paste a URL → click Transcribe → press play on the video. Words appear in real time as the video speaks.
-        </div>
+        <div className={s.cardTitle}>{t("transcriber.youtubeTitle")}</div>
+        <div className={s.cardSubtitle}>{t("transcriber.youtubeDesc")}</div>
       </div>
+
       <div className={s.row}>
         <div className={s.field} style={{ flex: 2 }}>
-          <label className={s.label}>YouTube URL</label>
+          <label className={s.label}>{t("transcriber.youtubeUrl")}</label>
           <input
             className={s.input}
             type="url"
-            placeholder="https://www.youtube.com/watch?v=…"
+            placeholder="https://www.youtube.com/watch?v=..."
             value={url}
             onChange={(e) => setUrl(e.target.value)}
           />
         </div>
         <div className={s.field}>
-          <label className={s.label}>Spoken language</label>
+          <label className={s.label}>{t("transcriber.spokenLang")}</label>
           <select className={s.select} value={sourceLang} onChange={(e) => setSourceLang(e.target.value)}>
             {LANGUAGES.map((l) => (<option key={l.code} value={l.code}>{l.label}</option>))}
           </select>
         </div>
         <div className={s.field}>
-          <label className={s.label}>Translate to</label>
+          <label className={s.label}>{t("transcriber.translateTo")}</label>
           <select className={s.select} value={targetLang} onChange={(e) => setTargetLang(e.target.value)}>
             {LANGUAGES.map((l) => (<option key={l.code} value={l.code}>{l.label}</option>))}
           </select>
         </div>
       </div>
+
       <div className={s.actions}>
-        <button className={`${s.btn} ${s.btnPrimary}`} onClick={loadVideo} disabled={!url.trim()}>
-          ▶ Transcribe
+        <button className={`${s.btn} ${s.btnPrimary}`} onClick={transcribe} disabled={!url.trim() || transcribing}>
+          {transcribing ? t("transcriber.transcribing") : t("transcriber.transcribe")}
         </button>
-        {videoId && !scribe.isConnected && (
-          <button className={s.btn} onClick={startListening} disabled={connecting}>
-            {connecting ? "Connecting…" : "🎙️ Start Listening"}
-          </button>
-        )}
-        {scribe.isConnected && (
-          <button className={`${s.btn} ${s.btnDanger}`} onClick={stopListening}>⏹ Stop</button>
-        )}
-        <button className={s.btn} onClick={save} disabled={!transcript || saving}>
-          {saving ? "Saving…" : "💾 Save"}
-        </button>
-        {scribe.isConnected && (
-          <span className={s.statusLine}><span className={s.recordDot} />Listening…</span>
-        )}
       </div>
 
-      {videoId && (
+      {videoId && videoTitle && (
         <div className={s.videoCard}>
           <div className={s.videoFrame}>
             <iframe
@@ -712,14 +593,13 @@ function YouTubePanel({ onSaved }: Props) {
             />
           </div>
           <div className={s.videoHint}>
-            💡 Play the video out loud (speakers) so the microphone can hear it. For best results, use a quiet room.
+            📹 {videoTitle}
           </div>
         </div>
       )}
 
       <ResultPanes
         transcript={transcript}
-        partial={partial}
         translation={translation}
         sourceLang={sourceLang}
         targetLang={targetLang}
