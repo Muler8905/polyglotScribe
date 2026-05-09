@@ -2,7 +2,7 @@ import { createFileRoute, Link, useSearch } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { CheckCircle2, XCircle, Loader2 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
-import { verifyChapaPayment } from "@/server/chapa.functions";
+import { verifyChapaPayment } from "@/serverFns/chapa.functions";
 import s from "@/components/Pricing.module.css";
 
 export const Route = createFileRoute("/payment/success")({

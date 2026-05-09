@@ -6,8 +6,9 @@ import { Shell } from "@/components/Shell";
 import { Transcriber } from "@/components/Transcriber";
 import { useAuth } from "@/lib/auth-context";
 import { useIsAdmin } from "@/lib/use-admin";
-import { supabase } from "@/integrations/supabase/client";
 import s from "@/components/Dashboard.module.css";
+import { apiClient } from "@/lib/api-client";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/_app/dashboard")({
   head: () => ({ meta: [{ title: "Dashboard — Polyglot Scribe" }] }),
@@ -21,21 +22,19 @@ function Dashboard() {
   const { isAdmin } = useIsAdmin();
   const [credits, setCredits] = useState<number | null>(null);
 
-  const displayName =
-    (user?.user_metadata?.display_name as string | undefined) ||
-    user?.email?.split("@")[0] ||
-    "there";
+  const displayName = user?.displayName || user?.email?.split("@")[0] || "there";
   const hour = new Date().getHours();
   const greeting = hour < 12 ? t("dashboard.morning") : hour < 18 ? t("dashboard.afternoon") : t("dashboard.evening");
 
   useEffect(() => {
     if (!user) return;
-    supabase
-      .from("user_tokens")
-      .select("credits")
-      .eq("user_id", user.id)
-      .maybeSingle()
-      .then(({ data }) => setCredits(data?.credits ?? 0));
+    apiClient
+      .get("/app/profile")
+      .then((r) => setCredits(r.data?.tokens?.credits ?? 0))
+      .catch((e) => {
+        setCredits(0);
+        toast.error(e instanceof Error ? e.message : "Failed to load profile");
+      });
   }, [user, refreshKey]);
 
   const outOfCredits = credits !== null && credits <= 0;

@@ -5,9 +5,9 @@ import { User, Lock, CreditCard, Settings as SettingsIcon } from "lucide-react";
 import { Shell } from "@/components/Shell";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { toast } from "sonner";
+import { apiClient } from "@/lib/api-client";
 
 export const Route = createFileRoute("/_app/settings")({
   head: () => ({ meta: [{ title: "Settings — Polyglot Scribe" }] }),
@@ -30,23 +30,20 @@ function SettingsPage() {
 
   useEffect(() => {
     if (!user) return;
-    supabase.from("profiles").select("display_name, avatar_url").eq("user_id", user.id).maybeSingle()
-      .then(({ data }) => {
-        setDisplayName(data?.display_name ?? "");
-        setAvatarUrl(data?.avatar_url ?? "");
-      });
-    supabase.from("user_tokens").select("credits").eq("user_id", user.id).maybeSingle()
-      .then(({ data }) => setCredits(data?.credits ?? 0));
+    apiClient.get("/app/profile").then((res) => {
+      if (!res.success) return;
+      setDisplayName(res.data?.profile?.displayName ?? "");
+      setAvatarUrl(res.data?.profile?.avatarUrl ?? "");
+      setCredits(res.data?.tokens?.credits ?? 0);
+    });
   }, [user]);
 
   const saveProfile = async () => {
     if (!user) return;
     setSavingProfile(true);
-    const { error } = await supabase
-      .from("profiles")
-      .upsert({ user_id: user.id, display_name: displayName, avatar_url: avatarUrl || null }, { onConflict: "user_id" });
+    const response = await apiClient.put("/app/profile", { displayName, avatarUrl: avatarUrl || null });
     setSavingProfile(false);
-    if (error) toast.error(error.message);
+    if (!response.success) toast.error(response.message || "Failed to update profile");
     else toast.success("Profile updated");
   };
 
@@ -54,9 +51,9 @@ function SettingsPage() {
     if (pwd.length < 6) return toast.error("Password must be at least 6 characters");
     if (pwd !== pwd2) return toast.error("Passwords do not match");
     setSavingPwd(true);
-    const { error } = await supabase.auth.updateUser({ password: pwd });
+    const response = await apiClient.put("/app/password", { password: pwd });
     setSavingPwd(false);
-    if (error) toast.error(error.message);
+    if (!response.success) toast.error(response.message || "Failed to update password");
     else { toast.success("Password updated"); setPwd(""); setPwd2(""); }
   };
 

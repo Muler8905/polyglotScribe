@@ -4,10 +4,10 @@ import { ArrowLeft, Check, Sparkles, Coins, Smartphone } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { useServerFn } from "@tanstack/react-start";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
-import { initiateChapaPayment, initiateEbirrPayment, verifyChapaPayment } from "@/server/chapa.functions";
+import { initiateChapaPayment, initiateEbirrPayment, verifyChapaPayment } from "@/serverFns/chapa.functions";
 import s from "@/components/Pricing.module.css";
+import { apiClient } from "@/lib/api-client";
 
 export const Route = createFileRoute("/_app/pricing")({
   head: () => ({ meta: [{ title: "Upgrade — Polyglot Scribe" }] }),
@@ -50,27 +50,36 @@ function PricingPage() {
   const verify = useServerFn(verifyChapaPayment);
 
   useEffect(() => {
-    supabase
-      .from("subscription_plans")
-      .select("*")
-      .eq("active", true)
-      .order("sort_order")
-      .then(({ data }) => setPlans((data ?? []) as Plan[]));
+    apiClient.get("/billing/plans").then((res) => {
+      const data = res.data?.plans ?? [];
+      setPlans(
+        data.map((p: any) => ({
+          id: p._id,
+          slug: p.slug,
+          name: p.name,
+          description: p.description,
+          price_etb: p.priceEtb,
+          credits: p.credits,
+          highlight: p.highlight,
+          sort_order: p.sortOrder,
+        })),
+      );
+    });
 
     if (user) {
-      supabase
-        .from("user_tokens")
-        .select("credits")
-        .eq("user_id", user.id)
-        .maybeSingle()
-        .then(({ data }) => setCredits(data?.credits ?? 0));
-      supabase
-        .from("subscription_payments")
-        .select("id, tx_ref, amount_etb, credits_awarded, status, created_at, plan:subscription_plans(name)")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false })
-        .limit(10)
-        .then(({ data }) => setHistory((data ?? []) as unknown as PaymentRow[]));
+      apiClient.get("/app/profile").then((r) => setCredits(r.data?.tokens?.credits ?? 0));
+      apiClient.get("/billing/payments").then((r) => {
+        const items = (r.data?.items ?? []).map((h: any) => ({
+          id: h._id,
+          tx_ref: h.txRef,
+          amount_etb: h.amountEtb,
+          credits_awarded: h.creditsAwarded,
+          status: h.status,
+          created_at: h.createdAt,
+          plan: h.planId ? { name: h.planId.name } : null,
+        }));
+        setHistory(items);
+      });
     }
   }, [user]);
 

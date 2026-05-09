@@ -1,31 +1,19 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { createClient } from "@supabase/supabase-js";
-import type { Database } from "@/integrations/supabase/types";
 import { transcribeFile } from "@/server/elevenlabs.server";
+const API_URL = process.env.API_URL || process.env.VITE_API_URL || "http://localhost:5000/api";
 
-async function getUserClient(req: Request) {
+async function getAccessToken(req: Request) {
   const auth = req.headers.get("authorization");
   if (!auth?.startsWith("Bearer ")) return null;
-  const token = auth.slice(7);
-  const supabase = createClient<Database>(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_PUBLISHABLE_KEY!,
-    {
-      global: { headers: { Authorization: `Bearer ${token}` } },
-      auth: { persistSession: false, autoRefreshToken: false },
-    }
-  );
-  const { data, error } = await supabase.auth.getClaims(token);
-  if (error || !data?.claims?.sub) return null;
-  return { supabase, userId: data.claims.sub as string };
+  return auth.slice(7);
 }
 
 export const Route = createFileRoute("/api/transcribe-file")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const ctx = await getUserClient(request);
-        if (!ctx) return new Response("Unauthorized", { status: 401 });
+        const token = await getAccessToken(request);
+        if (!token) return new Response("Unauthorized", { status: 401 });
 
         const form = await request.formData();
         const file = form.get("file");
@@ -37,21 +25,24 @@ export const Route = createFileRoute("/api/transcribe-file")({
 
         try {
           const result = await transcribeFile(file, lang);
-          const { data, error } = await ctx.supabase
-            .from("transcriptions")
-            .insert({
-              user_id: ctx.userId,
+          const saveRes = await fetch(`${API_URL}/transcriptions`, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
               type: "file",
               title,
-              source_lang: result.language_code ?? lang ?? null,
+              sourceLang: result.language_code ?? lang ?? null,
               transcript: result.text,
-            })
-            .select()
-            .single();
-          if (error) throw error;
+            }),
+          });
+          const saveJson = await saveRes.json();
+          if (!saveRes.ok || !saveJson?.success) throw new Error(saveJson?.message || "Failed to save");
 
           return Response.json({
-            id: data.id,
+            id: saveJson.data.id,
             text: result.text,
             languageCode: result.language_code ?? lang ?? null,
           });

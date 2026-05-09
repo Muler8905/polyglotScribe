@@ -10,7 +10,7 @@ import {
   getTranscription,
   synthesizeSpeech,
   translateTranscription,
-} from "@/server/transcription.functions";
+} from "@/serverFns/transcription.functions";
 
 export const Route = createFileRoute("/_app/transcription/$id")({
   head: () => ({ meta: [{ title: "Transcription — Polyglot Scribe" }] }),

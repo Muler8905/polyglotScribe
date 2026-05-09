@@ -3,16 +3,15 @@ import { useEffect, useState } from "react";
 import { ArrowLeft, Trash2, Shield, ShieldOff, Plus, Image as ImageIcon } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
 import { useIsAdmin } from "@/lib/use-admin";
 import s from "@/components/Admin.module.css";
+import { apiClient } from "@/lib/api-client";
 
 export const Route = createFileRoute("/_app/admin")({
   beforeLoad: async () => {
     if (typeof window !== "undefined") {
-      const { data } = await supabase.auth.getSession();
-      if (!data.session) throw redirect({ to: "/auth" });
+      if (!apiClient.isAuthenticated()) throw redirect({ to: "/auth" });
     }
   },
   head: () => ({ meta: [{ title: "Admin Dashboard — Polyglot Scribe" }] }),
@@ -53,35 +52,33 @@ function AdminPage() {
 
   const loadAll = async () => {
     setLoadingData(true);
-    const [profilesRes, rolesRes, tokensRes, txCountRes, heroRes] = await Promise.all([
-      supabase.from("profiles").select("user_id, display_name"),
-      supabase.from("user_roles").select("user_id, role"),
-      supabase.from("user_tokens").select("*"),
-      supabase.from("transcriptions").select("user_id"),
-      supabase.from("hero_images").select("*").order("sort_order"),
+    const [usersRes, heroRes] = await Promise.all([
+      apiClient.get("/app/admin/users"),
+      apiClient.get("/app/hero-images"),
     ]);
-    const adminIds = new Set((rolesRes.data ?? []).filter((r) => r.role === "admin").map((r) => r.user_id));
-    const tokenMap = new Map((tokensRes.data ?? []).map((t) => [t.user_id, t]));
-    const counts = new Map<string, number>();
-    (txCountRes.data ?? []).forEach((t) => counts.set(t.user_id, (counts.get(t.user_id) ?? 0) + 1));
-    const rows: UserRow[] = (profilesRes.data ?? []).map((p) => {
-      const t = tokenMap.get(p.user_id);
-      return {
-        user_id: p.user_id,
-        display_name: p.display_name,
-        is_admin: adminIds.has(p.user_id),
-        credits: t?.credits ?? 0,
-        suspended: t?.suspended ?? false,
-        feature_live: t?.feature_live ?? true,
-        feature_file: t?.feature_file ?? true,
-        feature_youtube: t?.feature_youtube ?? true,
-        feature_translate: t?.feature_translate ?? true,
-        feature_tts: t?.feature_tts ?? true,
-        transcript_count: counts.get(p.user_id) ?? 0,
-      };
-    });
+    const rows: UserRow[] = (usersRes.data?.users ?? []).map((u: any) => ({
+      user_id: u.userId,
+      display_name: u.displayName,
+      is_admin: u.isAdmin,
+      credits: u.credits,
+      suspended: u.suspended,
+      feature_live: u.featureLive,
+      feature_file: u.featureFile,
+      feature_youtube: u.featureYoutube,
+      feature_translate: u.featureTranslate,
+      feature_tts: u.featureTts,
+      transcript_count: u.transcriptCount,
+    }));
     setUsers(rows);
-    setHero((heroRes.data ?? []) as HeroImage[]);
+    setHero(
+      (heroRes.data?.items ?? []).map((h: any) => ({
+        id: h._id,
+        image_url: h.imageUrl,
+        caption: h.caption,
+        sort_order: h.sortOrder,
+        active: h.active,
+      })),
+    );
     setLoadingData(false);
   };
 
@@ -119,9 +116,17 @@ function AdminPage() {
     if (patch.feature_youtube !== undefined) dbPatch.feature_youtube = patch.feature_youtube;
     if (patch.feature_translate !== undefined) dbPatch.feature_translate = patch.feature_translate;
     if (patch.feature_tts !== undefined) dbPatch.feature_tts = patch.feature_tts;
-    const { error } = await supabase.from("user_tokens").update(dbPatch).eq("user_id", userId);
-    if (error) {
-      toast.error(error.message);
+    const response = await apiClient.patch(`/app/admin/users/${userId}/tokens`, {
+      credits: dbPatch.credits,
+      suspended: dbPatch.suspended,
+      featureLive: dbPatch.feature_live,
+      featureFile: dbPatch.feature_file,
+      featureYoutube: dbPatch.feature_youtube,
+      featureTranslate: dbPatch.feature_translate,
+      featureTts: dbPatch.feature_tts,
+    });
+    if (!response.success) {
+      toast.error(response.message || "Failed to update");
       return;
     }
     setUsers((u) => u.map((r) => (r.user_id === userId ? { ...r, ...patch } : r)));
@@ -130,12 +135,12 @@ function AdminPage() {
 
   const toggleAdmin = async (row: UserRow) => {
     if (row.is_admin) {
-      const { error } = await supabase.from("user_roles").delete().eq("user_id", row.user_id).eq("role", "admin");
-      if (error) return toast.error(error.message);
+      const response = await apiClient.post(`/app/admin/users/${row.user_id}/toggle-admin`);
+      if (!response.success) return toast.error(response.message || "Failed");
       toast.success(t("admin.adminRevoked"));
     } else {
-      const { error } = await supabase.from("user_roles").insert({ user_id: row.user_id, role: "admin" });
-      if (error) return toast.error(error.message);
+      const response = await apiClient.post(`/app/admin/users/${row.user_id}/toggle-admin`);
+      if (!response.success) return toast.error(response.message || "Failed");
       toast.success(t("admin.adminGranted"));
     }
     setUsers((u) => u.map((r) => (r.user_id === row.user_id ? { ...r, is_admin: !r.is_admin } : r)));
@@ -143,8 +148,8 @@ function AdminPage() {
 
   const deleteTranscriptions = async (userId: string) => {
     if (!confirm(t("admin.deleteAllConfirm"))) return;
-    const { error } = await supabase.from("transcriptions").delete().eq("user_id", userId);
-    if (error) return toast.error(error.message);
+    const response = await apiClient.delete(`/app/admin/users/${userId}/transcriptions`);
+    if (!response.success) return toast.error(response.message || "Failed");
     toast.success(t("admin.transcriptsDeleted"));
     loadAll();
   };
@@ -153,36 +158,33 @@ function AdminPage() {
     const url = prompt(t("admin.promptUrl"));
     if (!url) return;
     const caption = prompt(t("admin.promptCaption")) ?? "";
-    const { error } = await supabase.from("hero_images").insert({
-      image_url: url,
+    const { success, message } = await apiClient.post("/app/hero-images", {
+      imageUrl: url,
       caption: caption || null,
-      sort_order: hero.length + 1,
+      sortOrder: hero.length + 1,
       active: true,
     });
-    if (error) return toast.error(error.message);
+    if (!success) return toast.error(message || "Failed");
     toast.success(t("admin.imageAdded"));
     loadAll();
   };
 
   const toggleHero = async (h: HeroImage) => {
-    const { error } = await supabase.from("hero_images").update({ active: !h.active }).eq("id", h.id);
-    if (error) return toast.error(error.message);
+    const response = await apiClient.patch(`/app/hero-images/${h.id}`, { active: !h.active });
+    if (!response.success) return toast.error(response.message || "Failed");
     setHero((arr) => arr.map((x) => (x.id === h.id ? { ...x, active: !x.active } : x)));
   };
 
   const saveHeroCaption = async (id: string, caption: string) => {
-    const { error } = await supabase
-      .from("hero_images")
-      .update({ caption: caption.trim() || null })
-      .eq("id", id);
-    if (error) return toast.error(error.message);
+    const response = await apiClient.patch(`/app/hero-images/${id}`, { caption: caption.trim() || null });
+    if (!response.success) return toast.error(response.message || "Failed");
     toast.success(t("admin.captionSaved"));
   };
 
   const deleteHero = async (id: string) => {
     if (!confirm(t("admin.confirmHeroDelete"))) return;
-    const { error } = await supabase.from("hero_images").delete().eq("id", id);
-    if (error) return toast.error(error.message);
+    const response = await apiClient.delete(`/app/hero-images/${id}`);
+    if (!response.success) return toast.error(response.message || "Failed");
     setHero((arr) => arr.filter((x) => x.id !== id));
   };
 

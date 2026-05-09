@@ -4,14 +4,13 @@ import { useTranslation } from "react-i18next";
 import s from "@/components/Auth.module.css";
 import { useAuth } from "@/lib/auth-context";
 import { lovable } from "@/integrations/lovable";
-import { supabase } from "@/integrations/supabase/client";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { apiClient } from "@/lib/api-client";
 
 export const Route = createFileRoute("/auth")({
   beforeLoad: async () => {
     if (typeof window !== "undefined") {
-      const { data } = await supabase.auth.getSession();
-      if (data.session) throw redirect({ to: "/dashboard" });
+      if (apiClient.isAuthenticated()) throw redirect({ to: "/dashboard" });
     }
   },
   head: () => ({ meta: [{ title: "Sign in — Polyglot Scribe" }] }),
@@ -19,7 +18,7 @@ export const Route = createFileRoute("/auth")({
 });
 
 function AuthPage() {
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, verifyOtp: verifyOtpCode, resendOtp: resendOtpCode } = useAuth();
   const { t } = useTranslation();
   const nav = useNavigate();
   const [mode, setMode] = useState<"signin" | "signup">("signin");
@@ -58,8 +57,7 @@ function AuthPage() {
     setErr(null);
     setBusy(true);
     try {
-      const { error } = await supabase.auth.verifyOtp({ email, token: otp.trim(), type: "signup" });
-      if (error) throw error;
+      await verifyOtpCode(email, otp.trim());
       nav({ to: "/dashboard" });
     } catch (e) {
       setErr(e instanceof Error ? e.message : t("auth.otpInvalid"));
@@ -71,8 +69,7 @@ function AuthPage() {
   const resendOtp = async () => {
     setErr(null); setInfo(null); setBusy(true);
     try {
-      const { error } = await supabase.auth.resend({ type: "signup", email });
-      if (error) throw error;
+      await resendOtpCode(email);
       setInfo(t("auth.otpResent"));
     } catch (e) {
       setErr(e instanceof Error ? e.message : "Failed to resend");

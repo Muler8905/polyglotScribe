@@ -7,13 +7,12 @@ import s from "@/components/Landing.module.css";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { HeroSlideshow } from "@/components/HeroSlideshow";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { apiClient } from "@/lib/api-client";
 
 export const Route = createFileRoute("/")({
   beforeLoad: async () => {
     if (typeof window !== "undefined") {
-      const { supabase } = await import("@/integrations/supabase/client");
-      const { data } = await supabase.auth.getSession();
-      if (data.session) throw redirect({ to: "/dashboard" });
+      if (apiClient.isAuthenticated()) throw redirect({ to: "/dashboard" });
     }
   },
   head: () => ({
