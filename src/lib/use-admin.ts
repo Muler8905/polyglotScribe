@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/auth-context";
+import { apiClient } from "@/lib/api-client";
 
 export function useIsAdmin() {
   const { user, loading } = useAuth();
@@ -14,21 +14,15 @@ export function useIsAdmin() {
       setChecking(false);
       return;
     }
-    let active = true;
-    supabase
-      .from("user_roles")
-      .select("role")
-      .eq("user_id", user.id)
-      .eq("role", "admin")
-      .maybeSingle()
-      .then(({ data }) => {
-        if (!active) return;
-        setIsAdmin(!!data);
-        setChecking(false);
-      });
-    return () => {
-      active = false;
-    };
+    apiClient
+      .get("/app/profile")
+      .then((res) => {
+        setIsAdmin((res.data?.roles ?? []).includes("admin"));
+      })
+      .catch(() => {
+        setIsAdmin(false);
+      })
+      .finally(() => setChecking(false));
   }, [user, loading]);
 
   return { isAdmin, loading: loading || checking };
