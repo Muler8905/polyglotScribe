@@ -6,9 +6,17 @@ export async function translateText(text: string, targetLangCode: string, source
   const openaiKey = process.env.OPENAI_API_KEY;
   
   if (geminiKey) {
-    return translateWithGemini(text, targetLangCode, sourceLangCode, geminiKey);
+    try {
+      return await translateWithGemini(text, targetLangCode, sourceLangCode, geminiKey);
+    } catch (error: any) {
+      if (error.message && error.message.includes("Rate limit exceeded") && openaiKey) {
+        console.warn("Gemini rate limited, falling back to OpenAI...");
+        return await translateWithOpenAI(text, targetLangCode, sourceLangCode, openaiKey);
+      }
+      throw error;
+    }
   } else if (openaiKey) {
-    return translateWithOpenAI(text, targetLangCode, sourceLangCode, openaiKey);
+    return await translateWithOpenAI(text, targetLangCode, sourceLangCode, openaiKey);
   } else {
     throw new Error("Translation API key not configured. Please set GOOGLE_GEMINI_API_KEY or OPENAI_API_KEY in your .env file");
   }
@@ -38,25 +46,37 @@ async function translateWithGemini(text: string, targetLangCode: string, sourceL
     text,
   ].join("\n");
 
-  const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent?key=${apiKey}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      contents: [{
-        parts: [{ text: prompt }]
-      }],
-      generationConfig: {
-        temperature: 0.2,
-        maxOutputTokens: 8192,
-      }
-    }),
-  });
-
-  if (r.status === 429) throw new Error("Rate limit exceeded. Please try again shortly.");
-  if (!r.ok) throw new Error(`Translation failed: ${r.status} ${await r.text()}`);
+  let retries = 3;
+  let delay = 1000;
   
-  const j = await r.json();
-  return (j.candidates?.[0]?.content?.parts?.[0]?.text ?? "").trim();
+  while (retries > 0) {
+    const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        contents: [{
+          parts: [{ text: prompt }]
+        }],
+        generationConfig: {
+          temperature: 0.2,
+          maxOutputTokens: 8192,
+        }
+      }),
+    });
+
+    if (r.status === 429) {
+      retries--;
+      if (retries === 0) throw new Error("Rate limit exceeded. Please try again shortly.");
+      await new Promise(resolve => setTimeout(resolve, delay));
+      delay *= 2;
+      continue;
+    }
+
+    if (!r.ok) throw new Error(`Translation failed: ${r.status} ${await r.text()}`);
+    
+    const j = await r.json();
+    return (j.candidates?.[0]?.content?.parts?.[0]?.text ?? "").trim();
+  }
 }
 
 async function translateWithOpenAI(text: string, targetLangCode: string, sourceLangCode: string | undefined, apiKey: string) {
@@ -80,25 +100,37 @@ async function translateWithOpenAI(text: string, targetLangCode: string, sourceL
     `10. Output ONLY the translated text — nothing else.`,
   ].join("\n");
 
-  const r = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: { 
-      "Authorization": `Bearer ${apiKey}`, 
-      "Content-Type": "application/json" 
-    },
-    body: JSON.stringify({
-      model: "gpt-4o-mini",
-      temperature: 0.2,
-      messages: [
-        { role: "system", content: sys },
-        { role: "user", content: text },
-      ],
-    }),
-  });
-
-  if (r.status === 429) throw new Error("Rate limit exceeded. Please try again shortly.");
-  if (!r.ok) throw new Error(`Translation failed: ${r.status} ${await r.text()}`);
+  let retries = 3;
+  let delay = 1000;
   
-  const j = await r.json();
-  return (j.choices?.[0]?.message?.content ?? "").trim();
+  while (retries > 0) {
+    const r = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: { 
+        "Authorization": `Bearer ${apiKey}`, 
+        "Content-Type": "application/json" 
+      },
+      body: JSON.stringify({
+        model: "gpt-4o-mini",
+        temperature: 0.2,
+        messages: [
+          { role: "system", content: sys },
+          { role: "user", content: text },
+        ],
+      }),
+    });
+
+    if (r.status === 429) {
+      retries--;
+      if (retries === 0) throw new Error("Rate limit exceeded. Please try again shortly.");
+      await new Promise(resolve => setTimeout(resolve, delay));
+      delay *= 2;
+      continue;
+    }
+
+    if (!r.ok) throw new Error(`Translation failed: ${r.status} ${await r.text()}`);
+    
+    const j = await r.json();
+    return (j.choices?.[0]?.message?.content ?? "").trim();
+  }
 }
