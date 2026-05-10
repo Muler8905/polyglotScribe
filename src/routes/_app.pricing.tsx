@@ -1,11 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { ArrowLeft, Check, Sparkles, Coins, Smartphone } from "lucide-react";
+import { ArrowLeft, Check, Sparkles, Coins, Smartphone, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { useServerFn } from "@tanstack/react-start";
 import { useAuth } from "@/lib/auth-context";
-import { initiateChapaPayment, initiateEbirrPayment, verifyChapaPayment } from "@/serverFns/chapa.functions";
+import { initiateChapaPayment, initiateEbirrPayment, verifyChapaPayment, verifyEbirrPayment, deletePaymentHistory } from "@/serverFns/chapa.functions";
 import s from "@/components/Pricing.module.css";
 import { apiClient } from "@/lib/api-client";
 
@@ -48,6 +48,8 @@ function PricingPage() {
   const initiate = useServerFn(initiateChapaPayment);
   const initiateEbirr = useServerFn(initiateEbirrPayment);
   const verify = useServerFn(verifyChapaPayment);
+  const verifyEbirr = useServerFn(verifyEbirrPayment);
+  const deleteHistory = useServerFn(deletePaymentHistory);
 
   useEffect(() => {
     apiClient.get("/billing/plans").then((res) => {
@@ -96,6 +98,17 @@ function PricingPage() {
     setPendingPlan(p);
   };
 
+  const handleDeleteHistory = async (id: string) => {
+    if (!confirm(t("pricing.confirmDelete", { defaultValue: "Are you sure you want to delete this record?" }))) return;
+    try {
+      await deleteHistory({ data: { id } });
+      setHistory(h => h.filter(item => item.id !== id));
+      toast.success(t("pricing.deleteSuccess", { defaultValue: "Record deleted successfully" }));
+    } catch (e) {
+      toast.error((e as Error).message);
+    }
+  };
+
   const buy = async () => {
     if (!user || !pendingPlan) return;
     const slug = pendingPlan.slug;
@@ -107,14 +120,14 @@ function PricingPage() {
           setLoadingPlan(null);
           return;
         }
-        const res = await initiateEbirr({ data: { planSlug: slug, mobile: phone.trim(), type: "telebirr" } });
+        const res = await initiateEbirr({ data: { planSlug: slug, mobile: phone.trim(), type: "ebirr" } });
         setEbirrStatus({ tx_ref: res.tx_ref, message: res.message, state: "waiting" });
         // Poll verify
         let attempts = 0;
         const poll = async () => {
           attempts++;
           try {
-            const v = await verify({ data: { tx_ref: res.tx_ref } });
+            const v = await verifyEbirr({ data: { tx_ref: res.tx_ref } });
             if (v.status === "success") {
               setEbirrStatus({ tx_ref: res.tx_ref, message: t("pricing.ebirrSuccess", { defaultValue: "Payment received! Credits added." }), state: "success" });
               setCredits((c) => (c ?? 0) + v.credits_awarded);
@@ -236,6 +249,7 @@ function PricingPage() {
                 <th>{t("pricing.thAmount")}</th>
                 <th>{t("pricing.thCredits")}</th>
                 <th>{t("pricing.thStatus")}</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
@@ -255,13 +269,24 @@ function PricingPage() {
                       {h.status}
                     </span>
                   </td>
+                  <td>
+                    <button 
+                      onClick={() => handleDeleteHistory(h.id)}
+                      style={{ 
+                        background: "none", border: "none", color: "var(--muted-foreground)",
+                        cursor: "pointer", padding: "4px", borderRadius: "4px"
+                      }}
+                      title="Delete record"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
       )}
-
       {pendingPlan && (
         <div
           role="dialog"

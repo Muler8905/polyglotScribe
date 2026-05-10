@@ -41,11 +41,22 @@ export const initiateEbirrPayment = createServerFn({ method: "POST" })
       })
       .parse(input),
   )
-  .handler(async ({ data }) => {
-    return {
-      tx_ref: `mobile-${Date.now()}`,
-      message: `Direct ${data.type} flow is not configured yet. Use Chapa checkout.`,
-    };
+  .handler(async ({ data, context }) => {
+    const res = await fetch(`${API_URL}/billing/payments/initiate-ebirr`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${context.token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ 
+        planSlug: data.planSlug,
+        mobile: data.mobile,
+        type: data.type
+      }),
+    });
+    const json = await res.json();
+    if (!res.ok || !json?.success) throw new Error(json?.message || "Failed to initiate e-Birr payment");
+    return { tx_ref: json.data.txRef, message: json.data.message };
   });
 
 export const verifyChapaPayment = createServerFn({ method: "POST" })
@@ -66,4 +77,39 @@ export const verifyChapaPayment = createServerFn({ method: "POST" })
       status: json.data.status as "success" | "pending" | "failed",
       credits_awarded: json.data.creditsAwarded ?? 0,
     };
+  });
+
+export const verifyEbirrPayment = createServerFn({ method: "POST" })
+  .middleware([requireApiAuth])
+  .inputValidator((input) => z.object({ tx_ref: z.string().min(1).max(128) }).parse(input))
+  .handler(async ({ data, context }) => {
+    const res = await fetch(`${API_URL}/billing/payments/verify-ebirr`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${context.token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ txRef: data.tx_ref }),
+    });
+    const json = await res.json();
+    if (!res.ok || !json?.success) throw new Error(json?.message || "Verification failed");
+    return {
+      status: json.data.status as "success" | "pending" | "failed",
+      credits_awarded: json.data.creditsAwarded ?? 0,
+    };
+  });
+
+export const deletePaymentHistory = createServerFn({ method: "POST" })
+  .middleware([requireApiAuth])
+  .inputValidator((input) => z.object({ id: z.string().min(1) }).parse(input))
+  .handler(async ({ data, context }) => {
+    const res = await fetch(`${API_URL}/billing/payments/${data.id}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${context.token}`,
+      },
+    });
+    const json = await res.json();
+    if (!res.ok || !json?.success) throw new Error(json?.message || "Failed to delete payment history");
+    return { success: true };
   });
