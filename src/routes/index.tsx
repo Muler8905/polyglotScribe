@@ -5,7 +5,7 @@ import { Menu, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import s from "@/components/Landing.module.css";
 import { ThemeToggle } from "@/components/ThemeToggle";
-import { HeroSlideshow } from "@/components/HeroSlideshow";
+import { HeroVideo } from "@/components/HeroVideo";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { apiClient } from "@/lib/api-client";
 
@@ -119,34 +119,49 @@ function Landing() {
 
       {/* HERO */}
       <section className={s.hero}>
-        <motion.div
-          className={s.heroInner}
-          initial={{ opacity: 0, y: 24 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ type: "spring", stiffness: 80, damping: 16 }}
-        >
-          <span className={s.kicker}>
-            <span className={s.dot} />
-            {t("hero.kicker")}
-          </span>
-          <h1 className={s.title}>
-            {t("hero.title1")}
-            <br />
-            {t("hero.title2")} <span className={s.gradient}>{t("hero.title3")}</span>.
-          </h1>
-          <p className={s.subtitle}>{t("hero.subtitle")}</p>
-          <div className={s.ctaRow}>
-            <Link to="/auth" className={s.cta}>{t("hero.ctaPrimary")}</Link>
-            <a href="#features" className={s.ctaSecondary}>{t("hero.ctaSecondary")}</a>
-          </div>
-          <div className={s.languages}>
-            <span className={s.langBadge}>🇬🇧 English</span>
-            <span className={s.langBadge}>🇪🇹 Amharic (አማርኛ)</span>
-            <span className={s.langBadge}>🇪🇹 Afaan Oromo</span>
-            <span className={s.langBadge}>🇸🇴 Somali (Soomaali)</span>
-          </div>
-          <HeroSlideshow />
-        </motion.div>
+        <HeroVideo />
+        <div className={s.heroContainer}>
+          <motion.div
+            className={s.heroInner}
+            initial={{ opacity: 0, x: -24 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ type: "spring", stiffness: 80, damping: 16 }}
+          >
+            <span className={s.kicker}>
+              <span className={s.dot} />
+              {t("hero.kicker")}
+            </span>
+            <h1 className={s.title} style={{ width: "100%" }}>
+              <motion.div
+                initial={{ opacity: 0, x: -40 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.1, type: "spring", stiffness: 80, damping: 15 }}
+                style={{ textAlign: "left" }}
+              >
+                {t("hero.title1")}
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3, type: "spring", stiffness: 80, damping: 15 }}
+                style={{ textAlign: "center", paddingLeft: "15%" }}
+              >
+                {t("hero.title2")} <span className={s.gradient}>{t("hero.title3")}</span>.
+              </motion.div>
+            </h1>
+            <p className={s.subtitle}>{t("hero.subtitle")}</p>
+            <div className={s.ctaRow}>
+              <Link to="/auth" className={s.cta}>{t("hero.ctaPrimary")}</Link>
+              <a href="#features" className={s.ctaSecondary}>{t("hero.ctaSecondary")}</a>
+            </div>
+            <div className={s.languages}>
+              <span className={s.langBadge}>🇬🇧 English</span>
+              <span className={s.langBadge}>🇪🇹 Amharic (አማርኛ)</span>
+              <span className={s.langBadge}>🇪🇹 Afaan Oromo</span>
+              <span className={s.langBadge}>🇸🇴 Somali (Soomaali)</span>
+            </div>
+          </motion.div>
+        </div>
       </section>
 
       {/* FEATURES */}

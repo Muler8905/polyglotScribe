@@ -8,7 +8,7 @@
 .nav {
   position: sticky;
   top: 0;
-  z-index: 30;
+  z-index: 50;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -29,30 +29,45 @@
 
 /* HERO */
 .hero {
-  background: var(--gradient-surface);
-  padding: 5rem 2rem 2px;
+  position: relative;
+  background: transparent;
+  padding: 8rem 2rem 8rem;
   text-align: center;
   border-bottom: 1px solid var(--border);
+  overflow: hidden;
+  min-height: 80vh;
+  display: flex;
+  align-items: center;
 }
-.heroInner { max-width: 880px; margin: 0 auto; }
+.heroContainer {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 2;
+}
+.heroInner { position: relative; max-width: 760px; margin: 0 auto; display: flex; flex-direction: column; align-items: center; }
 .kicker {
   display: inline-flex; gap: 0.5rem; align-items: center;
-  padding: 0.4rem 0.9rem;
+  padding: 0.45rem 1rem;
   border-radius: 999px;
-  background: var(--accent);
-  color: var(--accent-foreground);
-  font-size: 0.78rem;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 0.8rem;
   font-weight: 600;
   margin-bottom: 1.5rem;
-  border: 1px solid var(--border);
+  border: 1px solid rgba(255, 255, 255, 0.15);
 }
 .dot { width: 7px; height: 7px; border-radius: 50%; background: oklch(0.65 0.2 145); display: inline-block; }
 .title {
-  font-size: clamp(2.4rem, 5.5vw, 4rem);
+  font-size: clamp(2.4rem, 5.5vw, 4.2rem);
   font-weight: 800;
   letter-spacing: -0.025em;
-  line-height: 1.05;
+  line-height: 1.08;
   margin-bottom: 1.25rem;
+  color: #ffffff;
+  text-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
 .gradient {
   background: var(--gradient-primary);
@@ -62,8 +77,8 @@
 }
 .subtitle {
   font-size: 1.15rem;
-  color: var(--muted-foreground);
-  margin: 0 auto 2.25rem;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0 0 2.25rem;
   max-width: 640px;
   line-height: 1.6;
 }
@@ -84,13 +99,15 @@
   display: inline-flex; align-items: center;
   padding: 0.95rem 1.75rem;
   border-radius: 12px;
-  background: var(--card);
-  color: var(--foreground);
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  color: #ffffff;
   text-decoration: none;
   font-weight: 600;
-  border: 1px solid var(--border);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: background 0.15s, transform 0.15s;
 }
-.ctaSecondary:hover { background: var(--muted); }
+.ctaSecondary:hover { background: rgba(255, 255, 255, 0.15); transform: translateY(-1px); }
 
 /* LANGUAGE BADGES */
 .languages {
@@ -102,11 +119,12 @@
 }
 .langBadge {
   padding: 0.45rem 0.95rem;
-  background: var(--card);
-  border: 1px solid var(--border);
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 999px;
   font-size: 0.85rem;
-  color: var(--foreground);
+  color: rgba(255, 255, 255, 0.95);
   font-weight: 500;
 }
 
@@ -267,14 +285,29 @@
   cursor: pointer;
 }
 .mobileMenu {
-  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 280px;
+  max-width: 85vw;
+  background: var(--card);
+  z-index: 40;
+  display: flex;
   flex-direction: column;
   gap: 0.4rem;
-  padding: 1rem 1.5rem 1.5rem;
-  border-bottom: 1px solid var(--border);
-  background: var(--background);
+  padding: 5rem 1.5rem 2rem;
+  border-right: 1px solid var(--border);
+  box-shadow: 10px 0 30px rgba(0, 0, 0, 0.15);
+  transform: translateX(-100%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.mobileMenu.open { display: flex; }
+.mobileMenu.open { 
+  transform: translateX(0); 
+}
+:global(.dark) .mobileMenu {
+  box-shadow: 10px 0 30px rgba(0, 0, 0, 0.6);
+}
 .mobileMenu a, .mobileMenu .linkBtn {
   padding: 0.7rem 0.85rem;
   border-radius: 10px;
