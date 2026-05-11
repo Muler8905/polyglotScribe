@@ -85,7 +85,7 @@ export const sendOTPEmail = async (email, otp, displayName) => {
 
 // Send password reset email
 export const sendPasswordResetEmail = async (email, resetToken, displayName) => {
-  const resetUrl = `${process.env.FRONTEND_URL}/auth?mode=reset&token=${resetToken}`;
+  const resetUrl = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
   const subject = 'Reset Your Password - Polyglot Scribe';
   const html = `
     <!DOCTYPE html>

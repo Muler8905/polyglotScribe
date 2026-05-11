@@ -1,6 +1,7 @@
 import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
 import { useTranslation } from "react-i18next";
+import { ArrowLeft, Lock } from "lucide-react";
 import s from "@/components/Auth.module.css";
 import { useAuth } from "@/lib/auth-context";
 import { lovable } from "@/integrations/lovable";
@@ -30,6 +31,9 @@ function AuthPage() {
   const [err, setErr] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [failedAttempts, setFailedAttempts] = useState(0);
+  const [showForgotPopup, setShowForgotPopup] = useState(false);
+
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
@@ -47,6 +51,13 @@ function AuthPage() {
       }
     } catch (e) {
       setErr(e instanceof Error ? e.message : "Authentication failed");
+      if (mode === "signin") {
+        const nextAttempts = failedAttempts + 1;
+        setFailedAttempts(nextAttempts);
+        if (nextAttempts >= 3) {
+          setShowForgotPopup(true);
+        }
+      }
     } finally {
       setBusy(false);
     }
@@ -142,7 +153,14 @@ function AuthPage() {
                 <input className={s.input} type="email" value={email} onChange={(e) => setEmail(e.target.value)} required autoComplete="email" />
               </div>
               <div className={s.field}>
-                <label className={s.label}>{t("auth.password")}</label>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "0.4rem" }}>
+                  <label className={s.label}>{t("auth.password")}</label>
+                  {mode === "signin" && (
+                    <Link to="/forgot-password" style={{ fontSize: "0.75rem", color: "var(--primary)", textDecoration: "none", fontWeight: 500 }}>
+                      ForgotPassword
+                    </Link>
+                  )}
+                </div>
                 <input
                   className={s.input}
                   type="password"
@@ -200,6 +218,47 @@ function AuthPage() {
           </>
         )}
       </div>
+
+      {showForgotPopup && (
+        <div className={s.modalOverlay}>
+          <div className={s.modal}>
+            <div style={{ textAlign: "center" }}>
+              <div style={{ 
+                width: "48px", height: "48px", borderRadius: "50%", 
+                background: "rgba(239, 68, 68, 0.1)", color: "rgb(239, 68, 68)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                margin: "0 auto 1rem"
+              }}>
+                <Lock size={24} />
+              </div>
+              <h2 className={s.title}>Having trouble signing in?</h2>
+              <p className={s.subtitle}>
+                You've had multiple failed login attempts. Would you like to reset your password to regain access?
+              </p>
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.8rem" }}>
+                <Link 
+                  to="/forgot-password" 
+                  className={s.submit} 
+                  style={{ textDecoration: "none", textAlign: "center" }}
+                  onClick={() => setShowForgotPopup(false)}
+                >
+                  Reset Password
+                </Link>
+                <button 
+                  type="button" 
+                  className={s.toggle} 
+                  onClick={() => {
+                    setShowForgotPopup(false);
+                    setFailedAttempts(0);
+                  }}
+                >
+                  Try Again
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
