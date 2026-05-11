@@ -5,6 +5,8 @@ import {
   updateUserTokens,
   toggleAdminRole,
   deleteUserTranscriptions,
+  adminCreateUser,
+  adminDeleteUser,
 } from '../controllers/adminController.js';
 import {
   getProfile,
@@ -31,8 +33,11 @@ router.delete('/hero-images/:id', protect, requireAdmin, deleteHeroImage);
 
 // Admin routes
 router.get('/admin/users', protect, requireAdmin, getAllUsers);
+router.post('/admin/users', protect, requireAdmin, adminCreateUser);
 router.patch('/admin/users/:userId/tokens', protect, requireAdmin, updateUserTokens);
 router.post('/admin/users/:userId/toggle-admin', protect, requireAdmin, toggleAdminRole);
+router.delete('/admin/users/:userId', protect, requireAdmin, adminDeleteUser);
 router.delete('/admin/users/:userId/transcriptions', protect, requireAdmin, deleteUserTranscriptions);
+
 
 export default router;

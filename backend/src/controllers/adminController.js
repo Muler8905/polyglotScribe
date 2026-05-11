@@ -133,9 +133,94 @@ export const deleteUserTranscriptions = async (req, res, next) => {
   }
 };
 
+// @desc    Admin create user (auto-verified)
+// @route   POST /api/app/admin/users
+// @access  Private (Admin only)
+export const adminCreateUser = async (req, res, next) => {
+  try {
+    const { email, password, displayName, credits = 100 } = req.body;
+
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({
+        success: false,
+        message: "User already exists with this email",
+      });
+    }
+
+    const user = await User.create({
+      email,
+      password,
+      displayName,
+      isEmailVerified: true,
+      provider: "local",
+    });
+
+    await Profile.create({ userId: user._id, displayName, avatarUrl: null });
+    await UserToken.create({ userId: user._id, credits });
+    await UserRole.create({ userId: user._id, role: "user" });
+
+    res.status(201).json({
+      success: true,
+      message: "User created successfully by admin",
+      data: {
+        userId: user._id,
+        email: user.email,
+        displayName: user.displayName,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Delete user and all associated data
+// @route   DELETE /api/app/admin/users/:userId
+// @access  Private (Admin only)
+export const adminDeleteUser = async (req, res, next) => {
+  try {
+    const { userId } = req.params;
+
+    // Prevent deleting self
+    if (userId === req.user._id.toString()) {
+      return res.status(400).json({
+        success: false,
+        message: "You cannot delete your own admin account",
+      });
+    }
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // Delete associated data
+    await Promise.all([
+      Profile.deleteOne({ userId }),
+      UserToken.deleteOne({ userId }),
+      UserRole.deleteOne({ userId }),
+      Transcription.deleteMany({ userId }),
+      User.deleteOne({ _id: userId }),
+    ]);
+
+    res.json({
+      success: true,
+      message: "User and all associated data deleted successfully",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export default {
   getAllUsers,
   updateUserTokens,
   toggleAdminRole,
   deleteUserTranscriptions,
+  adminCreateUser,
+  adminDeleteUser,
 };
+
