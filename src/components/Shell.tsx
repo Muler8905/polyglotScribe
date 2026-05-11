@@ -84,7 +84,53 @@ export function Shell({
         <Link to="/settings" className={s.signout} style={{ textDecoration: "none", textAlign: "center" }} onClick={close}>{t("shell.settings")}</Link>
         <button className={s.signout} onClick={handleSignOut}>{t("shell.signout")}</button>
       </aside>
-      <main className={s.main}>{children}</main>
+      <main className={s.main}>
+        <div className={s.content}>
+          {children}
+        </div>
+        <footer className={s.footer}>
+          <div className={s.footerGrid}>
+            <div className={s.footerCol}>
+              <h4 style={{ display: "flex", alignItems: "center", gap: "0.5rem", textTransform: "none", fontSize: "1rem", marginBottom: "0.75rem" }}>
+                <div className={s.brandMark} style={{ width: "24px", height: "24px" }} />
+                Polyglot Scribe
+              </h4>
+              <p>{t("footer.tagline")}</p>
+            </div>
+            <div className={s.footerCol}>
+              <h4>{t("transcriber.transcript")}</h4>
+              <div className={s.footerList}>
+                <Link to="/dashboard" className={s.footerLink}>{t("transcriber.tabLive")}</Link>
+                <Link to="/dashboard" className={s.footerLink}>{t("transcriber.tabFile")}</Link>
+                <Link to="/dashboard" className={s.footerLink}>{t("transcriber.tabYouTube")}</Link>
+              </div>
+            </div>
+            <div className={s.footerCol}>
+              <h4>{t("footer.resources")}</h4>
+              <div className={s.footerList}>
+                <Link to="/docs" className={s.footerLink}>{t("nav.documentation")}</Link>
+                <Link to="/support" className={s.footerLink}>{t("nav.support")}</Link>
+                <Link to="/settings" className={s.footerLink}>{t("settings.title")}</Link>
+              </div>
+            </div>
+            <div className={s.footerCol}>
+              <h4>{t("footer.legal")}</h4>
+              <div className={s.footerList}>
+                <Link to="/privacy" className={s.footerLink}>{t("nav.privacy")}</Link>
+                <Link to="/docs" className={s.footerLink}>{t("footer.terms")}</Link>
+              </div>
+            </div>
+          </div>
+          <div className={s.footerBottom}>
+            <div>
+              © {new Date().getFullYear()} Polyglot Scribe. {t("footer.rights")}
+            </div>
+            <div style={{ opacity: 0.8 }}>
+              {t("footer.made")}
+            </div>
+          </div>
+        </footer>
+      </main>
     </div>
   );
 }

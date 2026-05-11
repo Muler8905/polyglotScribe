@@ -25,13 +25,14 @@
 }
 .caption {
   position: absolute;
-  left: 1.25rem;
   bottom: 1.25rem;
-  right: 1.25rem;
+  left: 50%;
+  transform: translateX(-50%);
   color: white;
   font-weight: 600;
   font-size: clamp(0.95rem, 2.2vw, 1.25rem);
   text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+  text-align: center;
 }
 .dots {
   position: absolute;

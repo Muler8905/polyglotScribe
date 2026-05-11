@@ -49,18 +49,18 @@ function Dashboard() {
             {greeting}, <span className={s.name}>{displayName}</span> 👋
           </h1>
           <p className={s.subtitle}>{t("dashboard.subtitle")}</p>
-          <div style={{ display: "flex", gap: "0.6rem", flexWrap: "wrap", marginTop: "0.85rem" }}>
+          <div className={s.actions}>
             <Link to="/pricing" className={s.adminLink}>
-              <Sparkles size={14} /> {t("dashboard.upgrade")}
+              <Sparkles size={16} /> {t("dashboard.upgrade")}
             </Link>
             {credits !== null && (
-              <span className={s.adminLink} style={{ background: lowCredits || outOfCredits ? "color-mix(in oklab, oklch(0.7 0.18 25) 30%, transparent)" : undefined }}>
-                <Coins size={14} /> {t("dashboard.credits", { count: credits })}
+              <span className={s.adminLink} style={{ background: lowCredits || outOfCredits ? "rgba(220, 38, 38, 0.2)" : undefined }}>
+                <Coins size={16} /> {t("dashboard.credits", { count: credits })}
               </span>
             )}
             {isAdmin && (
               <Link to="/admin" className={s.adminLink}>
-                <Shield size={14} /> {t("dashboard.adminConsole")}
+                <Shield size={16} /> {t("dashboard.adminConsole")}
               </Link>
             )}
           </div>
@@ -68,15 +68,15 @@ function Dashboard() {
         <div className={s.statRow}>
           <div className={s.stat}>
             <div className={s.statLabel}>{t("dashboard.languages")}</div>
-            <div className={s.statValue}>4</div>
+            <div className={s.statValue}>🌍 4 Languages</div>
           </div>
           <div className={s.stat}>
             <div className={s.statLabel}>{t("dashboard.modes")}</div>
-            <div className={s.statValue}>{t("dashboard.modesValue")}</div>
+            <div className={s.statValue}>🎙️ {t("dashboard.modesValue")}</div>
           </div>
           <div className={s.stat}>
             <div className={s.statLabel}>{t("dashboard.engine")}</div>
-            <div className={s.statValue}>{t("dashboard.engineValue")}</div>
+            <div className={s.statValue}>⚡ {t("dashboard.engineValue")}</div>
           </div>
         </div>
       </header>

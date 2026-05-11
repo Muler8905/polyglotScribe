@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import s from "@/components/Landing.module.css";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { HeroVideo } from "@/components/HeroVideo";
+import { HeroSlideshow } from "@/components/HeroSlideshow";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { apiClient } from "@/lib/api-client";
 
@@ -17,13 +18,13 @@ export const Route = createFileRoute("/")({
   },
   head: () => ({
     meta: [
-      { title: "Polyglot Scribe — Live, File & YouTube Transcription with Translation" },
+      { title: "Polyglot Scribe Live, File & YouTube Transcription with Translation" },
       {
         name: "description",
         content:
           "Real-time microphone transcription, audio file transcription, and YouTube audio transcription with side-by-side translation across English, Amharic, Afaan Oromo, and Somali.",
       },
-      { property: "og:title", content: "Polyglot Scribe — Speech, File & YouTube Transcription" },
+      { property: "og:title", content: "Polyglot Scribe Speech, File & YouTube Transcription" },
       { property: "og:description", content: "Transcribe and translate any voice, audio file, or YouTube video in 4 languages." },
       { property: "og:type", content: "website" },
     ],
@@ -210,7 +211,9 @@ function Landing() {
             </motion.div>
           ))}
         </div>
-      </section>
+              </section>
+        {/* HERO SLIDESHOW */}
+        <HeroSlideshow />
 
       {/* USE CASES */}
       <section id="cases" className={s.section} style={{ paddingTop: 0 }}>
