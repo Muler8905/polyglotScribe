@@ -5,6 +5,9 @@ import UserRole from "../models/UserRole.js";
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from "../utils/jwt.js";
 import { sendOTPEmail, sendPasswordResetEmail } from "../config/email.js";
 import crypto from "crypto";
+import { OAuth2Client } from "google-auth-library";
+
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 export const signup = async (req, res, next) => {
   try {
@@ -278,6 +281,92 @@ export const getMe = async (req, res, next) => {
   }
 };
 
+export const googleSignIn = async (req, res, next) => {
+  try {
+    const { idToken, accessToken: googleAccessToken } = req.body;
+    let payload;
+
+    if (idToken) {
+      const ticket = await client.verifyIdToken({
+        idToken,
+        audience: process.env.GOOGLE_CLIENT_ID,
+      });
+      payload = ticket.getPayload();
+    } else if (googleAccessToken) {
+      const response = await fetch(`https://www.googleapis.com/oauth2/v3/userinfo?access_token=${googleAccessToken}`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch user info from Google");
+      }
+      payload = await response.json();
+    } else {
+      return res.status(400).json({ success: false, message: "Token is required" });
+    }
+
+    const { sub: googleId, email, name: displayName, picture: avatarUrl } = payload;
+
+    if (!email) {
+      return res.status(400).json({ success: false, message: "Email not provided by Google" });
+    }
+
+    let user = await User.findOne({ email });
+
+    if (user) {
+      // If user exists but doesn't have googleId, link it
+      if (!user.googleId) {
+        user.googleId = googleId;
+        user.provider = 'google';
+        if (avatarUrl && !user.avatarUrl) user.avatarUrl = avatarUrl;
+        await user.save();
+      }
+    } else {
+      // Create new user
+      user = await User.create({
+        email,
+        displayName,
+        googleId,
+        avatarUrl,
+        provider: 'google',
+        isEmailVerified: true, // Google emails are verified
+      });
+      await Profile.create({ userId: user._id, displayName, avatarUrl });
+      await UserToken.create({ userId: user._id });
+      await UserRole.create({ userId: user._id, role: "user" });
+    }
+
+    user.lastLogin = new Date();
+    const accessToken = generateAccessToken(user._id);
+    const refreshToken = generateRefreshToken(user._id);
+    user.refreshTokens.push({ token: refreshToken, expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) });
+    await user.save();
+
+    res.cookie("token", accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    res.json({
+      success: true,
+      message: "Signed in with Google successfully",
+      data: {
+        user: {
+          id: user._id,
+          email: user.email,
+          displayName: user.displayName,
+          avatarUrl: user.avatarUrl,
+          isEmailVerified: user.isEmailVerified,
+        },
+        accessToken,
+        refreshToken,
+      },
+    });
+  } catch (error) {
+    console.error("Google sign-in error:", error);
+    res.status(401).json({ success: false, message: "Invalid Google token" });
+  }
+};
+
 export const refreshAccessToken = async (req, res, next) => {
   try {
     const { refreshToken } = req.body;
@@ -305,5 +394,6 @@ export default {
   forgotPassword,
   resetPassword,
   getMe,
-  refreshAccessToken
+  refreshAccessToken,
+  googleSignIn
 };

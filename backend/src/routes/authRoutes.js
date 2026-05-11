@@ -9,7 +9,8 @@ import {
   forgotPassword,
   resetPassword,
   getMe,
-  refreshAccessToken
+  refreshAccessToken,
+  googleSignIn
 } from '../controllers/authController.js';
 import { protect } from '../middleware/auth.js';
 import { validate } from '../middleware/validate.js';
@@ -59,6 +60,7 @@ router.post('/signout', protect, signout);
 router.post('/forgot-password', forgotPasswordValidation, validate, forgotPassword);
 router.post('/reset-password', resetPasswordValidation, validate, resetPassword);
 router.post('/refresh', refreshTokenValidation, validate, refreshAccessToken);
+router.post('/google', googleSignIn);
 router.get('/me', protect, getMe);
 
 export default router;

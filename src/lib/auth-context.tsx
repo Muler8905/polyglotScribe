@@ -8,6 +8,7 @@ interface AuthCtx {
   signUp: (email: string, password: string, displayName: string) => Promise<void>;
   verifyOtp: (email: string, otp: string) => Promise<void>;
   resendOtp: (email: string) => Promise<void>;
+  signInWithGoogle: (tokens: { idToken?: string; accessToken?: string }) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -80,13 +81,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const signInWithGoogle = async (tokens: { idToken?: string; accessToken?: string }) => {
+    const response = await apiClient.googleSignIn(tokens);
+    if (!response.success || !response.data?.user) {
+      throw new Error(response.message || "Google sign in failed");
+    }
+    setUser(response.data.user);
+    currentToken = localStorage.getItem("accessToken");
+  };
+
   const signOut = async () => {
     await apiClient.signout();
     setUser(null);
     currentToken = null;
   };
 
-  return <Ctx.Provider value={{ user, loading, signIn, signUp, verifyOtp, resendOtp, signOut }}>{children}</Ctx.Provider>;
+  return <Ctx.Provider value={{ user, loading, signIn, signUp, verifyOtp, resendOtp, signInWithGoogle, signOut }}>{children}</Ctx.Provider>;
 }
 
 export function useAuth() {

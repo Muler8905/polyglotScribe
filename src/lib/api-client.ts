@@ -168,6 +168,20 @@ class ApiClient {
     return response;
   }
 
+  async googleSignIn(tokens: { idToken?: string; accessToken?: string }) {
+    const response = await this.request('/auth/google', {
+      method: 'POST',
+      body: JSON.stringify(tokens),
+    });
+
+    if (response.success && response.data) {
+      this.saveTokens(response.data.accessToken, response.data.refreshToken);
+      if (this.hasStorage()) localStorage.setItem("user", JSON.stringify(response.data.user));
+    }
+
+    return response;
+  }
+
   async signout() {
     try {
       await this.request('/auth/signout', {
