@@ -137,4 +137,4 @@ Distributed under the MIT License. See `LICENSE` for more information.
 - GitHub: [@Muler8905](https://github.com/Muler8905)
 
 ---
-*Developed with ❤️ for the multilingual community.*
+*Developed for the multilingual community.*
