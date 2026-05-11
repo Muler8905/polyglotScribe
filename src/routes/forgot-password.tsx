@@ -38,7 +38,7 @@ function ForgotPasswordPage() {
       <div className={s.card}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
           <Link to="/auth" style={{ color: "var(--muted-foreground)", textDecoration: "none", fontSize: "0.9rem", display: "flex", alignItems: "center", gap: "0.4rem" }}>
-            <ArrowLeft size={16} /> {t("auth.backToSignin") || "Back to Sign In"}
+            <ArrowLeft size={16} /> {t("auth.backToSignin")}
           </Link>
           <LanguageSwitcher compact />
         </div>
@@ -50,21 +50,21 @@ function ForgotPasswordPage() {
 
         {!sent ? (
           <>
-            <h1 className={s.title} style={{ textAlign: "center" }}>Forgot Password?</h1>
+            <h1 className={s.title} style={{ textAlign: "center" }}>{t("auth.forgotPassword.title")}</h1>
             <p className={s.subtitle} style={{ textAlign: "center" }}>
-              Enter your email address and we'll send you a link to reset your password.
+              {t("auth.forgotPassword.subtitle")}
             </p>
 
             <form className={s.form} onSubmit={handleSubmit}>
               <div className={s.field}>
-                <label className={s.label}>Email Address</label>
+                <label className={s.label}>{t("auth.forgotPassword.label")}</label>
                 <div style={{ position: "relative" }}>
                   <Mail size={18} style={{ position: "absolute", left: "1rem", top: "50%", transform: "translateY(-50%)", color: "var(--muted-foreground)" }} />
                   <input
                     className={s.input}
                     style={{ paddingLeft: "3rem" }}
                     type="email"
-                    placeholder="name@example.com"
+                    placeholder={t("auth.forgotPassword.placeholder")}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
@@ -75,7 +75,7 @@ function ForgotPasswordPage() {
               {error && <div className={s.error}>{error}</div>}
 
               <button className={s.submit} type="submit" disabled={busy}>
-                {busy ? "Sending..." : "Send Reset Link"}
+                {busy ? t("auth.forgotPassword.sending") : t("auth.forgotPassword.send")}
               </button>
             </form>
           </>
@@ -84,12 +84,12 @@ function ForgotPasswordPage() {
             <div style={{ display: "inline-flex", padding: "1rem", borderRadius: "50%", background: "rgba(34, 197, 94, 0.1)", color: "rgb(34, 197, 94)", marginBottom: "1.5rem" }}>
               <CheckCircle2 size={48} />
             </div>
-            <h1 className={s.title}>Check your email</h1>
+            <h1 className={s.title}>{t("auth.forgotPassword.successTitle")}</h1>
             <p className={s.subtitle}>
-              We've sent a password reset link to <strong>{email}</strong>. Please check your inbox and follow the instructions.
+              {t("auth.forgotPassword.successSubtitle", { email })}
             </p>
             <button className={s.submit} onClick={() => setSent(false)} style={{ marginTop: "1rem", background: "var(--muted)", color: "var(--foreground)" }}>
-              Resend Link
+              {t("auth.forgotPassword.resend")}
             </button>
           </div>
         )}

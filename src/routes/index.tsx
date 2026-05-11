@@ -211,9 +211,9 @@ function Landing() {
             </motion.div>
           ))}
         </div>
-              </section>
-        {/* HERO SLIDESHOW */}
-        <HeroSlideshow />
+      </section>
+      {/* HERO SLIDESHOW */}
+      <HeroSlideshow />
 
       {/* USE CASES */}
       <section id="cases" className={s.section} style={{ paddingTop: 0 }}>

@@ -71,7 +71,7 @@
     "contact": "Nu qunnami",
     "terms": "Haalota tajaajilaa",
     "rights": "Mirgi eeggameera.",
-    "made": "❤️ uumtoota afaanota baay'eef"
+    "made": "uumtoota afaanota baay'eef"
   },
   "auth": {
     "back": "← Gara mana deebi'i",
@@ -95,7 +95,18 @@
     "otpVerify": "Mirkaneessiitii itti fufi",
     "otpResend": "Lakkoofsa irra deebi'ii ergi",
     "otpResent": "Lakkoofsi haaraan imeelii keetti ergameera.",
-    "otpInvalid": "Lakkoofsi sirrii miti yookaan yeroon isaa darbeera."
+    "otpInvalid": "Lakkoofsi sirrii miti yookaan yeroon isaa darbeera.",
+    "forgotPassword": {
+      "title": "Jecha Iccitii Irraanfattee?",
+      "subtitle": "Imeelii kee galchi, nuyis liinkii jecha iccitii kee deebisanii qindeeffachuuf siif ergina.",
+      "label": "Teessoo Imeelii",
+      "placeholder": "name@example.com",
+      "send": "Liinkii Deebisii Qindeessi Ergi",
+      "sending": "Ergamaa jira...",
+      "successTitle": "Imeelii kee ilaali",
+      "successSubtitle": "Liinkii jecha iccitii deebisanii qindeessuu gara {{email}} ergineerra. Maaloo inbox kee ilaaliitii qajeelfama hordofi.",
+      "resend": "Liinkii Irra Deebi'ii Ergi"
+    }
   },
   "settings": {
     "title": "Qindaa'inoota",

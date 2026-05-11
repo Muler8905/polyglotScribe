@@ -71,7 +71,7 @@
     "contact": "Contact us",
     "terms": "Terms of use",
     "rights": "All rights reserved.",
-    "made": "Made with ❤️ for multilingual creators"
+    "made": "Made for multilingual creators"
   },
   "auth": {
     "back": "← Back to home",
@@ -95,7 +95,18 @@
     "otpVerify": "Verify & continue",
     "otpResend": "Resend code",
     "otpResent": "A new code has been sent to your email.",
-    "otpInvalid": "Invalid or expired code. Please try again."
+    "otpInvalid": "Invalid or expired code. Please try again.",
+    "forgotPassword": {
+      "title": "Forgot Password?",
+      "subtitle": "Enter your email address and we'll send you a link to reset your password.",
+      "label": "Email Address",
+      "placeholder": "name@example.com",
+      "send": "Send Reset Link",
+      "sending": "Sending...",
+      "successTitle": "Check your email",
+      "successSubtitle": "We've sent a password reset link to {{email}}. Please check your inbox and follow the instructions.",
+      "resend": "Resend Link"
+    }
   },
   "settings": {
     "title": "Settings",

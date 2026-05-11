@@ -71,7 +71,7 @@
     "contact": "Nala soo xidhiidh",
     "terms": "Shuruudaha isticmaalka",
     "rights": "Xuquuqda way xifdisan tahay.",
-    "made": "❤️ loo sameeyay abuurayaasha luqado badan"
+    "made": "loo sameeyay abuurayaasha luqado badan"
   },
   "auth": {
     "back": "← Ku noqo bogga hore",
@@ -95,7 +95,18 @@
     "otpVerify": "Xaqiiji oo sii wad",
     "otpResend": "Mar kale dir koodka",
     "otpResent": "Kood cusub ayaa loo diray iimaylkaaga.",
-    "otpInvalid": "Kood khaldan ama dhacay."
+    "otpInvalid": "Kood khaldan ama dhacay.",
+    "forgotPassword": {
+      "title": "Ma ilaawday furaha sirta ah?",
+      "subtitle": "Geli cinwaankaaga iimaylka waxaanuna kuu soo diri doonaa xidhiidh aad dib ugu dejiso furahaaga sirta ah.",
+      "label": "Cinwaanka Iimaylka",
+      "placeholder": "name@example.com",
+      "send": "Soo dir xidhiidhka dib u dejinta",
+      "sending": "Waa la dirayaa...",
+      "successTitle": "Hubi iimaylkaaga",
+      "successSubtitle": "Waxaan u dirnay xidhiidhka dib u dejinta furaha sirta ah {{email}}. Fadlan hubi sanduuqaaga fariimaha oo raac tilmaamaha.",
+      "resend": "Mar kale dir xidhiidhka"
+    }
   },
   "settings": {
     "title": "Habayntii",
