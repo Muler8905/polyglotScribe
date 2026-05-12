@@ -54,9 +54,9 @@ export function Shell({
   const navItems = [
     { label: t("nav.dashboard"), icon: LayoutDashboard, to: "/dashboard", search: { mode: undefined } },
     { label: t("nav.transcribe"), icon: Mic, to: "/dashboard", search: { mode: "select" } },
-    { label: t("nav.history"), icon: History, to: "/history" },
-    { label: t("nav.analytics"), icon: BarChart3, to: "/analytics" },
-    { label: "Billing", icon: CreditCard, to: "/pricing" },
+    { label: t("nav.history"), icon: History, to: "/history", search: {} },
+    { label: t("nav.analytics"), icon: BarChart3, to: "/analytics", search: {} },
+    { label: "Billing", icon: CreditCard, to: "/pricing", search: {} },
   ];
 
   return (
@@ -109,7 +109,7 @@ export function Shell({
             <span>{t("shell.signout")}</span>
           </button>
           
-          <Link to="/pricing" className={s.userBadge} onClick={close}>
+          <Link to="/pricing" search={{}} className={s.userBadge} onClick={close}>
             <div className={s.avatar}>{user?.email?.[0].toUpperCase()}</div>
             <div className={s.userInfo}>
               <div className={s.userEmail}>{user?.email?.split('@')[0]}</div>

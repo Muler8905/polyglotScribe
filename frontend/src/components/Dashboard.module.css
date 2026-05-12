@@ -19,7 +19,7 @@
 .welcomeTitle {
   font-size: 2rem;
   font-weight: 800;
-  color: white;
+  color: var(--foreground);
   margin: 0;
   letter-spacing: -0.02em;
 }
@@ -69,7 +69,7 @@
 .cardTitle {
   font-size: 1.1rem;
   font-weight: 700;
-  color: white;
+  color: var(--foreground);
   margin-bottom: 0.25rem;
 }
 
@@ -108,7 +108,7 @@
   border: 1px solid var(--glass-border);
   border-radius: 10px;
   padding: 0.6rem 1rem;
-  color: white;
+  color: var(--foreground);
   font-size: 0.9rem;
   width: 100%;
 }
@@ -137,7 +137,7 @@
 .sectionTitle {
   font-size: 1.1rem;
   font-weight: 700;
-  color: white;
+  color: var(--foreground);
   margin: 0;
 }
 
@@ -155,7 +155,7 @@
 .statValue {
   font-size: 1.5rem;
   font-weight: 800;
-  color: white;
+  color: var(--foreground);
 }
 
 .statLabel {
@@ -181,7 +181,7 @@
 .activityTable td {
   padding: 1rem;
   font-size: 0.85rem;
-  color: white;
+  color: var(--foreground);
   border-bottom: 1px solid var(--glass-border);
 }
 

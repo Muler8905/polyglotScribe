@@ -30,7 +30,7 @@ export function LanguageChart() {
           <div key={item.name} style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.8rem" }}>
             <div style={{ width: 8, height: 8, borderRadius: "50%", background: item.color }} />
             <span style={{ color: "var(--muted-foreground)" }}>{item.name}</span>
-            <span style={{ color: "white", fontWeight: 600, marginLeft: "auto" }}>{item.value}%</span>
+            <span style={{ color: "var(--foreground)", fontWeight: 600, marginLeft: "auto" }}>{item.value}%</span>
           </div>
         ))}
       </div>

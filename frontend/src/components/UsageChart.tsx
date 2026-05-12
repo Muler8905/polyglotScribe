@@ -43,10 +43,10 @@ export function UsageChart() {
           />
           <Tooltip 
             contentStyle={{ 
-              background: "oklch(0.2 0.04 265)", 
+              background: "var(--card)", 
               border: "1px solid var(--glass-border)",
               borderRadius: "8px",
-              color: "white"
+              color: "var(--foreground)"
             }} 
           />
           <Area
