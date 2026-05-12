@@ -1,15 +1,16 @@
 import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { 
-  ArrowLeft, Trash2, Shield, ShieldOff, Plus, 
-  Image as ImageIcon, Users, Settings, BarChart3, 
-  Search, MoreHorizontal, UserPlus, Mail, Key, User as UserIcon,
-  Menu, X
+  Trash2, Shield, ShieldOff, Plus, 
+  Image as ImageIcon, Users, Settings, 
+  Search, UserPlus, Mail, Key, User as UserIcon,
+  Activity, Database
 } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/lib/auth-context";
 import { useIsAdmin } from "@/lib/use-admin";
+import { Shell } from "@/components/Shell";
 import s from "@/components/Admin.module.css";
 import { apiClient } from "@/lib/api-client";
 
@@ -49,7 +50,7 @@ interface HeroImage {
 
 function AdminPage() {
   const { isAdmin, loading } = useIsAdmin();
-  const { user: currentUser, signOut } = useAuth();
+  const { user: currentUser } = useAuth();
   const { t } = useTranslation();
   const [tab, setTab] = useState<"users" | "hero" | "system">("users");
   const [users, setUsers] = useState<UserRow[]>([]);
@@ -57,7 +58,6 @@ function AdminPage() {
   const [loadingData, setLoadingData] = useState(false);
   const [search, setSearch] = useState("");
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [creatingUser, setCreatingUser] = useState(false);
   const [newUser, setNewUser] = useState({ email: "", password: "", displayName: "", credits: 100 });
 
@@ -140,9 +140,8 @@ function AdminPage() {
     }
   };
 
-
   const handleDeleteUser = async (userId: string) => {
-    if (!confirm("Are you sure you want to permanently delete this user? This cannot be undone.")) return;
+    if (!confirm("Are you sure you want to permanently delete this user?")) return;
     const res = await apiClient.delete(`/app/admin/users/${userId}`);
     if (!res.success) return toast.error(res.message || "Failed to delete user");
     toast.success("User deleted");
@@ -177,77 +176,33 @@ function AdminPage() {
   );
 
   return (
-    <div className={s.adminLayout}>
-      <div className={`${s.sidebarOverlay} ${mobileMenuOpen ? s.overlayVisible : ""}`} onClick={() => setMobileMenuOpen(false)} />
-      
-      <aside className={`${s.sidebar} ${mobileMenuOpen ? s.sidebarOpen : ""}`}>
-        <div className={s.sidebarBrand}>
-          <div className={s.logoIcon}><Shield size={22} /></div>
-          <span>Admin Panel</span>
-          <button className={s.mobileClose} onClick={() => setMobileMenuOpen(false)}><X size={20} /></button>
-        </div>
-        
-        <nav className={s.sidebarNav}>
-          <button className={`${s.navItem} ${tab === "users" ? s.navActive : ""}`} onClick={() => { setTab("users"); setMobileMenuOpen(false); }}>
-            <Users size={18} /> {t("admin.tabUsers")}
-          </button>
-          <button className={`${s.navItem} ${tab === "hero" ? s.navActive : ""}`} onClick={() => { setTab("hero"); setMobileMenuOpen(false); }}>
-            <ImageIcon size={18} /> {t("admin.tabHero")}
-          </button>
-          <button className={`${s.navItem} ${tab === "system" ? s.navActive : ""}`} onClick={() => { setTab("system"); setMobileMenuOpen(false); }}>
-            <Settings size={18} /> System Settings
-          </button>
-        </nav>
-
-        <div className={s.sidebarFooter}>
-          <Link to="/dashboard" className={s.navItem}><ArrowLeft size={18} /> {t("admin.dashboard")}</Link>
-          <button onClick={() => signOut()} className={s.navItem} style={{ color: "var(--destructive)" }}>
-            <ShieldOff size={18} /> {t("admin.signout")}
-          </button>
-        </div>
-      </aside>
-
-      <main className={s.mainContent}>
-        <header className={s.contentHeader}>
-          <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-            <button className={s.menuToggle} onClick={() => setMobileMenuOpen(true)}>
-              <Menu size={24} />
-            </button>
-            <div>
-              <h1 className={s.contentTitle}>
-                {tab === "users" && t("admin.tabUsers")}
-                {tab === "hero" && t("admin.tabHero")}
-                {tab === "system" && "System Control"}
-              </h1>
-              <p className={s.contentSubtitle}>
-                {tab === "users" && `Managing ${users.length} registered users`}
-                {tab === "hero" && `Managing ${hero.length} slideshow images`}
-                {tab === "system" && "Global system configurations and health"}
-              </p>
-            </div>
+    <Shell>
+      <div className={s.container}>
+        <header className={s.header}>
+          <div className={s.headerInfo}>
+            <h1 className={s.title}>Admin Panel</h1>
+            <p className={s.subtitle}>Manage users, system assets, and global configurations.</p>
           </div>
-          {tab === "users" && (
-            <button className={s.primaryBtn} onClick={() => setShowCreateModal(true)}>
-              <UserPlus size={18} /> <span className={s.btnText}>Create User</span>
-            </button>
-          )}
+          <div className={s.tabs}>
+            <button className={`${s.tab} ${tab === "users" ? s.tabActive : ""}`} onClick={() => setTab("users")}><Users size={18} /> {t("admin.tabUsers")}</button>
+            <button className={`${s.tab} ${tab === "hero" ? s.tabActive : ""}`} onClick={() => setTab("hero")}><ImageIcon size={18} /> {t("admin.tabHero")}</button>
+            <button className={`${s.tab} ${tab === "system" ? s.tabActive : ""}`} onClick={() => setTab("system")}><Settings size={18} /> System</button>
+          </div>
         </header>
 
-
         {tab === "users" && (
-          <>
+          <div className={s.glassCard}>
             <div className={s.toolbar}>
               <div className={s.searchBar}>
                 <Search size={18} />
-                <input 
-                  placeholder="Search users by email or name..." 
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                />
+                <input placeholder="Search users..." value={search} onChange={e => setSearch(e.target.value)} />
               </div>
+              <button className={s.primaryBtn} onClick={() => setShowCreateModal(true)}>
+                <UserPlus size={18} /> Create User
+              </button>
             </div>
 
-            <div className={s.tableCard}>
+            <div style={{ overflowX: 'auto' }}>
               <table className={s.table}>
                 <thead>
                   <tr>
@@ -263,18 +218,17 @@ function AdminPage() {
                 <tbody>
                   {filteredUsers.map((u) => (
                     <tr key={u.user_id}>
-                      <td className={s.userCell}>
-                        <div className={s.avatar}>{u.display_name?.[0] || u.email[0]}</div>
-                        <div>
-                          <div className={s.userName}>{u.display_name || "No Name"}</div>
-                          <div className={s.userEmail}>{u.email}</div>
+                      <td>
+                        <div className={s.userCell}>
+                          <div className={s.avatar}>{u.display_name?.[0] || u.email[0]}</div>
+                          <div>
+                            <div className={s.userName}>{u.display_name || "No Name"}</div>
+                            <div className={s.userEmail}>{u.email}</div>
+                          </div>
                         </div>
                       </td>
                       <td>
-                        <button 
-                          className={`${s.badge} ${u.is_admin ? s.badgeAdmin : s.badgeUser}`}
-                          onClick={() => toggleAdmin(u)}
-                        >
+                        <button className={`${s.badge} ${u.is_admin ? s.badgeAdmin : s.badgeUser}`} onClick={() => toggleAdmin(u)}>
                           {u.is_admin ? "Admin" : "User"}
                         </button>
                       </td>
@@ -288,7 +242,7 @@ function AdminPage() {
                         />
                       </td>
                       <td>
-                        <div className={s.capabilityRow}>
+                        <div style={{ display: 'flex', gap: '0.25rem' }}>
                           {[
                             { key: "feature_live", label: "🎙️" },
                             { key: "feature_file", label: "📁" },
@@ -300,7 +254,6 @@ function AdminPage() {
                               key={f.key}
                               className={`${s.capBtn} ${u[f.key as keyof UserRow] ? s.capOn : s.capOff}`}
                               onClick={() => updateToken(u.user_id, { [f.key]: !u[f.key as keyof UserRow] })}
-                              title={f.key}
                             >
                               {f.label}
                             </button>
@@ -308,153 +261,109 @@ function AdminPage() {
                         </div>
                       </td>
                       <td>
-                        <button
-                          className={`${s.statusBtn} ${u.suspended ? s.statusSuspended : s.statusActive}`}
-                          onClick={() => updateToken(u.user_id, { suspended: !u.suspended })}
-                        >
+                        <button className={`${s.statusBtn} ${u.suspended ? s.statusSuspended : s.statusActive}`} onClick={() => updateToken(u.user_id, { suspended: !u.suspended })}>
                           {u.suspended ? "Suspended" : "Active"}
                         </button>
                       </td>
-                      <td className={s.dateCell}>{new Date(u.createdAt).toLocaleDateString()}</td>
+                      <td>{new Date(u.createdAt).toLocaleDateString()}</td>
                       <td>
-                        <div className={s.actions}>
-                          <button className={s.deleteBtn} onClick={() => handleDeleteUser(u.user_id)} title="Delete User">
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
+                        <button className={s.deleteBtn} onClick={() => handleDeleteUser(u.user_id)}><Trash2 size={16} /></button>
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
-          </>
+          </div>
         )}
 
-        {/* MODAL: CREATE USER */}
+        {tab === "hero" && (
+          <div className={s.container}>
+             <div className={s.toolbar}>
+               <h2 className={s.sectionTitle}>Slideshow Assets</h2>
+               <button className={s.primaryBtn} onClick={async () => {
+                  const url = prompt("Enter Image URL");
+                  if (!url) return;
+                  const res = await apiClient.post("/app/hero-images", { imageUrl: url, active: true, sortOrder: hero.length + 1 });
+                  if (res.success) { toast.success("Added"); loadAll(); }
+               }}>
+                 <Plus size={18} /> Add Hero Image
+               </button>
+             </div>
+             <div className={s.heroGrid}>
+               {hero.map(h => (
+                 <div key={h.id} className={s.heroCard}>
+                    <div className={s.heroThumb} style={{ backgroundImage: `url(${h.image_url})` }} />
+                    <div style={{ padding: '1rem' }}>
+                      <textarea 
+                        className={s.captionInput} 
+                        defaultValue={h.caption || ""} 
+                        onBlur={async (e) => {
+                           if (e.target.value !== h.caption) {
+                             await apiClient.patch(`/app/hero-images/${h.id}`, { caption: e.target.value });
+                             toast.success("Updated");
+                           }
+                        }}
+                      />
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1rem' }}>
+                        <button 
+                          className={`${s.statusBtn} ${h.active ? s.statusActive : s.statusSuspended}`}
+                          onClick={async () => {
+                            await apiClient.patch(`/app/hero-images/${h.id}`, { active: !h.active });
+                            loadAll();
+                          }}
+                        >
+                          {h.active ? "Active" : "Hidden"}
+                        </button>
+                        <button className={s.deleteBtn} onClick={async () => {
+                           if (confirm("Delete?")) {
+                             await apiClient.delete(`/app/hero-images/${h.id}`);
+                             loadAll();
+                           }
+                        }}><Trash2 size={16} /></button>
+                      </div>
+                    </div>
+                 </div>
+               ))}
+             </div>
+          </div>
+        )}
+
+        {tab === "system" && (
+          <div className={s.mainGrid}>
+            <div className={s.glassCard}>
+              <h2 className={s.sectionTitle}>System Health</h2>
+              <div style={{ display: 'grid', gap: '1rem', marginTop: '1.5rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '12px' }}>
+                   <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}><Activity size={20} color="#22c55e" /> API Server</div>
+                   <span style={{ color: '#22c55e', fontWeight: 600 }}>Healthy</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '12px' }}>
+                   <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}><Database size={20} color="#22c55e" /> MongoDB Cluster</div>
+                   <span style={{ color: '#22c55e', fontWeight: 600 }}>Connected</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {showCreateModal && (
           <div className={s.modalOverlay}>
             <div className={s.modal}>
-              <div className={s.modalHeader}>
-                <h2>Create New User</h2>
-                <button onClick={() => setShowCreateModal(false)}><Plus style={{ transform: "rotate(45deg)" }} /></button>
+              <div className={s.sectionHeader} style={{ marginBottom: '2rem' }}>
+                <h2 className={s.sectionTitle}>Create New User</h2>
+                <button onClick={() => setShowCreateModal(false)} style={{ background: 'transparent', border: 'none', color: 'white' }}><Plus size={24} style={{ transform: 'rotate(45deg)' }} /></button>
               </div>
-              <form onSubmit={handleCreateUser} className={s.modalForm}>
-                <div className={s.formField}>
-                  <label>Display Name</label>
-                  <div className={s.inputWrap}><UserIcon size={16} /><input required value={newUser.displayName} onChange={e => setNewUser({...newUser, displayName: e.target.value})} placeholder="Full Name" /></div>
-                </div>
-                <div className={s.formField}>
-                  <label>Email Address</label>
-                  <div className={s.inputWrap}><Mail size={16} /><input required type="email" value={newUser.email} onChange={e => setNewUser({...newUser, email: e.target.value})} placeholder="email@example.com" /></div>
-                </div>
-                <div className={s.formField}>
-                  <label>Password</label>
-                  <div className={s.inputWrap}><Key size={16} /><input required type="password" value={newUser.password} onChange={e => setNewUser({...newUser, password: e.target.value})} placeholder="••••••••" /></div>
-                </div>
-                <div className={s.formField}>
-                  <label>Initial Credits</label>
-                  <div className={s.inputWrap}><BarChart3 size={16} /><input type="number" value={newUser.credits} onChange={e => setNewUser({...newUser, credits: parseInt(e.target.value) || 0})} /></div>
-                </div>
-                <div className={s.modalActions}>
-                  <button type="button" className={s.cancelBtn} onClick={() => setShowCreateModal(false)} disabled={creatingUser}>Cancel</button>
-                  <button type="submit" className={s.submitBtn} disabled={creatingUser}>
-                    {creatingUser ? "Creating..." : "Create User"}
-                  </button>
-                </div>
+              <form onSubmit={handleCreateUser} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                 <div className={s.inputWrap}><UserIcon size={18} /><input placeholder="Full Name" value={newUser.displayName} onChange={e => setNewUser({...newUser, displayName: e.target.value})} /></div>
+                 <div className={s.inputWrap}><Mail size={18} /><input type="email" placeholder="Email" value={newUser.email} onChange={e => setNewUser({...newUser, email: e.target.value})} /></div>
+                 <div className={s.inputWrap}><Key size={18} /><input type="password" placeholder="Password" value={newUser.password} onChange={e => setNewUser({...newUser, password: e.target.value})} /></div>
+                 <button className={s.primaryBtn} type="submit" disabled={creatingUser}>{creatingUser ? "Creating..." : "Create User"}</button>
               </form>
             </div>
           </div>
         )}
-
-        {/* HERO IMAGES TAB */}
-        {tab === "hero" && (
-          <div className={s.heroSection}>
-            <div className={s.sectionHeader}>
-              <button className={s.primaryBtn} onClick={async () => {
-                const url = prompt(t("admin.promptUrl"));
-                if (!url) return;
-                const caption = prompt(t("admin.promptCaption")) ?? "";
-                const res = await apiClient.post("/app/hero-images", {
-                  imageUrl: url,
-                  caption: caption || null,
-                  sortOrder: hero.length + 1,
-                  active: true,
-                });
-                if (res.success) { toast.success("Image added"); loadAll(); }
-              }}>
-                <Plus size={18} /> Add Hero Image
-              </button>
-            </div>
-
-            <div className={s.heroGrid}>
-              {hero.length === 0 && (
-                <div className={s.emptyState}>
-                  <ImageIcon size={48} />
-                  <p>No hero images found. Add one to start the slideshow.</p>
-                </div>
-              )}
-              {hero.map((h) => (
-                <div key={h.id} className={s.heroCard}>
-                  <div className={s.heroThumb} style={{ backgroundImage: `url(${h.image_url})` }}>
-                    <div className={s.heroBadge}>{h.active ? "Active" : "Hidden"}</div>
-                  </div>
-                  <div className={s.heroBody}>
-                    <textarea
-                      className={s.captionInput}
-                      defaultValue={h.caption ?? ""}
-                      placeholder="Enter image caption..."
-                      onBlur={async (e) => {
-                        const val = e.target.value.trim() || null;
-                        if (val !== h.caption) {
-                          const res = await apiClient.patch(`/app/hero-images/${h.id}`, { caption: val });
-                          if (res.success) toast.success("Caption updated");
-                        }
-                      }}
-                    />
-                    <div className={s.heroFooter}>
-                      <button 
-                        className={`${s.statusBtn} ${h.active ? s.statusActive : s.statusSuspended}`}
-                        onClick={async () => {
-                          const res = await apiClient.patch(`/app/hero-images/${h.id}`, { active: !h.active });
-                          if (res.success) setHero(hero.map(x => x.id === h.id ? {...x, active: !x.active} : x));
-                        }}
-                      >
-                        {h.active ? "Visible" : "Hidden"}
-                      </button>
-                      <button className={s.deleteBtn} onClick={async () => {
-                        if (!confirm("Delete this hero image?")) return;
-                        const res = await apiClient.delete(`/app/hero-images/${h.id}`);
-                        if (res.success) setHero(hero.filter(x => x.id !== h.id));
-                      }}>
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* SYSTEM SETTINGS TAB */}
-        {tab === "system" && (
-          <div className={s.systemGrid}>
-            <div className={s.card}>
-              <h3>Server Status</h3>
-              <div className={s.statusItem}>
-                <span>API Status</span>
-                <span className={s.statusActive}>Operational</span>
-              </div>
-              <div className={s.statusItem}>
-                <span>Database</span>
-                <span className={s.statusActive}>Connected</span>
-              </div>
-            </div>
-          </div>
-        )}
-      </main>
-    </div>
+      </div>
+    </Shell>
   );
 }
-
