@@ -1,13 +1,16 @@
+import { useTranslation } from "react-i18next";
 import { Cell, Pie, PieChart, ResponsiveContainer } from "recharts";
 
 const data = [
-  { name: "English", value: 45, color: "oklch(0.6 0.2 280)" },
-  { name: "Amharic", value: 30, color: "oklch(0.7 0.2 295)" },
-  { name: "Afaan Oromo", value: 15, color: "oklch(0.5 0.2 260)" },
-  { name: "Somali", value: 10, color: "oklch(0.8 0.1 240)" },
+  { name: "common.langEng", value: 45, color: "oklch(0.6 0.2 280)" },
+  { name: "common.langAmh", value: 30, color: "oklch(0.7 0.2 295)" },
+  { name: "common.langOrm", value: 15, color: "oklch(0.5 0.2 260)" },
+  { name: "common.langSom", value: 10, color: "oklch(0.8 0.1 240)" },
 ];
 
 export function LanguageChart() {
+  const { t } = useTranslation();
+  
   return (
     <div style={{ width: "100%", height: 200, display: "flex", alignItems: "center" }}>
       <ResponsiveContainer width="60%" height="100%">
@@ -29,7 +32,7 @@ export function LanguageChart() {
         {data.map((item) => (
           <div key={item.name} style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontSize: "0.8rem" }}>
             <div style={{ width: 8, height: 8, borderRadius: "50%", background: item.color }} />
-            <span style={{ color: "var(--muted-foreground)" }}>{item.name}</span>
+            <span style={{ color: "var(--muted-foreground)" }}>{t(item.name)}</span>
             <span style={{ color: "var(--foreground)", fontWeight: 600, marginLeft: "auto" }}>{item.value}%</span>
           </div>
         ))}

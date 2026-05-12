@@ -140,7 +140,7 @@ function useTTS() {
       await audio.play();
     } catch (e) {
       setSpeaking(null);
-      toast.error(e instanceof Error ? e.message : "Playback failed");
+      toast.error(e instanceof Error ? e.message : t("transcriber.playbackFailed"));
     }
   };
   return { speaking, play };
@@ -222,9 +222,9 @@ function LivePanel({ onSaved }: Props) {
           channelCount: 1,
         },
       });
-      toast.success(`Listening in ${labelOf(sourceLang)}…`);
+      toast.success(t("transcriber.listeningIn", { lang: labelOf(sourceLang) }));
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Failed to start");
+      toast.error(e instanceof Error ? e.message : t("transcriber.failStart"));
     } finally {
       setConnecting(false);
     }
@@ -232,8 +232,8 @@ function LivePanel({ onSaved }: Props) {
 
   const stop = useCallback(async () => {
     await scribe.disconnect();
-    toast.info("Recording stopped");
-  }, [scribe]);
+    toast.info(t("transcriber.recStopped"));
+  }, [scribe, t]);
 
   const translate = async () => {
     if (!transcript) return;
@@ -242,7 +242,7 @@ function LivePanel({ onSaved }: Props) {
       const { translation } = await translateFn({ data: { text: transcript, targetLang, sourceLang } });
       setTranslation(translation);
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Translation failed");
+      toast.error(e instanceof Error ? e.message : t("transcriber.failTranslate"));
     } finally {
       setTranslating(false);
     }
@@ -255,17 +255,17 @@ function LivePanel({ onSaved }: Props) {
       await saveFn({
         data: {
           type: "live",
-          title: `Live recording — ${new Date().toLocaleString()}`,
+          title: t("transcriber.liveRecordingTitle", { date: new Date().toLocaleString() }),
           transcript,
           sourceLang,
           targetLang: translation ? targetLang : undefined,
           translation: translation || undefined,
         },
       });
-      toast.success("Saved to history");
+      toast.success(t("transcriber.savedToHistory"));
       onSaved?.();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Save failed");
+      toast.error(e instanceof Error ? e.message : t("transcriber.saveFailed"));
     } finally {
       setSaving(false);
     }
@@ -380,10 +380,10 @@ function FilePanel({ onSaved }: Props) {
       const j = await r.json();
       setTranscript(j.text);
       setTranscriptionId(j.id);
-      toast.success("Transcribed and saved");
+      toast.success(t("transcriber.transcribedSaved"));
       onSaved?.();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Failed");
+      toast.error(e instanceof Error ? e.message : t("transcriber.fail"));
     } finally {
       setBusy(false);
     }
@@ -401,7 +401,7 @@ function FilePanel({ onSaved }: Props) {
         setTranslation(translation);
       }
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Translation failed");
+      toast.error(e instanceof Error ? e.message : t("transcriber.failTranslate"));
     } finally {
       setTranslating(false);
     }
@@ -506,7 +506,7 @@ function YouTubePanel({ onSaved }: Props) {
 
   const transcribe = async () => {
     if (!url.trim()) {
-      toast.error("Please enter a YouTube URL");
+      toast.error(t("transcriber.ytPromptUrl"));
       return;
     }
 
@@ -521,10 +521,10 @@ function YouTubePanel({ onSaved }: Props) {
       setTranscript(result.text);
       setVideoTitle(result.title);
       setVideoId(extractYouTubeId(url.trim()));
-      toast.success("YouTube video transcribed and saved!");
+      toast.success(t("transcriber.ytSuccess"));
       onSaved?.();
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Transcription failed");
+      toast.error(e instanceof Error ? e.message : t("transcriber.failTranscribe"));
     } finally {
       setTranscribing(false);
     }
@@ -536,9 +536,9 @@ function YouTubePanel({ onSaved }: Props) {
     try {
       const { translation } = await translateFn({ data: { text: transcript, targetLang, sourceLang } });
       setTranslation(translation);
-      toast.success("Translation complete!");
+      toast.success(t("transcriber.translateSuccess"));
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Translation failed");
+      toast.error(e instanceof Error ? e.message : t("transcriber.failTranslate"));
     } finally {
       setTranslating(false);
     }
@@ -587,7 +587,7 @@ function YouTubePanel({ onSaved }: Props) {
           <div className={s.videoFrame}>
             <iframe
               src={`https://www.youtube.com/embed/${videoId}?autoplay=0&rel=0`}
-              title="YouTube video"
+              title={t("transcriber.ytIframeTitle")}
               frameBorder={0}
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen

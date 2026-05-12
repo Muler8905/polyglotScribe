@@ -99,11 +99,11 @@ function PricingPage() {
   };
 
   const handleDeleteHistory = async (id: string) => {
-    if (!confirm(t("pricing.confirmDelete", { defaultValue: "Are you sure you want to delete this record?" }))) return;
+    if (!confirm(t("pricing.confirmDelete"))) return;
     try {
       await deleteHistory({ data: { id } });
       setHistory(h => h.filter(item => item.id !== id));
-      toast.success(t("pricing.deleteSuccess", { defaultValue: "Record deleted successfully" }));
+      toast.success(t("pricing.deleteSuccess"));
     } catch (e) {
       toast.error((e as Error).message);
     }
@@ -116,7 +116,7 @@ function PricingPage() {
     try {
       if (method === "ebirr") {
         if (!/^(09|07)\d{8}$/.test(phone.trim())) {
-          toast.error(t("pricing.phoneInvalid", { defaultValue: "Enter a valid 10-digit phone (09… or 07…)" }));
+          toast.error(t("pricing.phoneInvalid"));
           setLoadingPlan(null);
           return;
         }
@@ -129,12 +129,12 @@ function PricingPage() {
           try {
             const v = await verifyEbirr({ data: { tx_ref: res.tx_ref } });
             if (v.status === "success") {
-              setEbirrStatus({ tx_ref: res.tx_ref, message: t("pricing.ebirrSuccess", { defaultValue: "Payment received! Credits added." }), state: "success" });
+              setEbirrStatus({ tx_ref: res.tx_ref, message: t("pricing.ebirrSuccess"), state: "success" });
               setCredits((c) => (c ?? 0) + v.credits_awarded);
               return;
             }
             if (v.status === "failed") {
-              setEbirrStatus({ tx_ref: res.tx_ref, message: t("pricing.ebirrFailed", { defaultValue: "Payment failed or was cancelled." }), state: "failed" });
+              setEbirrStatus({ tx_ref: res.tx_ref, message: t("pricing.ebirrFailed"), state: "failed" });
               return;
             }
             if (attempts < 60) setTimeout(poll, 3000);
@@ -308,7 +308,7 @@ function PricingPage() {
             }}
           >
             <h3 style={{ margin: "0 0 0.4rem", fontSize: "1.2rem", fontWeight: 700 }}>
-              {t("pricing.choosePayment", { defaultValue: "Choose payment method" })}
+              {t("pricing.choosePayment")}
             </h3>
             <p style={{ margin: "0 0 1.25rem", color: "var(--muted-foreground)", fontSize: "0.9rem" }}>
               {pendingPlan.name} — {pendingPlan.price_etb.toLocaleString()} ETB
@@ -339,8 +339,8 @@ function PricingPage() {
                       <span>{m === "chapa" ? t("pricing.methodChapa") : t("pricing.methodEbirr")}</span>
                       <span style={{ fontSize: "0.75rem", fontWeight: 400, color: "var(--muted-foreground)" }}>
                         {m === "chapa"
-                          ? t("pricing.methodChapaDesc", { defaultValue: "Cards, bank transfer, mobile wallets" })
-                          : t("pricing.methodEbirrDesc", { defaultValue: "Pay with Telebirr / e-Birr wallet" })}
+                          ? t("pricing.methodChapaDesc")
+                          : t("pricing.methodEbirrDesc")}
                       </span>
                     </div>
                   </button>
@@ -351,7 +351,7 @@ function PricingPage() {
             {method === "ebirr" && !ebirrStatus && (
               <div style={{ marginBottom: "1.25rem" }}>
                 <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, marginBottom: "0.4rem" }}>
-                  {t("pricing.phoneLabel", { defaultValue: "Telebirr / e-Birr phone number" })}
+                  {t("pricing.phoneLabel")}
                 </label>
                 <input
                   type="tel"
@@ -367,7 +367,7 @@ function PricingPage() {
                   }}
                 />
                 <p style={{ margin: "0.4rem 0 0", fontSize: "0.75rem", color: "var(--muted-foreground)" }}>
-                  {t("pricing.phoneHint", { defaultValue: "10 digits, starting with 09 or 07. You'll receive a USSD prompt to confirm." })}
+                  {t("pricing.phoneHint")}
                 </p>
               </div>
             )}
@@ -387,10 +387,10 @@ function PricingPage() {
               >
                 <strong style={{ display: "block", marginBottom: "0.3rem" }}>
                   {ebirrStatus.state === "success"
-                    ? t("pricing.ebirrSuccessTitle", { defaultValue: "Payment confirmed" })
+                    ? t("pricing.ebirrSuccessTitle")
                     : ebirrStatus.state === "failed"
-                    ? t("pricing.ebirrFailedTitle", { defaultValue: "Payment failed" })
-                    : t("pricing.ebirrWaitingTitle", { defaultValue: "Awaiting confirmation on your phone…" })}
+                    ? t("pricing.ebirrFailedTitle")
+                    : t("pricing.ebirrWaitingTitle")}
                 </strong>
                 <span>{ebirrStatus.message}</span>
               </div>
@@ -408,8 +408,8 @@ function PricingPage() {
                 }}
               >
                 {ebirrStatus?.state === "success"
-                  ? t("pricing.close", { defaultValue: "Close" })
-                  : t("pricing.cancel", { defaultValue: "Cancel" })}
+                  ? t("pricing.close")
+                  : t("pricing.cancel")}
               </button>
               {ebirrStatus?.state !== "success" && (
                 <button
@@ -423,7 +423,7 @@ function PricingPage() {
                     ? t("pricing.redirecting")
                     : (
                       <>
-                        <Sparkles size={16} /> {t("pricing.continue", { defaultValue: "Continue" })}
+                        <Sparkles size={16} /> {t("pricing.continue")}
                       </>
                     )}
                 </button>

@@ -67,9 +67,9 @@ function TranscriptionDetail() {
 
   const onDelete = async () => {
     if (!item) return;
-    if (!confirm("Delete this transcription permanently?")) return;
+    if (!confirm(t("transcription.confirmDelete"))) return;
     await del({ data: { id: item.id } });
-    toast.success("Deleted");
+    toast.success(t("transcription.deleted"));
     setRefreshKey((k) => k + 1);
     nav({ to: "/dashboard" });
   };
@@ -88,13 +88,13 @@ function TranscriptionDetail() {
       await audio.play();
     } catch (e) {
       setSpeaking(null);
-      toast.error(e instanceof Error ? e.message : "Playback failed");
+      toast.error(e instanceof Error ? e.message : t("transcriber.playbackFailed"));
     }
   };
 
-  const copy = (t: string) => navigator.clipboard.writeText(t).then(() => toast.success("Copied"));
-  const download = (t: string, name: string) => {
-    const blob = new Blob([t], { type: "text/plain" });
+  const copy = (t_str: string) => navigator.clipboard.writeText(t_str).then(() => toast.success(t("transcriber.copied")));
+  const download = (t_str: string, name: string) => {
+    const blob = new Blob([t_str], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url; a.download = name; a.click();
@@ -104,7 +104,7 @@ function TranscriptionDetail() {
   return (
     <Shell activeId={id} refreshKey={refreshKey}>
       {!item ? (
-        <div className={s.empty}>Loading…</div>
+        <div className={s.empty}>{t("transcription.loading")}</div>
       ) : (
         <div className={s.card}>
           <div className={s.cardHeader}>
@@ -112,14 +112,14 @@ function TranscriptionDetail() {
             <div className={s.cardSubtitle}>
               {item.type.toUpperCase()} · {new Date(item.created_at).toLocaleString()}
               {item.source_url && (
-                <> · <a href={item.source_url} target="_blank" rel="noreferrer">Open source</a></>
+                <> · <a href={item.source_url} target="_blank" rel="noreferrer">{t("transcription.openSource")}</a></>
               )}
             </div>
           </div>
 
           <div className={s.row}>
             <div className={s.field}>
-              <label className={s.label}>Translate to</label>
+              <label className={s.label}>{t("transcription.translateTo")}</label>
               <select className={s.select} value={targetLang} onChange={(e) => setTargetLang(e.target.value)}>
                 {LANGUAGES.map((l) => (<option key={l.code} value={l.code}>{l.label}</option>))}
               </select>
@@ -127,20 +127,20 @@ function TranscriptionDetail() {
           </div>
           <div className={s.actions}>
             <button className={`${s.btn} ${s.btnPrimary}`} onClick={onTranslate} disabled={translating}>
-              {translating ? "Translating…" : "Translate"}
+              {translating ? t("transcription.translating") : t("transcription.translate")}
             </button>
-            <button className={`${s.btn} ${s.btnDanger}`} onClick={onDelete}>🗑 Delete</button>
+            <button className={`${s.btn} ${s.btnDanger}`} onClick={onDelete}>{t("transcription.delete")}</button>
           </div>
 
           <div className={s.transcriptGrid}>
             <div className={s.pane}>
               <div className={s.paneHeader}>
-                <div className={s.paneTitle}>Transcript ({item.source_lang ?? "auto"})</div>
+                <div className={s.paneTitle}>{t("transcription.transcript")} ({item.source_lang ?? "auto"})</div>
                 <div className={s.paneActions}>
-                  <button className={s.iconBtn} onClick={() => copy(item.transcript)}>Copy</button>
-                  <button className={s.iconBtn} onClick={() => download(item.transcript, `${item.title}.txt`)}>Download</button>
+                  <button className={s.iconBtn} onClick={() => copy(item.transcript)}>{t("transcription.copy")}</button>
+                  <button className={s.iconBtn} onClick={() => download(item.transcript, `${item.title}.txt`)}>{t("transcription.download")}</button>
                   <button className={s.iconBtn} onClick={() => speak("src")} disabled={speaking === "src"}>
-                    {speaking === "src" ? "Playing…" : "🔊 Play"}
+                    {speaking === "src" ? t("transcription.playing") : t("transcription.play")}
                   </button>
                 </div>
               </div>
@@ -148,16 +148,16 @@ function TranscriptionDetail() {
             </div>
             <div className={s.pane}>
               <div className={s.paneHeader}>
-                <div className={s.paneTitle}>Translation ({targetLang})</div>
+                <div className={s.paneTitle}>{t("transcription.translation")} ({targetLang})</div>
                 <div className={s.paneActions}>
-                  <button className={s.iconBtn} onClick={() => item.translation && copy(item.translation)} disabled={!item.translation}>Copy</button>
+                  <button className={s.iconBtn} onClick={() => item.translation && copy(item.translation)} disabled={!item.translation}>{t("transcription.copy")}</button>
                   <button className={s.iconBtn} onClick={() => speak("tgt")} disabled={!item.translation || speaking === "tgt"}>
-                    {speaking === "tgt" ? "Playing…" : "🔊 Play"}
+                    {speaking === "tgt" ? t("transcription.playing") : t("transcription.play")}
                   </button>
                 </div>
               </div>
               <div className={s.transcriptText}>
-                {item.translation || <span className={s.empty}>No translation yet — pick a language and click Translate.</span>}
+                {item.translation || <span className={s.empty}>{t("transcription.noTranslation")}</span>}
               </div>
             </div>
           </div>

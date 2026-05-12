@@ -43,18 +43,18 @@ function SettingsPage() {
     setSavingProfile(true);
     const response = await apiClient.put("/app/profile", { displayName, avatarUrl: avatarUrl || null });
     setSavingProfile(false);
-    if (!response.success) toast.error(response.message || "Failed to update profile");
-    else toast.success("Profile updated");
+    if (!response.success) toast.error(response.message || t("settings.failUpdate"));
+    else toast.success(t("settings.profileUpdated"));
   };
 
   const changePassword = async () => {
-    if (pwd.length < 6) return toast.error("Password must be at least 6 characters");
-    if (pwd !== pwd2) return toast.error("Passwords do not match");
+    if (pwd.length < 6) return toast.error(t("settings.passwordTooShort"));
+    if (pwd !== pwd2) return toast.error(t("settings.passwordMismatch"));
     setSavingPwd(true);
     const response = await apiClient.put("/app/password", { password: pwd });
     setSavingPwd(false);
-    if (!response.success) toast.error(response.message || "Failed to update password");
-    else { toast.success("Password updated"); setPwd(""); setPwd2(""); }
+    if (!response.success) toast.error(response.message || t("settings.failPassword"));
+    else { toast.success(t("settings.passwordUpdated")); setPwd(""); setPwd2(""); }
   };
 
   const card: React.CSSProperties = {
@@ -125,7 +125,7 @@ function SettingsPage() {
                     </div>
                   )}
                   <div>
-                    <div style={{ fontWeight: 600, fontSize: "1rem" }}>{displayName || "Unnamed"}</div>
+                    <div style={{ fontWeight: 600, fontSize: "1rem" }}>{displayName || t("settings.unnamed")}</div>
                     <div style={{ color: "var(--muted-foreground)", fontSize: "0.85rem" }}>{user?.email}</div>
                   </div>
                 </div>

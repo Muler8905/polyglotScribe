@@ -56,7 +56,7 @@ export function Shell({
     { label: t("nav.transcribe"), icon: Mic, to: "/dashboard", search: { mode: "select" } },
     { label: t("nav.history"), icon: History, to: "/history", search: {} },
     { label: t("nav.analytics"), icon: BarChart3, to: "/analytics", search: {} },
-    { label: "Billing", icon: CreditCard, to: "/pricing", search: {} },
+    { label: t("shell.billing"), icon: CreditCard, to: "/pricing", search: {} },
   ];
 
   return (
@@ -113,7 +113,7 @@ export function Shell({
             <div className={s.avatar}>{user?.email?.[0].toUpperCase()}</div>
             <div className={s.userInfo}>
               <div className={s.userEmail}>{user?.email?.split('@')[0]}</div>
-              <div className={s.userStatus}>View Plan</div>
+              <div className={s.userStatus}>{t("shell.viewPlan")}</div>
             </div>
           </Link>
         </div>
@@ -122,7 +122,7 @@ export function Shell({
       <main className={s.main}>
         <div className={s.topBar}>
           <div className={s.searchBar}>
-            <input type="text" placeholder="Search..." />
+            <input type="text" placeholder={t("shell.searchPlaceholder")} />
           </div>
           <div className={s.topActions}>
              <LanguageSwitcher compact />

@@ -44,8 +44,8 @@ function HistoryPage() {
     <Shell>
       <div className={s.container}>
         <header className={s.header}>
-          <h1 className={s.welcomeTitle}>Transcription History</h1>
-          <p className={s.welcomeSubtitle}>View and manage all your past transcriptions.</p>
+          <h1 className={s.welcomeTitle}>{t("history.title")}</h1>
+          <p className={s.welcomeSubtitle}>{t("history.subtitle")}</p>
         </header>
 
         <div className={s.glassCard}>
@@ -53,7 +53,7 @@ function HistoryPage() {
             <div className={s.searchBar} style={{ maxWidth: '300px' }}>
               <input 
                 type="text" 
-                placeholder="Search history..." 
+                placeholder={t("history.searchPlaceholder")}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
               />
@@ -65,10 +65,10 @@ function HistoryPage() {
                 value={filter}
                 onChange={(e) => setFilter(e.target.value)}
               >
-                <option value="all">All Types</option>
-                <option value="live">Live</option>
-                <option value="file">File</option>
-                <option value="youtube">YouTube</option>
+                <option value="all">{t("history.filterAll")}</option>
+                <option value="live">{t("history.filterLive")}</option>
+                <option value="file">{t("history.filterFile")}</option>
+                <option value="youtube">{t("history.filterYoutube")}</option>
               </select>
             </div>
           </div>
@@ -77,11 +77,11 @@ function HistoryPage() {
             <table className={s.activityTable}>
               <thead>
                 <tr>
-                  <th>Title</th>
-                  <th>Language</th>
-                  <th>Type</th>
-                  <th>Date</th>
-                  <th>Actions</th>
+                  <th>{t("history.thTitle")}</th>
+                  <th>{t("history.thLanguage")}</th>
+                  <th>{t("history.thType")}</th>
+                  <th>{t("history.thDate")}</th>
+                  <th>{t("history.thActions")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -93,7 +93,7 @@ function HistoryPage() {
                     <td>{new Date(item.created_at).toLocaleDateString()}</td>
                     <td>
                       <Link to="/transcription/$id" params={{ id: item.id }} className={s.cardBtn} style={{ width: 'auto', padding: '0.4rem 0.8rem', fontSize: '0.75rem' }}>
-                        <Eye size={14} /> View
+                        <Eye size={14} /> {t("history.viewBtn")}
                       </Link>
                     </td>
                   </tr>
@@ -101,7 +101,7 @@ function HistoryPage() {
                 {filteredItems.length === 0 && (
                   <tr>
                     <td colSpan={5} style={{ textAlign: 'center', padding: '4rem', color: 'var(--muted-foreground)' }}>
-                      No history found. Try adjusting your search or filters.
+                      {t("history.empty")}
                     </td>
                   </tr>
                 )}

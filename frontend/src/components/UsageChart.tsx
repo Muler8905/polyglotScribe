@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 const data = [
@@ -12,6 +13,7 @@ const data = [
 ];
 
 export function UsageChart() {
+  const { t } = useTranslation();
   return (
     <div style={{ width: "100%", height: 260 }}>
       <ResponsiveContainer width="100%" height="100%">
@@ -52,6 +54,7 @@ export function UsageChart() {
           <Area
             type="monotone"
             dataKey="transcribed"
+            name={t("dashboard.usageTranscribed")}
             stroke="oklch(0.7 0.2 295)"
             fillOpacity={1}
             fill="url(#colorTranscribed)"
@@ -60,6 +63,7 @@ export function UsageChart() {
           <Area
             type="monotone"
             dataKey="translated"
+            name={t("transcriber.translation")}
             stroke="oklch(0.6 0.2 280)"
             fillOpacity={1}
             fill="url(#colorTranslated)"

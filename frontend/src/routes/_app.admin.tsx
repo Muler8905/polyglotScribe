@@ -94,7 +94,7 @@ function AdminPage() {
         })),
       );
     } catch (err) {
-      toast.error("Failed to load admin data");
+      toast.error(t("admin.failLoad"));
     } finally {
       setLoadingData(false);
     }
@@ -120,16 +120,16 @@ function AdminPage() {
   const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newUser.email || !newUser.password || !newUser.displayName) {
-      return toast.error("Please fill in all required fields");
+      return toast.error(t("admin.failCreate"));
     }
     setCreatingUser(true);
     try {
       const res = await apiClient.post("/app/admin/users", newUser);
       if (!res.success) {
-        toast.error(res.message || "Failed to create user");
+        toast.error(res.message || t("admin.failCreate"));
         return;
       }
-      toast.success("User created successfully");
+      toast.success(t("admin.userCreated"));
       setShowCreateModal(false);
       setNewUser({ email: "", password: "", displayName: "", credits: 100 });
       loadAll();
@@ -141,10 +141,10 @@ function AdminPage() {
   };
 
   const handleDeleteUser = async (userId: string) => {
-    if (!confirm("Are you sure you want to permanently delete this user?")) return;
+    if (!confirm(t("admin.confirmDeleteUser"))) return;
     const res = await apiClient.delete(`/app/admin/users/${userId}`);
-    if (!res.success) return toast.error(res.message || "Failed to delete user");
-    toast.success("User deleted");
+    if (!res.success) return toast.error(res.message || t("admin.failDelete"));
+    toast.success(t("admin.userDeleted"));
     setUsers(users.filter(u => u.user_id !== userId));
   };
 
@@ -158,7 +158,7 @@ function AdminPage() {
       featureTranslate: patch.feature_translate,
       featureTts: patch.feature_tts,
     });
-    if (!res.success) return toast.error(res.message || "Failed to update");
+    if (!res.success) return toast.error(res.message || t("admin.failUpdate"));
     setUsers((u) => u.map((r) => (r.user_id === userId ? { ...r, ...patch } : r)));
     toast.success(t("admin.updated"));
   };
@@ -180,13 +180,13 @@ function AdminPage() {
       <div className={s.container}>
         <header className={s.header}>
           <div className={s.headerInfo}>
-            <h1 className={s.title}>Admin Panel</h1>
-            <p className={s.subtitle}>Manage users, system assets, and global configurations.</p>
+            <h1 className={s.title}>{t("admin.title")}</h1>
+            <p className={s.subtitle}>{t("admin.subtitle")}</p>
           </div>
           <div className={s.tabs}>
             <button className={`${s.tab} ${tab === "users" ? s.tabActive : ""}`} onClick={() => setTab("users")}><Users size={18} /> {t("admin.tabUsers")}</button>
             <button className={`${s.tab} ${tab === "hero" ? s.tabActive : ""}`} onClick={() => setTab("hero")}><ImageIcon size={18} /> {t("admin.tabHero")}</button>
-            <button className={`${s.tab} ${tab === "system" ? s.tabActive : ""}`} onClick={() => setTab("system")}><Settings size={18} /> System</button>
+            <button className={`${s.tab} ${tab === "system" ? s.tabActive : ""}`} onClick={() => setTab("system")}><Settings size={18} /> {t("admin.tabSystem")}</button>
           </div>
         </header>
 
@@ -195,10 +195,10 @@ function AdminPage() {
             <div className={s.toolbar}>
               <div className={s.searchBar}>
                 <Search size={18} />
-                <input placeholder="Search users..." value={search} onChange={e => setSearch(e.target.value)} />
+                <input placeholder={t("admin.searchUsers")} value={search} onChange={e => setSearch(e.target.value)} />
               </div>
               <button className={s.primaryBtn} onClick={() => setShowCreateModal(true)}>
-                <UserPlus size={18} /> Create User
+                <UserPlus size={18} /> {t("admin.createUser")}
               </button>
             </div>
 
@@ -206,13 +206,13 @@ function AdminPage() {
               <table className={s.table}>
                 <thead>
                   <tr>
-                    <th>User</th>
-                    <th>Role</th>
-                    <th>Credits</th>
-                    <th>Capabilities</th>
-                    <th>Status</th>
-                    <th>Joined</th>
-                    <th>Actions</th>
+                    <th>{t("admin.thUser")}</th>
+                    <th>{t("admin.thRole")}</th>
+                    <th>{t("admin.thCredits")}</th>
+                    <th>{t("admin.thCaps")}</th>
+                    <th>{t("admin.thStatus")}</th>
+                    <th>{t("admin.thJoined")}</th>
+                    <th>{t("admin.thActions")}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -222,14 +222,14 @@ function AdminPage() {
                         <div className={s.userCell}>
                           <div className={s.avatar}>{u.display_name?.[0] || u.email[0]}</div>
                           <div>
-                            <div className={s.userName}>{u.display_name || "No Name"}</div>
+                            <div className={s.userName}>{u.display_name || t("admin.noName")}</div>
                             <div className={s.userEmail}>{u.email}</div>
                           </div>
                         </div>
                       </td>
                       <td>
                         <button className={`${s.badge} ${u.is_admin ? s.badgeAdmin : s.badgeUser}`} onClick={() => toggleAdmin(u)}>
-                          {u.is_admin ? "Admin" : "User"}
+                          {u.is_admin ? t("admin.roleAdmin") : t("admin.roleUser")}
                         </button>
                       </td>
                       <td>
@@ -262,7 +262,7 @@ function AdminPage() {
                       </td>
                       <td>
                         <button className={`${s.statusBtn} ${u.suspended ? s.statusSuspended : s.statusActive}`} onClick={() => updateToken(u.user_id, { suspended: !u.suspended })}>
-                          {u.suspended ? "Suspended" : "Active"}
+                          {u.suspended ? t("admin.statusSuspended") : t("admin.statusActive")}
                         </button>
                       </td>
                       <td>{new Date(u.createdAt).toLocaleDateString()}</td>
@@ -280,14 +280,14 @@ function AdminPage() {
         {tab === "hero" && (
           <div className={s.container}>
              <div className={s.toolbar}>
-               <h2 className={s.sectionTitle}>Slideshow Assets</h2>
+               <h2 className={s.sectionTitle}>{t("admin.heroTitle")}</h2>
                <button className={s.primaryBtn} onClick={async () => {
-                  const url = prompt("Enter Image URL");
+                  const url = prompt(t("admin.heroTitle"));
                   if (!url) return;
                   const res = await apiClient.post("/app/hero-images", { imageUrl: url, active: true, sortOrder: hero.length + 1 });
-                  if (res.success) { toast.success("Added"); loadAll(); }
+                  if (res.success) { toast.success(t("admin.userCreated")); loadAll(); }
                }}>
-                 <Plus size={18} /> Add Hero Image
+                 <Plus size={18} /> {t("admin.addHero")}
                </button>
              </div>
              <div className={s.heroGrid}>
@@ -301,7 +301,7 @@ function AdminPage() {
                         onBlur={async (e) => {
                            if (e.target.value !== h.caption) {
                              await apiClient.patch(`/app/hero-images/${h.id}`, { caption: e.target.value });
-                             toast.success("Updated");
+                             toast.success(t("admin.updated"));
                            }
                         }}
                       />
@@ -313,10 +313,10 @@ function AdminPage() {
                             loadAll();
                           }}
                         >
-                          {h.active ? "Active" : "Hidden"}
+                          {h.active ? t("admin.statusActive") : t("admin.statusHidden")}
                         </button>
                         <button className={s.deleteBtn} onClick={async () => {
-                           if (confirm("Delete?")) {
+                           if (confirm(t("admin.confirmDeleteUser"))) {
                              await apiClient.delete(`/app/hero-images/${h.id}`);
                              loadAll();
                            }
@@ -332,15 +332,15 @@ function AdminPage() {
         {tab === "system" && (
           <div className={s.mainGrid}>
             <div className={s.glassCard}>
-              <h2 className={s.sectionTitle}>System Health</h2>
+              <h2 className={s.sectionTitle}>{t("admin.systemTitle")}</h2>
               <div style={{ display: 'grid', gap: '1rem', marginTop: '1.5rem' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '12px' }}>
-                   <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}><Activity size={20} color="#22c55e" /> API Server</div>
-                   <span style={{ color: '#22c55e', fontWeight: 600 }}>Healthy</span>
+                   <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}><Activity size={20} color="#22c55e" /> {t("admin.apiServer")}</div>
+                   <span style={{ color: '#22c55e', fontWeight: 600 }}>{t("admin.healthy")}</span>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '12px' }}>
-                   <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}><Database size={20} color="#22c55e" /> MongoDB Cluster</div>
-                   <span style={{ color: '#22c55e', fontWeight: 600 }}>Connected</span>
+                   <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}><Database size={20} color="#22c55e" /> {t("admin.dbCluster")}</div>
+                   <span style={{ color: '#22c55e', fontWeight: 600 }}>{t("admin.connected")}</span>
                 </div>
               </div>
             </div>
@@ -351,14 +351,14 @@ function AdminPage() {
           <div className={s.modalOverlay}>
             <div className={s.modal}>
               <div className={s.sectionHeader} style={{ marginBottom: '2rem' }}>
-                <h2 className={s.sectionTitle}>Create New User</h2>
+                <h2 className={s.sectionTitle}>{t("admin.modalCreateTitle")}</h2>
                 <button onClick={() => setShowCreateModal(false)} style={{ background: 'transparent', border: 'none', color: 'white' }}><Plus size={24} style={{ transform: 'rotate(45deg)' }} /></button>
               </div>
               <form onSubmit={handleCreateUser} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                 <div className={s.inputWrap}><UserIcon size={18} /><input placeholder="Full Name" value={newUser.displayName} onChange={e => setNewUser({...newUser, displayName: e.target.value})} /></div>
-                 <div className={s.inputWrap}><Mail size={18} /><input type="email" placeholder="Email" value={newUser.email} onChange={e => setNewUser({...newUser, email: e.target.value})} /></div>
-                 <div className={s.inputWrap}><Key size={18} /><input type="password" placeholder="Password" value={newUser.password} onChange={e => setNewUser({...newUser, password: e.target.value})} /></div>
-                 <button className={s.primaryBtn} type="submit" disabled={creatingUser}>{creatingUser ? "Creating..." : "Create User"}</button>
+                 <div className={s.inputWrap}><UserIcon size={18} /><input placeholder={t("admin.placeholderName")} value={newUser.displayName} onChange={e => setNewUser({...newUser, displayName: e.target.value})} /></div>
+                 <div className={s.inputWrap}><Mail size={18} /><input type="email" placeholder={t("admin.placeholderEmail")} value={newUser.email} onChange={e => setNewUser({...newUser, email: e.target.value})} /></div>
+                 <div className={s.inputWrap}><Key size={18} /><input type="password" placeholder={t("admin.placeholderPwd")} value={newUser.password} onChange={e => setNewUser({...newUser, password: e.target.value})} /></div>
+                 <button className={s.primaryBtn} type="submit" disabled={creatingUser}>{creatingUser ? t("admin.btnCreating") : t("admin.createUser")}</button>
               </form>
             </div>
           </div>
