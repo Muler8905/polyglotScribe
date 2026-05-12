@@ -19,10 +19,11 @@ type Tab = "live" | "file" | "youtube";
 
 interface Props {
   onSaved?: () => void;
+  initialTab?: Tab;
 }
 
-export function Transcriber({ onSaved }: Props) {
-  const [tab, setTab] = useState<Tab>("live");
+export function Transcriber({ onSaved, initialTab }: Props) {
+  const [tab, setTab] = useState<Tab>(initialTab || "live");
   const { t } = useTranslation();
 
   return (

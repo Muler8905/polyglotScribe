@@ -1,108 +1,203 @@
-.hero {
-  background: var(--gradient-primary, linear-gradient(135deg, var(--primary), var(--primary-glow, var(--primary))));
-  color: var(--primary-foreground);
-  border-radius: 24px;
-  padding: 2.5rem;
-  margin-bottom: 2rem;
-  box-shadow: var(--shadow-elegant, 0 20px 40px -12px rgba(0, 0, 0, 0.3));
-  position: relative;
-  overflow: hidden;
-  border: 1px solid color-mix(in oklab, white 15%, transparent);
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+  animation: fadeIn 0.5s ease-out;
 }
-.hero::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(800px circle at 100% 0%, color-mix(in oklab, white 20%, transparent), transparent 70%),
-    radial-gradient(600px circle at 0% 100%, color-mix(in oklab, white 12%, transparent), transparent 70%);
-  pointer-events: none;
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
-.heroText { position: relative; z-index: 1; }
-.eyebrow {
-  font-size: 0.75rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  opacity: 0.85;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
-.title {
-  margin: 0;
-  font-size: clamp(1.8rem, 3.5vw, 2.5rem);
+
+.welcomeTitle {
+  font-size: 2rem;
   font-weight: 800;
-  line-height: 1.1;
+  color: white;
+  margin: 0;
   letter-spacing: -0.02em;
 }
-.name { color: white; text-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-.subtitle {
-  margin: 1rem 0 0;
-  opacity: 0.9;
-  font-size: 1.05rem;
-  max-width: 60ch;
-  line-height: 1.5;
+
+.welcomeSubtitle {
+  color: var(--muted-foreground);
+  font-size: 1rem;
 }
-.actions {
-  display: flex;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-  margin-top: 1.5rem;
-}
-.adminLink {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.6rem 1.1rem;
-  border-radius: 12px;
-  background: color-mix(in oklab, white 18%, transparent);
-  border: 1px solid color-mix(in oklab, white 25%, transparent);
-  color: var(--primary-foreground);
-  text-decoration: none;
-  font-weight: 600;
-  font-size: 0.88rem;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  backdrop-filter: blur(10px);
-}
-.adminLink:hover {
-  background: color-mix(in oklab, white 28%, transparent);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
-.statRow {
-  position: relative;
-  z-index: 1;
+
+.quickActions {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
-  margin-top: 2rem;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
 }
-.stat {
-  background: color-mix(in oklab, white 10%, transparent);
-  border: 1px solid color-mix(in oklab, white 18%, transparent);
-  border-radius: 16px;
-  padding: 1rem 1.25rem;
+
+.actionCard {
+  background: var(--glass-bg);
   backdrop-filter: blur(12px);
-  transition: transform 0.2s ease;
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
 }
-.stat:hover {
-  background: color-mix(in oklab, white 15%, transparent);
+
+.actionCard:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-4px);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
 }
-.statLabel {
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  opacity: 0.8;
+
+.cardIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: oklch(0.7 0.2 295);
+}
+
+.cardTitle {
+  font-size: 1.1rem;
   font-weight: 700;
+  color: white;
+  margin-bottom: 0.25rem;
 }
+
+.cardDesc {
+  font-size: 0.85rem;
+  color: var(--muted-foreground);
+}
+
+.cardBtn {
+  width: 100%;
+  padding: 0.75rem;
+  border-radius: 12px;
+  border: none;
+  background: var(--brand-gradient);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.cardBtn:hover {
+  opacity: 0.9;
+}
+
+.cardBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.youtubeInput {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
+  border-radius: 10px;
+  padding: 0.6rem 1rem;
+  color: white;
+  font-size: 0.9rem;
+  width: 100%;
+}
+
+.mainGrid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1.5rem;
+}
+
+.glassCard {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  padding: 1.75rem;
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.sectionTitle {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: white;
+  margin: 0;
+}
+
+.statsGrid {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+}
+
 .statValue {
-  font-size: 1.15rem;
+  font-size: 1.5rem;
   font-weight: 800;
-  margin-top: 0.25rem;
+  color: white;
+}
+
+.statLabel {
+  font-size: 0.8rem;
+  color: var(--muted-foreground);
+}
+
+.activityTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.activityTable th {
+  text-align: left;
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--glass-border);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.activityTable td {
+  padding: 1rem;
+  font-size: 0.85rem;
+  color: white;
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.statusBadge {
+  padding: 0.25rem 0.6rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: rgba(34, 197, 94, 0.1);
+  color: #22c55e;
+}
+
+@media (max-width: 1200px) {
+  .mainGrid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 768px) {
-  .hero { padding: 1.75rem; border-radius: 20px; }
-  .title { font-size: 1.8rem; }
-  .statRow { grid-template-columns: 1fr; }
+  .quickActions { grid-template-columns: 1fr; }
 }
-

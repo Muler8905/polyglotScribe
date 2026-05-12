@@ -136,6 +136,11 @@
   --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.551 0.027 264.364);
+
+  --glass-bg: oklch(0.129 0.042 264.695 / 60%);
+  --glass-border: oklch(1 0 0 / 12%);
+  --glass-glow: oklch(0.7 0.2 295 / 15%);
+  --brand-gradient: linear-gradient(135deg, oklch(0.6 0.2 280), oklch(0.7 0.2 320));
 }
 
 @layer base {
