@@ -1,11 +1,10 @@
 import { Cell, Pie, PieChart, ResponsiveContainer } from "recharts";
 
 const data = [
-  { name: "English", value: 42, color: "oklch(0.6 0.2 280)" },
-  { name: "Spanish", value: 25, color: "oklch(0.7 0.2 295)" },
-  { name: "French", value: 15, color: "oklch(0.5 0.2 260)" },
-  { name: "German", value: 10, color: "oklch(0.8 0.1 240)" },
-  { name: "Others", value: 8, color: "oklch(0.4 0.1 220)" },
+  { name: "English", value: 45, color: "oklch(0.6 0.2 280)" },
+  { name: "Amharic", value: 30, color: "oklch(0.7 0.2 295)" },
+  { name: "Afaan Oromo", value: 15, color: "oklch(0.5 0.2 260)" },
+  { name: "Somali", value: 10, color: "oklch(0.8 0.1 240)" },
 ];
 
 export function LanguageChart() {

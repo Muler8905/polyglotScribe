@@ -55,9 +55,7 @@ export function Shell({
     { label: t("nav.dashboard"), icon: LayoutDashboard, to: "/dashboard", search: { mode: undefined } },
     { label: t("nav.transcribe"), icon: Mic, to: "/dashboard", search: { mode: "select" } },
     { label: t("nav.history"), icon: History, to: "/history" },
-    { label: t("nav.users"), icon: Users, to: "/admin" },
     { label: t("nav.analytics"), icon: BarChart3, to: "/analytics" },
-    { label: t("nav.settings"), icon: Settings, to: "/settings" },
   ];
 
   return (
