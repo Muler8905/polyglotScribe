@@ -84,10 +84,10 @@
 
 3. **Setup Frontend**
    ```bash
-   cd ..
+   cd frontend
    npm install
    ```
-   Create a `.env` file in the root folder:
+   Create a `.env` file in the `frontend` folder:
    ```env
    VITE_API_URL=http://localhost:5000/api
    ELEVENLABS_API_KEY=your_elevenlabs_key
@@ -104,7 +104,7 @@
 
 2. **Start Frontend Development Server**
    ```bash
-   cd ..
+   cd frontend
    npm run dev
    ```
 
