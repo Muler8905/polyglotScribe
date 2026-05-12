@@ -18,6 +18,9 @@ import { useServerFn } from "@tanstack/react-start";
 import { listTranscriptions } from "@/serverFns/transcription.functions";
 
 export const Route = createFileRoute("/_app/dashboard")({
+  validateSearch: (search: Record<string, unknown>) => ({
+    mode: (search.mode as string) || undefined,
+  }),
   head: () => ({ meta: [{ title: "Dashboard — Polyglot Scribe" }] }),
   component: Dashboard,
 });
@@ -39,7 +42,12 @@ function Dashboard() {
   const [credits, setCredits] = useState<number | null>(null);
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const listFn = useServerFn(listTranscriptions);
-  const [activeMode, setActiveMode] = useState<string | null>(null);
+  const { mode } = Route.useSearch();
+  const [activeMode, setActiveMode] = useState<string | null>(mode || null);
+
+  useEffect(() => {
+    if (mode) setActiveMode(mode);
+  }, [mode]);
 
   const displayName = user?.displayName || user?.email?.split("@")[0] || "Alex";
   
@@ -66,7 +74,7 @@ function Dashboard() {
           <p className={s.welcomeSubtitle}>Overview of transcringual transcription and translation app.</p>
         </header>
 
-        {activeMode ? (
+        {activeMode && activeMode !== 'select' ? (
           <div className={s.glassCard}>
             <div className={s.sectionHeader}>
                <h2 className={s.sectionTitle}>{activeMode === 'live' ? 'Live Recording' : activeMode === 'file' ? 'File Upload' : 'YouTube Link'}</h2>
@@ -118,15 +126,14 @@ function Dashboard() {
               <div className={s.glassCard}>
                 <div className={s.sectionHeader}>
                   <h2 className={s.sectionTitle}>Transcription & Translation Usage</h2>
-                  <div className={s.statsGrid}>
-                    <div className={s.statItem}>
-                      <span className={s.statValue}>14.5k min</span>
-                      <span className={s.statLabel}>Transcribed <span style={{ color: '#22c55e' }}>↑ 12%</span></span>
+                  <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                    <div className={s.statsGrid} style={{ marginBottom: 0 }}>
+                      <div className={s.statItem}>
+                        <span className={s.statValue} style={{ fontSize: '1rem' }}>14.5k min</span>
+                        <span className={s.statLabel} style={{ fontSize: '0.7rem' }}>Transcribed</span>
+                      </div>
                     </div>
-                    <div className={s.statItem}>
-                      <span className={s.statValue}>9.8k min</span>
-                      <span className={s.statLabel}>Translated <span style={{ color: '#22c55e' }}>↑ 18%</span></span>
-                    </div>
+                    <Link to="/analytics" className={s.cardBtn} style={{ width: 'auto', background: 'transparent', border: '1px solid var(--glass-border)', fontSize: '0.7rem', padding: '0.3rem 0.6rem' }}>Details</Link>
                   </div>
                 </div>
                 <UsageChart />
@@ -141,7 +148,7 @@ function Dashboard() {
             <div className={s.glassCard}>
               <div className={s.sectionHeader}>
                 <h2 className={s.sectionTitle}>Recent Transcription Activity</h2>
-                <button className={s.cardBtn} style={{ width: 'auto', background: 'transparent', border: '1px solid var(--glass-border)' }}>View All</button>
+                <Link to="/history" className={s.cardBtn} style={{ width: 'auto', background: 'transparent', border: '1px solid var(--glass-border)' }}>View All</Link>
               </div>
               <div style={{ overflowX: 'auto' }}>
                 <table className={s.activityTable}>

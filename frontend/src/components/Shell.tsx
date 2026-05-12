@@ -53,10 +53,10 @@ export function Shell({
 
   const navItems = [
     { label: t("nav.dashboard"), icon: LayoutDashboard, to: "/dashboard" },
-    { label: t("nav.transcribe"), icon: Mic, to: "/dashboard" }, // Maps to dashboard in this UX
-    { label: t("nav.history"), icon: History, to: "/dashboard" }, // Can be filtered
+    { label: t("nav.transcribe"), icon: Mic, to: "/dashboard", search: { mode: "select" } },
+    { label: t("nav.history"), icon: History, to: "/history" },
     { label: t("nav.users"), icon: Users, to: "/admin" },
-    { label: t("nav.analytics"), icon: BarChart3, to: "/dashboard" },
+    { label: t("nav.analytics"), icon: BarChart3, to: "/analytics" },
     { label: t("nav.settings"), icon: Settings, to: "/settings" },
   ];
 
@@ -87,6 +87,7 @@ export function Shell({
                 <Link
                   key={item.label}
                   to={item.to as any}
+                  search={(item as any).search}
                   className={`${s.navItem} ${isActive ? s.active : ""}`}
                   onClick={close}
                 >

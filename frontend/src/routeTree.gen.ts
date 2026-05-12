@@ -21,7 +21,9 @@ import { Route as PaymentSuccessRouteImport } from './routes/payment.success'
 import { Route as ApiTranscribeFileRouteImport } from './routes/api.transcribe-file'
 import { Route as AppSettingsRouteImport } from './routes/_app.settings'
 import { Route as AppPricingRouteImport } from './routes/_app.pricing'
+import { Route as AppHistoryRouteImport } from './routes/_app.history'
 import { Route as AppDashboardRouteImport } from './routes/_app.dashboard'
+import { Route as AppAnalyticsRouteImport } from './routes/_app.analytics'
 import { Route as AppAdminRouteImport } from './routes/_app.admin'
 import { Route as ApiPublicChapaWebhookRouteImport } from './routes/api.public.chapa-webhook'
 import { Route as AppTranscriptionIdRouteImport } from './routes/_app.transcription.$id'
@@ -85,9 +87,19 @@ const AppPricingRoute = AppPricingRouteImport.update({
   path: '/pricing',
   getParentRoute: () => AppRoute,
 } as any)
+const AppHistoryRoute = AppHistoryRouteImport.update({
+  id: '/history',
+  path: '/history',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppDashboardRoute = AppDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAnalyticsRoute = AppAnalyticsRouteImport.update({
+  id: '/analytics',
+  path: '/analytics',
   getParentRoute: () => AppRoute,
 } as any)
 const AppAdminRoute = AppAdminRouteImport.update({
@@ -115,7 +127,9 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/support': typeof SupportRoute
   '/admin': typeof AppAdminRoute
+  '/analytics': typeof AppAnalyticsRoute
   '/dashboard': typeof AppDashboardRoute
+  '/history': typeof AppHistoryRoute
   '/pricing': typeof AppPricingRoute
   '/settings': typeof AppSettingsRoute
   '/api/transcribe-file': typeof ApiTranscribeFileRoute
@@ -132,7 +146,9 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/support': typeof SupportRoute
   '/admin': typeof AppAdminRoute
+  '/analytics': typeof AppAnalyticsRoute
   '/dashboard': typeof AppDashboardRoute
+  '/history': typeof AppHistoryRoute
   '/pricing': typeof AppPricingRoute
   '/settings': typeof AppSettingsRoute
   '/api/transcribe-file': typeof ApiTranscribeFileRoute
@@ -151,7 +167,9 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/support': typeof SupportRoute
   '/_app/admin': typeof AppAdminRoute
+  '/_app/analytics': typeof AppAnalyticsRoute
   '/_app/dashboard': typeof AppDashboardRoute
+  '/_app/history': typeof AppHistoryRoute
   '/_app/pricing': typeof AppPricingRoute
   '/_app/settings': typeof AppSettingsRoute
   '/api/transcribe-file': typeof ApiTranscribeFileRoute
@@ -170,7 +188,9 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/support'
     | '/admin'
+    | '/analytics'
     | '/dashboard'
+    | '/history'
     | '/pricing'
     | '/settings'
     | '/api/transcribe-file'
@@ -187,7 +207,9 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/support'
     | '/admin'
+    | '/analytics'
     | '/dashboard'
+    | '/history'
     | '/pricing'
     | '/settings'
     | '/api/transcribe-file'
@@ -205,7 +227,9 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/support'
     | '/_app/admin'
+    | '/_app/analytics'
     | '/_app/dashboard'
+    | '/_app/history'
     | '/_app/pricing'
     | '/_app/settings'
     | '/api/transcribe-file'
@@ -314,11 +338,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppPricingRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/history': {
+      id: '/_app/history'
+      path: '/history'
+      fullPath: '/history'
+      preLoaderRoute: typeof AppHistoryRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/dashboard': {
       id: '/_app/dashboard'
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof AppDashboardRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/analytics': {
+      id: '/_app/analytics'
+      path: '/analytics'
+      fullPath: '/analytics'
+      preLoaderRoute: typeof AppAnalyticsRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/admin': {
@@ -347,7 +385,9 @@ declare module '@tanstack/react-router' {
 
 interface AppRouteChildren {
   AppAdminRoute: typeof AppAdminRoute
+  AppAnalyticsRoute: typeof AppAnalyticsRoute
   AppDashboardRoute: typeof AppDashboardRoute
+  AppHistoryRoute: typeof AppHistoryRoute
   AppPricingRoute: typeof AppPricingRoute
   AppSettingsRoute: typeof AppSettingsRoute
   AppTranscriptionIdRoute: typeof AppTranscriptionIdRoute
@@ -355,7 +395,9 @@ interface AppRouteChildren {
 
 const AppRouteChildren: AppRouteChildren = {
   AppAdminRoute: AppAdminRoute,
+  AppAnalyticsRoute: AppAnalyticsRoute,
   AppDashboardRoute: AppDashboardRoute,
+  AppHistoryRoute: AppHistoryRoute,
   AppPricingRoute: AppPricingRoute,
   AppSettingsRoute: AppSettingsRoute,
   AppTranscriptionIdRoute: AppTranscriptionIdRoute,
