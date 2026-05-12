@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useServerFn } from "@tanstack/react-start";
 import { 
   Menu, X, LayoutDashboard, Mic, History, 
-  Users, BarChart3, Settings, LogOut, Globe 
+  Users, BarChart3, Settings, LogOut, Globe, CreditCard 
 } from "lucide-react";
 import s from "./Shell.module.css";
 import { useAuth } from "@/lib/auth-context";
@@ -56,6 +56,7 @@ export function Shell({
     { label: t("nav.transcribe"), icon: Mic, to: "/dashboard", search: { mode: "select" } },
     { label: t("nav.history"), icon: History, to: "/history" },
     { label: t("nav.analytics"), icon: BarChart3, to: "/analytics" },
+    { label: "Billing", icon: CreditCard, to: "/pricing" },
   ];
 
   return (
@@ -108,13 +109,13 @@ export function Shell({
             <span>{t("shell.signout")}</span>
           </button>
           
-          <div className={s.userBadge}>
+          <Link to="/pricing" className={s.userBadge} onClick={close}>
             <div className={s.avatar}>{user?.email?.[0].toUpperCase()}</div>
             <div className={s.userInfo}>
               <div className={s.userEmail}>{user?.email?.split('@')[0]}</div>
-              <div className={s.userStatus}>Free Plan</div>
+              <div className={s.userStatus}>View Plan</div>
             </div>
-          </div>
+          </Link>
         </div>
       </aside>
 
