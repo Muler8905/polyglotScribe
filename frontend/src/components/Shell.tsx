@@ -52,7 +52,7 @@ export function Shell({
   const close = () => setOpen(false);
 
   const navItems = [
-    { label: t("nav.dashboard"), icon: LayoutDashboard, to: "/dashboard" },
+    { label: t("nav.dashboard"), icon: LayoutDashboard, to: "/dashboard", search: { mode: undefined } },
     { label: t("nav.transcribe"), icon: Mic, to: "/dashboard", search: { mode: "select" } },
     { label: t("nav.history"), icon: History, to: "/history" },
     { label: t("nav.users"), icon: Users, to: "/admin" },
@@ -70,7 +70,7 @@ export function Shell({
       
       <aside className={`${s.sidebar} ${open ? s.sidebarOpen : ""}`}>
         <div className={s.sidebarContent}>
-          <Link to="/dashboard" className={s.brand} onClick={close}>
+          <Link to="/dashboard" search={{ mode: undefined }} className={s.brand} onClick={close}>
             <div className={s.brandIcon}>
               <Globe size={24} />
             </div>

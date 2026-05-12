@@ -18,8 +18,8 @@ import { useServerFn } from "@tanstack/react-start";
 import { listTranscriptions } from "@/serverFns/transcription.functions";
 
 export const Route = createFileRoute("/_app/dashboard")({
-  validateSearch: (search: Record<string, unknown>) => ({
-    mode: (search.mode as string) || undefined,
+  validateSearch: (search: Record<string, unknown>): { mode?: string } => ({
+    mode: search.mode as string | undefined,
   }),
   head: () => ({ meta: [{ title: "Dashboard — Polyglot Scribe" }] }),
   component: Dashboard,

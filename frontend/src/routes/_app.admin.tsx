@@ -112,7 +112,7 @@ function AdminPage() {
         <Shield size={48} />
         <h1>{t("admin.denied")}</h1>
         <p>{t("admin.deniedDesc")}</p>
-        <Link to="/dashboard" className={s.linkBtn}>{t("admin.back")}</Link>
+        <Link to="/dashboard" search={{ mode: undefined }} className={s.linkBtn}>{t("admin.back")}</Link>
       </div>
     );
   }
