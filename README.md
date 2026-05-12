@@ -2,7 +2,7 @@
 
 **Polyglot Scribe** is a powerful, full-stack multilingual transcription and translation platform. It enables real-time speech-to-text, audio file transcription, and YouTube video processing with instant translation into multiple languages, including Amharic, Afaan Oromo, Somali, and English.
 
-![Polyglot Scribe](https://images.unsplash.com/photo-1589254065878-42c9da997008?auto=format&fit=crop&q=80&w=1000)
+![Dashboard Preview](docs/assets/dashboard.png)
 
 ## 🚀 Features
 
