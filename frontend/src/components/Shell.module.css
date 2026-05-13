@@ -70,21 +70,13 @@
 }
 
 .brandName {
-  display: flex;
-  flex-direction: column;
+  font-size: 1.1rem;
   font-weight: 800;
-  line-height: 1;
-  letter-spacing: -0.02em;
-}
-
-.brandName span:first-child {
-  font-size: 0.95rem;
-  color: white;
-}
-
-.brandName span:last-child {
-  font-size: 0.85rem;
-  color: var(--muted-foreground);
+  letter-spacing: -0.04em;
+  background: var(--brand-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .nav {

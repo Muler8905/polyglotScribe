@@ -128,6 +128,7 @@ export function Shell({
         <div className={s.sidebarContent}>
           <Link to="/dashboard" search={{ mode: undefined }} className={s.brand} onClick={close}>
             <img src="/logo.png" alt="Polyglot Scribe" className={s.logo} />
+            <span className={s.brandName}>PolyglotScribe</span>
           </Link>
 
           <nav className={s.nav}>

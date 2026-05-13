@@ -92,6 +92,7 @@ function Landing() {
       <header className={s.nav}>
         <Link to="/" className={s.brand}>
           <img src="/logo.png" alt="Polyglot Scribe" className={s.logo} />
+          <span className={s.brandName}>PolyglotScribe</span>
         </Link>
         <nav className={s.navLinks}>
           <a href="#features" className={s.navLink}>{t("nav.features")}</a>
@@ -265,7 +266,7 @@ function Landing() {
           <div className={s.footerGrid}>
             <div className={s.footerCol}>
               <Link to="/" className={s.footerBrand}>
-                <span>Polyglot Scribe</span>
+                <span className={s.brandName} style={{ fontSize: '1.2rem' }}>PolyglotScribe</span>
               </Link>
               <p className={s.footerTagline}>{t("footer.tagline")}</p>
             </div>
