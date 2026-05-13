@@ -33,31 +33,37 @@
 ## 🛠️ Tech Stack
 
 ### Frontend
-- **Framework**: React 19
-- **Routing**: TanStack Router & TanStack Start
+- **Framework**: React 19 (Vite)
+- **Routing & SSR**: TanStack Router & TanStack Start
 - **State Management**: TanStack Query (React Query)
 - **Styling**: Tailwind CSS 4 & Framer Motion
-- **UI Components**: Radix UI
-- **Internationalization**: i18next
+- **Data Visualization**: Recharts (Dynamic Analytics)
+- **Icons**: Lucide React
+- **Localization**: i18next & react-i18next (Amharic, Oromo, Somali, English)
 
 ### Backend
-- **Runtime**: Node.js & Express
-- **Database**: MongoDB Atlas with Mongoose
-- **Security**: JWT, Bcrypt, Helmet, Express Rate Limit
-- **Communication**: Nodemailer (SMTP)
+- **Runtime**: Node.js & Express 4
+- **Database**: MongoDB Atlas with Mongoose 9
+- **Security**: JWT (Access/Refresh Tokens), Helmet, Express Rate Limit
+- **Auth**: Google OAuth 2.0 & Email OTP (Nodemailer)
 
 ### External APIs
-- **Transcription**: ElevenLabs API
-- **Translation**: Lovable API
+- **Transcription**: ElevenLabs Scribe v2
+- **Text-to-Speech**: ElevenLabs Multilingual TTS
+- **Translation**: Google Gemini API (Option 1) or OpenAI GPT API (Option 2)
 
 ---
 
 ## 🚦 Getting Started
 
 ### Prerequisites
-- Node.js (v18+)
-- MongoDB Atlas account
-- ElevenLabs & Lovable API Keys
+- **Node.js**: v18 or higher
+- **Database**: A MongoDB Atlas connection string
+- **Auth**: Google Cloud Console project for OAuth Client ID
+- **Email**: Gmail account with "App Password" enabled for SMTP
+- **AI Keys**: 
+  - ElevenLabs API Key
+  - Google Gemini API Key (Recommended) or OpenAI API Key
 
 ### Installation
 
@@ -75,8 +81,9 @@
    Create a `.env` file in the `backend` folder:
    ```env
    PORT=5000
-   MONGODB_URI=your_mongodb_connection_string
-   JWT_SECRET=your_jwt_secret
+   MONGODB_URI=your_mongodb_atlas_uri
+   JWT_SECRET=your_long_random_jwt_secret
+   JWT_REFRESH_SECRET=your_long_random_refresh_secret
    EMAIL_USER=your_gmail@gmail.com
    EMAIL_PASS=your_gmail_app_password
    FRONTEND_URL=http://localhost:8080
@@ -89,9 +96,16 @@
    ```
    Create a `.env` file in the `frontend` folder:
    ```env
+   # Google OAuth
+   VITE_GOOGLE_CLIENT_ID=your_google_client_id.apps.googleusercontent.com
+
+   # Backend API
    VITE_API_URL=http://localhost:5000/api
+
+   # AI Services (TanStack Start Server Side)
    ELEVENLABS_API_KEY=your_elevenlabs_key
-   LOVABLE_API_KEY=your_lovable_key
+   GOOGLE_GEMINI_API_KEY=your_gemini_key
+   OPENAI_API_KEY=your_openai_key
    ```
 
 ### Running the App
