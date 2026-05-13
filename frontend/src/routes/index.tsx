@@ -28,15 +28,15 @@ export const Route = createFileRoute("/")({
   },
   head: () => ({
     meta: [
-      { title: "Polyglot Scribe Live, File & YouTube Transcription with Translation" },
+      { title: "Polyglot Scribe — Transcribe & Translate Live, Files & YouTube" },
       {
         name: "description",
         content:
-          "Real-time microphone transcription, audio file transcription, and YouTube audio transcription with side-by-side translation across English, Amharic, Afaan Oromo, and Somali.",
+          "AI-powered transcription for any source. Record live, upload files, or paste YouTube links to get instant transcripts and translations in Amharic, Somali, Afaan Oromo, and English.",
       },
-      { property: "og:title", content: "Polyglot Scribe Speech, File & YouTube Transcription" },
-      { property: "og:description", content: "Transcribe and translate any voice, audio file, or YouTube video in 4 languages." },
-      { property: "og:type", content: "website" },
+      { property: "og:title", content: "Polyglot Scribe — The Ultimate Multilingual Transcriber" },
+      { property: "og:description", content: "Transform voice into text and translation instantly. Support for regional languages including Amharic, Afaan Oromo, and Somali." },
+      { property: "og:image", content: "/logo.png" },
     ],
   }),
   component: Landing,

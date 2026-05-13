@@ -34,11 +34,23 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Polyglot Scribe Live, File & YouTube Transcription" },
-      { name: "description", content: "Real-time speech transcription, audio file transcription, and YouTube captions with translation across English, Amharic, Afaan Oromo, and Somali." },
+      { title: "Polyglot Scribe — AI-Powered Multilingual Transcription & Translation" },
+      { name: "description", content: "Professional AI transcription and translation for Live Speech, Audio Files, and YouTube videos. Seamlessly translate between English, Amharic, Afaan Oromo, and Somali." },
+      { name: "keywords", content: "transcription, translation, AI, Amharic, Somali, Afaan Oromo, Ethiopia, speech-to-text, YouTube transcription" },
+      { name: "author", content: "Polyglot Scribe" },
+      { name: "robots", content: "index, follow" },
 
+      // Open Graph / Facebook
       { property: "og:type", content: "website" },
+      { property: "og:title", content: "Polyglot Scribe — Real-time Transcription & Translation" },
+      { property: "og:description", content: "The ultimate tool for transcribing and translating voice, files, and YouTube in Amharic, Somali, Afaan Oromo, and English." },
+      { property: "og:image", content: "/logo.png" },
 
+      // Twitter
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Polyglot Scribe — AI Transcription" },
+      { name: "twitter:description", content: "Transcribe live speech, audio files, and YouTube videos with instant translation across 4 languages." },
+      { name: "twitter:image", content: "/logo.png" },
     ],
     links: [
       {

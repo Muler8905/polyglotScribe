@@ -15,7 +15,7 @@ export const Route = createFileRoute("/auth")({
       if (apiClient.isAuthenticated()) throw redirect({ to: "/dashboard" });
     }
   },
-  head: () => ({ meta: [{ title: "Sign in — Polyglot Scribe" }] }),
+  head: () => ({ meta: [{ title: "Sign In — Polyglot Scribe" }] }),
   component: AuthPage,
 });
 
