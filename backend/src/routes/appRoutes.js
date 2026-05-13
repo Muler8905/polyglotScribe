@@ -19,6 +19,12 @@ import {
   updateHeroImage,
   deleteHeroImage,
 } from '../controllers/heroImageController.js';
+import {
+  getNotifications,
+  markAsRead,
+  markAllAsRead,
+  deleteNotification,
+} from '../controllers/notificationController.js';
 
 const router = express.Router();
 
@@ -31,6 +37,12 @@ router.get('/hero-images', getHeroImages);
 router.post('/hero-images', protect, requireAdmin, createHeroImage);
 router.patch('/hero-images/:id', protect, requireAdmin, updateHeroImage);
 router.delete('/hero-images/:id', protect, requireAdmin, deleteHeroImage);
+
+// Notification routes
+router.get('/notifications', protect, getNotifications);
+router.patch('/notifications/:id/read', protect, markAsRead);
+router.post('/notifications/mark-all-read', protect, markAllAsRead);
+router.delete('/notifications/:id', protect, deleteNotification);
 
 // Admin routes
 router.get('/admin/users', protect, requireAdmin, getAllUsers);

@@ -468,5 +468,11 @@
     "thActions": "Gochaawwan",
     "viewBtn": "Ilaali",
     "empty": "Seenaan hin argamne. Barbaacha yookaan calaqqee kee sirreessi."
+  },
+  "notifications": {
+    "title": "Beeksisa",
+    "markAllRead": "Hunda akka dubbifametti mallatteessi",
+    "empty": "Hanga ammaa beeksisni hin jiru",
+    "viewAll": "Beeksisa hunda ilaali"
   }
 }

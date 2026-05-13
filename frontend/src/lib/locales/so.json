@@ -469,5 +469,11 @@
     "thActions": "Ficillada",
     "viewBtn": "Eeg",
     "empty": "Wax taariikh ah laguma helin. Isku day inaad beddesho raadintaada."
+  },
+  "notifications": {
+    "title": "Ogeysiisyada",
+    "markAllRead": "Dhammaan u calaamadi sidii la akhriyey",
+    "empty": "Wali wax ogeysiis ah ma jiraan",
+    "viewAll": "Eeg dhammaan ogeysiisyada"
   }
 }

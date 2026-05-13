@@ -468,5 +468,11 @@
     "thActions": "Actions",
     "viewBtn": "View",
     "empty": "No history found. Try adjusting your search or filters."
+  },
+  "notifications": {
+    "title": "Notifications",
+    "markAllRead": "Mark all as read",
+    "empty": "No notifications yet",
+    "viewAll": "View all notifications"
   }
 }

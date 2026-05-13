@@ -243,6 +243,23 @@ class ApiClient {
   isAuthenticated() {
     return !!this.token && !!this.getCurrentUser();
   }
+
+  // Notification methods
+  async getNotifications() {
+    return this.get('/app/notifications');
+  }
+
+  async markNotificationAsRead(id: string) {
+    return this.patch(`/app/notifications/${id}/read`);
+  }
+
+  async markAllNotificationsAsRead() {
+    return this.post('/app/notifications/mark-all-read');
+  }
+
+  async deleteNotification(id: string) {
+    return this.delete(`/app/notifications/${id}`);
+  }
 }
 
 // Export singleton instance
