@@ -133,9 +133,10 @@ function AuthPage() {
           </Link>
           <LanguageSwitcher compact />
         </div>
-        <div className={s.brand} style={{ justifyContent: "center" }}>
+        <Link to="/" className={s.brand} style={{ justifyContent: "center", textDecoration: "none" }}>
+          <img src="/logo.png" alt="Polyglot Scribe" style={{ height: "40px", width: "auto" }} />
           <span className={s.brandName}>Polyglot Scribe</span>
-        </div>
+        </Link>
 
         {stage === "otp" ? (
           <>
