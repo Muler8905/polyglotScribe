@@ -127,6 +127,8 @@ graph TD
     subgraph External [AI & Communication]
         EL_Scribe[ElevenLabs Scribe v2 - Transcription]
         EL_TTS[ElevenLabs Multilingual TTS - Voice]
+        Gemini[Google Gemini API - Translation]
+        OpenAI[OpenAI GPT API - Translation]
         Gmail[Gmail SMTP - OTP Verification]
     end
 
@@ -145,9 +147,11 @@ graph TD
     FE <-->|REST API| API
     Notify <-->|30s Polling| API
     Live -->|WebSocket/Binary| EL_Scribe
+    FE -->|Text| EL_TTS
+    FE -->|Translation Req| Gemini
+    FE -->|Translation Req| OpenAI
     API <--> DB
     API -->|Nodemailer| Gmail
-    FE -->|Text| EL_TTS
     History -->|Stats API| Agg
     Agg <--> DB
 
