@@ -5,13 +5,22 @@ import { useServerFn } from "@tanstack/react-start";
 import {
   Menu, X, LayoutDashboard, Mic, History,
   Users, BarChart3, Settings, LogOut, Globe, CreditCard,
-  Shield
+  Shield, Bell, ChevronDown, User
 } from "lucide-react";
 import s from "./Shell.module.css";
 import { useAuth } from "@/lib/auth-context";
 import { useIsAdmin } from "@/lib/use-admin";
 import { listTranscriptions } from "@/serverFns/transcription.functions";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface HistoryItem {
   id: string;
@@ -129,7 +138,55 @@ export function Shell({
             <input type="text" placeholder={t("shell.searchPlaceholder")} />
           </div>
           <div className={s.topActions}>
+            <button className={s.notificationBtn} aria-label="Notifications">
+              <Bell size={20} />
+              <div className={s.notificationDot} />
+            </button>
+
             <LanguageSwitcher compact />
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <div className={s.profileTrigger}>
+                  <Avatar className="h-9 w-9 border border-white/10">
+                    <AvatarFallback className="bg-brand-gradient text-white font-bold">
+                      {user?.displayName?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className={s.userName}>
+                    {user?.displayName || user?.email?.split('@')[0]}
+                  </span>
+                  <ChevronDown size={16} className={s.chevron} />
+                </div>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56 mt-2">
+                <DropdownMenuLabel>{t("shell.account")}</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link to="/settings" className="cursor-pointer flex items-center">
+                    <User className="mr-2 h-4 w-4" />
+                    <span>{t("shell.profile")}</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/pricing" className="cursor-pointer flex items-center">
+                    <CreditCard className="mr-2 h-4 w-4" />
+                    <span>{t("shell.billing")}</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/settings" className="cursor-pointer flex items-center">
+                    <Settings className="mr-2 h-4 w-4" />
+                    <span>{t("shell.settings")}</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleSignOut} className="text-red-500 focus:text-red-500 cursor-pointer">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>{t("shell.signout")}</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
         <div className={s.content}>

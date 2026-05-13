@@ -150,6 +150,8 @@
     "noHistory": "No transcriptions yet.",
     "settings": "⚙ Settings",
     "signout": "Sign out",
+    "account": "Account",
+    "profile": "Profile",
     "billing": "Billing",
     "viewPlan": "View Plan",
     "searchPlaceholder": "Search..."
