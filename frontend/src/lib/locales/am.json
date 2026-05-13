@@ -111,7 +111,11 @@
       "successSubtitle": "የይለፍ ቃል ዳግም ማስጀመሪያ አገናኝ ወደ {{email}} ልከናል። እባክዎን የገቢ መልዕክት ሳጥንዎን ያረጋግጡ እና መመሪያዎቹን ይከተሉ።",
       "resend": "አገናኙን እንደገና ላክ"
     },
-    "confirmSignout": "ከመለያዎ መውጣት እርግጠኛ ነዎት?"
+    "confirmSignout": "ከመለያዎ መውጣት እርግጠኛ ነዎት?",
+    "signOutTitle": "ከመለያ መውጫ",
+    "signOutDescription": "ከመለያዎ መውጣት እርግጠኛ ነዎት? የእርስዎን ጽሑፎች ለማግኘት እንደገና መግባት ይኖርብዎታል።",
+    "signOutAction": "ውጣ",
+    "cancel": "ሰርዝ"
   },
   "settings": {
     "title": "ቅንብሮች",

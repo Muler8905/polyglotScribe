@@ -111,7 +111,11 @@
       "successSubtitle": "Waxaan u dirnay xidhiidhka dib u dejinta furaha sirta ah {{email}}. Fadlan hubi sanduuqaaga fariimaha oo raac tilmaamaha.",
       "resend": "Mar kale dir xidhiidhka"
     },
-    "confirmSignout": "Ma hubtaa inaad ka baxdo xisaabta?"
+    "confirmSignout": "Ma hubtaa inaad ka baxdo xisaabta?",
+    "signOutTitle": "Ka Bax Xisaabta",
+    "signOutDescription": "Ma hubtaa inaad rabto inaad ka baxdo xisaabtaada? Waxaad u baahan doontaa inaad mar kale soo gasho si aad u gasho qoraaladaada.",
+    "signOutAction": "Ka Bax",
+    "cancel": "Baajiyay"
   },
   "settings": {
     "title": "Habayntii",

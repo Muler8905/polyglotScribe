@@ -111,7 +111,11 @@
       "successSubtitle": "Liinkii jecha iccitii deebisanii qindeessuu gara {{email}} ergineerra. Maaloo inbox kee ilaaliitii qajeelfama hordofi.",
       "resend": "Liinkii Irra Deebi'ii Ergi"
     },
-    "confirmSignout": "Akkaawuntii kee keessaa ba'uu akka barbaaddu mirkaneessiteettaa?"
+    "confirmSignout": "Akkaawuntii kee keessaa ba'uu akka barbaaddu mirkaneessiteettaa?",
+    "signOutTitle": "Akkaawuntii Ba'uu",
+    "signOutDescription": "Akkaawuntii kee keessaa ba'uu akka barbaaddu mirkaneessiteettaa? Barreeffamoota kee argachuuf irra deebitee seenuun si barbaachisa.",
+    "signOutAction": "Ba'i",
+    "cancel": "Haqi"
   },
   "settings": {
     "title": "Qindaa'inoota",

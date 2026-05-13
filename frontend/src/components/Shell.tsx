@@ -13,6 +13,16 @@ import { useIsAdmin } from "@/lib/use-admin";
 import { listTranscriptions } from "@/serverFns/transcription.functions";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -54,6 +64,7 @@ export function Shell({
   const list = useServerFn(listTranscriptions);
 
   const [open, setOpen] = useState(false);
+  const [showSignOutDialog, setShowSignOutDialog] = useState(false);
 
   useEffect(() => {
     const fetchNotifications = async () => {
@@ -95,10 +106,13 @@ export function Shell({
   };
 
   const handleSignOut = async () => {
-    if (confirm(t("auth.confirmSignout"))) {
-      await signOut();
-      nav({ to: "/" });
-    }
+    setShowSignOutDialog(true);
+  };
+
+  const confirmSignOut = async () => {
+    setShowSignOutDialog(false);
+    await signOut();
+    nav({ to: "/" });
   };
 
   const close = () => setOpen(false);
@@ -287,6 +301,26 @@ export function Shell({
           {children}
         </div>
       </main>
+
+      <AlertDialog open={showSignOutDialog} onOpenChange={setShowSignOutDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("auth.signOutTitle")}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t("auth.signOutDescription")}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t("auth.cancel")}</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmSignOut}
+              className="bg-red-500 hover:bg-red-600 focus:ring-red-500"
+            >
+              {t("auth.signOutAction")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
