@@ -11,6 +11,7 @@ import s from "./Shell.module.css";
 import { useAuth } from "@/lib/auth-context";
 import { useIsAdmin } from "@/lib/use-admin";
 import { listTranscriptions } from "@/serverFns/transcription.functions";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -91,6 +92,11 @@ export function Shell({
     } catch (err) {
       console.error(err);
     }
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    nav({ to: "/auth" });
   };
 
   const close = () => setOpen(false);
