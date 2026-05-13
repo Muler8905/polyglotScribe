@@ -115,51 +115,39 @@
 ## 📊 System Architecture
 
 ```mermaid
-graph TD
+graph LR
     subgraph Client [User Interface - React 19]
-        FE[Dashboard & Shell]
-        Auth[Auth Context - JWT/OAuth]
-        Live[Live Transcription Component]
-        History[History & Analytics View]
-        Notify[Real-time Notification Bell]
+        User((User)) --> FE[Dashboard & Shell]
+        FE --- Auth[Auth & Security]
+        FE --- Live[Live Transcription]
+        FE --- Stats[Usage Analytics]
+        FE --- Notify[Notifications]
     end
 
-    subgraph External [AI & Communication]
-        EL_Scribe[ElevenLabs Scribe v2 - Transcription]
-        EL_TTS[ElevenLabs Multilingual TTS - Voice]
-        Gemini[Google Gemini API - Translation]
-        OpenAI[OpenAI GPT API - Translation]
-        Gmail[Gmail SMTP - OTP Verification]
+    subgraph Backend [Logic Layer - Node.js]
+        API[Express API Server]
+        API --- Mid[Auth/Admin Middleware]
+        API --- Agg[Data Aggregator]
     end
 
-    subgraph Backend [Logic Layer - Node.js/Express]
-        API[REST API Endpoints]
-        M_Auth[Auth Middleware]
-        M_Admin[Admin Middleware]
-        Agg[Aggregation Pipeline - Analytics]
+    subgraph AI [External AI Services]
+        EL[ElevenLabs - Scribe/TTS]
+        Trans[Gemini & OpenAI - Translation]
     end
 
-    subgraph Storage [Data Layer]
+    subgraph Data [Storage]
         DB[(MongoDB Atlas)]
+        Mail[Gmail SMTP]
     end
 
-    %% Connections
+    %% Key Interactions
     FE <-->|REST API| API
-    Notify <-->|30s Polling| API
-    Live -->|WebSocket/Binary| EL_Scribe
-    FE -->|Text| EL_TTS
-    FE -->|Translation Req| Gemini
-    FE -->|Translation Req| OpenAI
+    Live -->|WebSocket| EL
+    FE -->|Requests| Trans
     API <--> DB
-    API -->|Nodemailer| Gmail
-    History -->|Stats API| Agg
+    API -->|OTP| Mail
+    Stats -->|Query| Agg
     Agg <--> DB
-
-    %% Data Flow
-    User((User)) --> FE
-    FE -->|Transcription| EL_Scribe
-    EL_Scribe --> FE
-    FE -->|Save| API
 ```
 
 ---
