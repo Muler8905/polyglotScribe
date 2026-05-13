@@ -185,7 +185,7 @@
   flex-direction: column;
   min-width: 0;
   background: radial-gradient(circle at top right, oklch(0.2 0.1 280 / 15%), transparent 40%),
-              radial-gradient(circle at bottom left, oklch(0.2 0.1 320 / 10%), transparent 40%);
+    radial-gradient(circle at bottom left, oklch(0.2 0.1 320 / 10%), transparent 40%);
 }
 
 .topBar {
@@ -225,27 +225,36 @@
 }
 
 @media (max-width: 1024px) {
-  .menuBtn { display: flex; }
+  .menuBtn {
+    display: flex;
+  }
+
   .sidebar {
     position: fixed;
     transform: translateX(-100%);
   }
+
   .sidebarOpen {
     transform: translateX(0);
   }
+
   .overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.6);
+    background: rgba(0, 0, 0, 0.6);
     backdrop-filter: blur(4px);
     z-index: 40;
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.3s;
   }
+
   .overlayOpen {
     opacity: 1;
     pointer-events: auto;
   }
-  .main { padding-top: 4rem; }
+
+  .main {
+    padding-top: 4rem;
+  }
 }

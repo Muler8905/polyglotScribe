@@ -13,7 +13,17 @@ import { apiClient } from "@/lib/api-client";
 export const Route = createFileRoute("/")({
   beforeLoad: async () => {
     if (typeof window !== "undefined") {
-      if (apiClient.isAuthenticated()) throw redirect({ to: "/dashboard" });
+      if (apiClient.isAuthenticated()) {
+        try {
+          const res = await apiClient.get("/app/profile");
+          if ((res.data?.roles ?? []).includes("admin")) {
+            throw redirect({ to: "/admin" });
+          }
+        } catch (e) {
+          if (e instanceof Error && e.message === "Redirect") throw e;
+        }
+        throw redirect({ to: "/dashboard" });
+      }
     }
   },
   head: () => ({

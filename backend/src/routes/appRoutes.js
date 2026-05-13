@@ -7,6 +7,7 @@ import {
   deleteUserTranscriptions,
   adminCreateUser,
   adminDeleteUser,
+  getAdminStats,
 } from '../controllers/adminController.js';
 import {
   getProfile,
@@ -38,6 +39,7 @@ router.patch('/admin/users/:userId/tokens', protect, requireAdmin, updateUserTok
 router.post('/admin/users/:userId/toggle-admin', protect, requireAdmin, toggleAdminRole);
 router.delete('/admin/users/:userId', protect, requireAdmin, adminDeleteUser);
 router.delete('/admin/users/:userId/transcriptions', protect, requireAdmin, deleteUserTranscriptions);
+router.get('/admin/stats', protect, requireAdmin, getAdminStats);
 
 
 export default router;

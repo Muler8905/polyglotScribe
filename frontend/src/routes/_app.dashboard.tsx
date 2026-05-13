@@ -1,9 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { 
-  Shield, Sparkles, Coins, Lock, Mic, 
-  UploadCloud, Youtube, Play, ArrowUpRight 
+import {
+  Shield, Sparkles, Coins, Lock, Mic,
+  UploadCloud, Youtube, Play, ArrowUpRight
 } from "lucide-react";
 import { Shell } from "@/components/Shell";
 import { Transcriber } from "@/components/Transcriber";
@@ -50,7 +50,7 @@ function Dashboard() {
   }, [mode]);
 
   const displayName = user?.displayName || user?.email?.split("@")[0] || "Alex";
-  
+
   useEffect(() => {
     if (!user) return;
     apiClient
@@ -70,19 +70,26 @@ function Dashboard() {
     <Shell refreshKey={refreshKey}>
       <div className={s.container}>
         <header className={s.header}>
-          <h1 className={s.welcomeTitle}>{t("dashboard.welcomeUser", { name: displayName })}</h1>
-          <p className={s.welcomeSubtitle}>{t("dashboard.overviewDesc")}</p>
+          <div className={s.headerInfo}>
+            <h1 className={s.welcomeTitle}>{t("dashboard.welcomeUser", { name: displayName })}</h1>
+            <p className={s.welcomeSubtitle}>{t("dashboard.overviewDesc")}</p>
+          </div>
+          {isAdmin && (
+            <Link to="/admin" className={s.cardBtn} style={{ width: 'auto', display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'var(--brand-gradient)', color: 'white', border: 'none' }}>
+              <Shield size={18} /> Admin Console
+            </Link>
+          )}
         </header>
 
         {activeMode && activeMode !== 'select' ? (
           <div className={s.glassCard}>
             <div className={s.sectionHeader}>
-               <h2 className={s.sectionTitle}>
-                 {activeMode === 'live' ? t("dashboard.liveTitle") : activeMode === 'file' ? t("dashboard.fileTitle") : t("dashboard.ytTitle")}
-               </h2>
-               <button onClick={() => setActiveMode(null)} className={s.cardBtn} style={{ width: 'auto', padding: '0.5rem 1rem' }}>
-                 {t("dashboard.backBtn")}
-               </button>
+              <h2 className={s.sectionTitle}>
+                {activeMode === 'live' ? t("dashboard.liveTitle") : activeMode === 'file' ? t("dashboard.fileTitle") : t("dashboard.ytTitle")}
+              </h2>
+              <button onClick={() => setActiveMode(null)} className={s.cardBtn} style={{ width: 'auto', padding: '0.5rem 1rem' }}>
+                {t("dashboard.backBtn")}
+              </button>
             </div>
             <Transcriber initialTab={activeMode as any} onSaved={() => {
               setRefreshKey(k => k + 1);

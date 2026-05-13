@@ -35,12 +35,29 @@ function AuthPage() {
   const [failedAttempts, setFailedAttempts] = useState(0);
   const [showForgotPopup, setShowForgotPopup] = useState(false);
 
+  const ADMIN_EMAIL = "mulukenugamo7@gmail.com";
+
+  const redirectAfterLogin = async (userEmail?: string) => {
+    // Check if user is admin via API
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/app/profile`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("accessToken")}` },
+      });
+      const data = await res.json();
+      if ((data?.data?.roles ?? []).includes("admin")) {
+        nav({ to: "/admin" });
+        return;
+      }
+    } catch (_) {}
+    nav({ to: "/dashboard" });
+  };
+
   const googleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
       setBusy(true);
       try {
         await signInWithGoogle({ accessToken: tokenResponse.access_token });
-        nav({ to: "/dashboard" });
+        await redirectAfterLogin();
       } catch (e) {
         setErr(e instanceof Error ? e.message : "Google sign-in failed");
         setBusy(false);
@@ -61,7 +78,7 @@ function AuthPage() {
     try {
       if (mode === "signin") {
         await signIn(email, password);
-        nav({ to: "/dashboard" });
+        await redirectAfterLogin(email);
       } else {
         await signUp(email, password, name);
         setStage("otp");
@@ -87,7 +104,7 @@ function AuthPage() {
     setBusy(true);
     try {
       await verifyOtpCode(email, otp.trim());
-      nav({ to: "/dashboard" });
+      await redirectAfterLogin(email);
     } catch (e) {
       setErr(e instanceof Error ? e.message : t("auth.otpInvalid"));
     } finally {

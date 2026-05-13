@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { Shell } from "@/components/Shell";
@@ -32,6 +33,7 @@ interface Item {
 function TranscriptionDetail() {
   const { id } = Route.useParams();
   const nav = useNavigate();
+  const { t } = useTranslation();
   const get = useServerFn(getTranscription);
   const trans = useServerFn(translateTranscription);
   const del = useServerFn(deleteTranscription);

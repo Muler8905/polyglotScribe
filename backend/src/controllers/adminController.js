@@ -3,6 +3,7 @@ import Profile from '../models/Profile.js';
 import UserRole from '../models/UserRole.js';
 import UserToken from '../models/UserToken.js';
 import Transcription from '../models/Transcription.js';
+import SubscriptionPayment from '../models/SubscriptionPayment.js';
 
 // @desc    Get all users with their details
 // @route   GET /api/app/admin/users
@@ -215,6 +216,77 @@ export const adminDeleteUser = async (req, res, next) => {
   }
 };
 
+// @desc    Get admin statistics and analytics
+// @route   GET /api/app/admin/stats
+// @access  Private (Admin only)
+export const getAdminStats = async (req, res, next) => {
+  try {
+    const totalUsers = await User.countDocuments();
+    const totalTranscriptions = await Transcription.countDocuments();
+    
+    // Revenue from successful payments
+    const successfulPayments = await SubscriptionPayment.find({ status: 'success' });
+    const totalRevenue = successfulPayments.reduce((sum, p) => sum + (p.amountEtb || 0), 0);
+
+    // Get stats for the last 30 days
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    // Transcription usage over time (last 30 days)
+    const usageStats = await Transcription.aggregate([
+      { $match: { createdAt: { $gte: thirtyDaysAgo } } },
+      {
+        $group: {
+          _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+          count: { $sum: 1 }
+        }
+      },
+      { $sort: { "_id": 1 } }
+    ]);
+
+    // Revenue over time (last 30 days)
+    const revenueStats = await SubscriptionPayment.aggregate([
+      { $match: { status: 'success', createdAt: { $gte: thirtyDaysAgo } } },
+      {
+        $group: {
+          _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+          amount: { $sum: "$amountEtb" }
+        }
+      },
+      { $sort: { "_id": 1 } }
+    ]);
+
+    // Map stats to a continuous 30-day range to avoid gaps in chart
+    const last30Days = [];
+    for (let i = 29; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const dateStr = d.toISOString().split('T')[0];
+      
+      const usage = usageStats.find(s => s._id === dateStr)?.count || 0;
+      const revenue = revenueStats.find(s => s._id === dateStr)?.amount || 0;
+      
+      last30Days.push({
+        date: dateStr,
+        usage,
+        revenue
+      });
+    }
+
+    res.json({
+      success: true,
+      data: {
+        totalUsers,
+        totalTranscriptions,
+        totalRevenue,
+        analytics: last30Days
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export default {
   getAllUsers,
   updateUserTokens,
@@ -222,5 +294,6 @@ export default {
   deleteUserTranscriptions,
   adminCreateUser,
   adminDeleteUser,
+  getAdminStats,
 };
 

@@ -6,11 +6,25 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.headerInfo {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -195,9 +209,13 @@
 }
 
 @media (max-width: 1200px) {
-  .mainGrid { grid-template-columns: 1fr; }
+  .mainGrid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 768px) {
-  .quickActions { grid-template-columns: 1fr; }
+  .quickActions {
+    grid-template-columns: 1fr;
+  }
 }
