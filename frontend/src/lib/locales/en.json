@@ -110,7 +110,8 @@
       "successTitle": "Check your email",
       "successSubtitle": "We've sent a password reset link to {{email}}. Please check your inbox and follow the instructions.",
       "resend": "Resend Link"
-    }
+    },
+    "confirmSignout": "Are you sure you want to sign out?"
   },
   "settings": {
     "title": "Settings",

@@ -95,8 +95,10 @@ export function Shell({
   };
 
   const handleSignOut = async () => {
-    await signOut();
-    nav({ to: "/" });
+    if (confirm(t("auth.confirmSignout"))) {
+      await signOut();
+      nav({ to: "/" });
+    }
   };
 
   const close = () => setOpen(false);

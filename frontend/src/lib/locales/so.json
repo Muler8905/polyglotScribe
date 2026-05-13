@@ -110,7 +110,8 @@
       "successTitle": "Hubi iimaylkaaga",
       "successSubtitle": "Waxaan u dirnay xidhiidhka dib u dejinta furaha sirta ah {{email}}. Fadlan hubi sanduuqaaga fariimaha oo raac tilmaamaha.",
       "resend": "Mar kale dir xidhiidhka"
-    }
+    },
+    "confirmSignout": "Ma hubtaa inaad ka baxdo xisaabta?"
   },
   "settings": {
     "title": "Habayntii",

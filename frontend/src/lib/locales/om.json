@@ -110,7 +110,8 @@
       "successTitle": "Imeelii kee ilaali",
       "successSubtitle": "Liinkii jecha iccitii deebisanii qindeessuu gara {{email}} ergineerra. Maaloo inbox kee ilaaliitii qajeelfama hordofi.",
       "resend": "Liinkii Irra Deebi'ii Ergi"
-    }
+    },
+    "confirmSignout": "Akkaawuntii kee keessaa ba'uu akka barbaaddu mirkaneessiteettaa?"
   },
   "settings": {
     "title": "Qindaa'inoota",
