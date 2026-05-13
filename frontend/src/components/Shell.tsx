@@ -96,7 +96,7 @@ export function Shell({
 
   const handleSignOut = async () => {
     await signOut();
-    nav({ to: "/auth" });
+    nav({ to: "/" });
   };
 
   const close = () => setOpen(false);
