@@ -66,16 +66,22 @@ function AdminPage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [creatingUser, setCreatingUser] = useState(false);
   const [newUser, setNewUser] = useState({ email: "", password: "", displayName: "", credits: 100 });
+  const [systemSettings, setSystemSettings] = useState({ defaultUserCredits: 10 });
+  const [savingSettings, setSavingSettings] = useState(false);
+
 
   const loadAll = async () => {
     setLoadingData(true);
     try {
-      const [usersRes, heroRes, statsRes] = await Promise.all([
+      const [usersRes, heroRes, statsRes, settingsRes] = await Promise.all([
         apiClient.get("/app/admin/users"),
         apiClient.get("/app/hero-images"),
         apiClient.get("/app/admin/stats"),
+        apiClient.get("/app/admin/settings"),
       ]);
       setStats(statsRes.data);
+      setSystemSettings(settingsRes.data || { defaultUserCredits: 10 });
+
       const rows: UserRow[] = (usersRes.data?.users ?? []).map((u: any) => ({
         user_id: u.userId,
         email: u.email,
@@ -177,6 +183,21 @@ function AdminPage() {
     toast.success(row.is_admin ? t("admin.adminRevoked") : t("admin.adminGranted"));
     setUsers((u) => u.map((r) => (r.user_id === row.user_id ? { ...r, is_admin: !r.is_admin } : r)));
   };
+
+  const handleSaveSettings = async () => {
+    setSavingSettings(true);
+    try {
+      const res = await apiClient.patch("/app/admin/settings", systemSettings);
+      if (res.success) {
+        toast.success("System settings updated successfully");
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Failed to save settings");
+    } finally {
+      setSavingSettings(false);
+    }
+  };
+
 
   const filteredUsers = users.filter(u =>
     u.email?.toLowerCase().includes(search.toLowerCase()) ||
@@ -438,15 +459,28 @@ function AdminPage() {
               <div style={{ display: 'grid', gap: '1.5rem', marginTop: '1.5rem' }}>
                 <div className={s.fieldGroup}>
                   <label className={s.fieldLabel}>Default New User Credits</label>
-                  <div className={s.inputWrap}><Database size={16} /><input type="number" defaultValue="100" /></div>
+                  <div className={s.inputWrap}>
+                    <Database size={16} />
+                    <input 
+                      type="number" 
+                      value={systemSettings.defaultUserCredits} 
+                      onChange={(e) => setSystemSettings({ ...systemSettings, defaultUserCredits: parseInt(e.target.value) || 0 })}
+                    />
+                  </div>
+                  <p style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', marginTop: '0.5rem' }}>
+                    Number of free credits granted to every new user upon registration.
+                  </p>
                 </div>
-                <div className={s.fieldGroup}>
-                  <label className={s.fieldLabel}>Maintenance Mode</label>
-                  <button className={s.statusBtn} style={{ width: 'fit-content' }}>Disabled</button>
-                </div>
-                <button className={s.primaryBtn} onClick={() => toast.success("Settings saved (demo)")}>Save Changes</button>
+                <button 
+                  className={s.primaryBtn} 
+                  onClick={handleSaveSettings} 
+                  disabled={savingSettings}
+                >
+                  {savingSettings ? "Saving..." : "Save Changes"}
+                </button>
               </div>
             </div>
+
           </div>
         )}
 

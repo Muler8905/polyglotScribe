@@ -8,7 +8,10 @@ import {
   adminCreateUser,
   adminDeleteUser,
   getAdminStats,
+  getSystemSettings,
+  updateSystemSettings,
 } from '../controllers/adminController.js';
+
 import {
   getProfile,
   updateProfile,
@@ -56,6 +59,9 @@ router.post('/admin/users/:userId/toggle-admin', protect, requireAdmin, toggleAd
 router.delete('/admin/users/:userId', protect, requireAdmin, adminDeleteUser);
 router.delete('/admin/users/:userId/transcriptions', protect, requireAdmin, deleteUserTranscriptions);
 router.get('/admin/stats', protect, requireAdmin, getAdminStats);
+router.get('/admin/settings', protect, requireAdmin, getSystemSettings);
+router.patch('/admin/settings', protect, requireAdmin, updateSystemSettings);
+
 
 
 export default router;

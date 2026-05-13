@@ -4,6 +4,8 @@ import UserRole from '../models/UserRole.js';
 import UserToken from '../models/UserToken.js';
 import Transcription from '../models/Transcription.js';
 import SubscriptionPayment from '../models/SubscriptionPayment.js';
+import SystemSetting from '../models/SystemSetting.js';
+
 
 // @desc    Get all users with their details
 // @route   GET /api/app/admin/users
@@ -287,6 +289,58 @@ export const getAdminStats = async (req, res, next) => {
   }
 };
 
+
+// @desc    Get all system settings
+// @route   GET /api/app/admin/settings
+// @access  Private (Admin only)
+export const getSystemSettings = async (req, res, next) => {
+  try {
+    const settings = await SystemSetting.find();
+    
+    // Default values if none exist
+    const defaultSettings = {
+      defaultUserCredits: 10,
+      signupBonus: 0,
+    };
+
+    const formatted = settings.reduce((acc, curr) => {
+      acc[curr.key] = curr.value;
+      return acc;
+    }, {});
+
+    res.json({
+      success: true,
+      data: { ...defaultSettings, ...formatted },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Update system settings
+// @route   PATCH /api/app/admin/settings
+// @access  Private (Admin only)
+export const updateSystemSettings = async (req, res, next) => {
+  try {
+    const updates = req.body;
+
+    for (const [key, value] of Object.entries(updates)) {
+      await SystemSetting.findOneAndUpdate(
+        { key },
+        { key, value },
+        { upsert: true, new: true }
+      );
+    }
+
+    res.json({
+      success: true,
+      message: 'System settings updated successfully',
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 export default {
   getAllUsers,
   updateUserTokens,
@@ -295,5 +349,6 @@ export default {
   adminCreateUser,
   adminDeleteUser,
   getAdminStats,
+  getSystemSettings,
+  updateSystemSettings,
 };
-

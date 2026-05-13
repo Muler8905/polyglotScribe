@@ -2,6 +2,8 @@ import User from "../models/User.js";
 import Profile from "../models/Profile.js";
 import UserToken from "../models/UserToken.js";
 import UserRole from "../models/UserRole.js";
+import SystemSetting from "../models/SystemSetting.js";
+
 import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from "../utils/jwt.js";
 import { sendOTPEmail, sendPasswordResetEmail } from "../config/email.js";
 import crypto from "crypto";
@@ -41,8 +43,14 @@ export const signup = async (req, res, next) => {
       provider: "local",
     });
     await Profile.create({ userId: user._id, displayName, avatarUrl: null });
-    await UserToken.create({ userId: user._id });
+    
+    // Get default credits from system settings
+    const defaultCreditsSetting = await SystemSetting.findOne({ key: 'defaultUserCredits' });
+    const initialCredits = defaultCreditsSetting ? Number(defaultCreditsSetting.value) : 10;
+    
+    await UserToken.create({ userId: user._id, credits: initialCredits });
     await UserRole.create({ userId: user._id, role: "user" });
+
 
     try {
       await sendOTPEmail(email, otp, displayName);
