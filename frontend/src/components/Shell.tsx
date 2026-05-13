@@ -80,13 +80,7 @@ export function Shell({
       <aside className={`${s.sidebar} ${isAdminView ? s.sidebarAdmin : ""} ${open ? s.sidebarOpen : ""}`}>
         <div className={s.sidebarContent}>
           <Link to="/dashboard" search={{ mode: undefined }} className={s.brand} onClick={close}>
-            <div className={s.brandIcon}>
-              <Globe size={24} />
-            </div>
-            <div className={s.brandName}>
-              <span>POLYGLOT</span>
-              <span>SCRIBE</span>
-            </div>
+            <img src="/logo.png" alt="Polyglot Scribe" className={s.logo} />
           </Link>
 
           <nav className={s.nav}>

@@ -47,6 +47,16 @@
   margin-bottom: 3rem;
 }
 
+.logo {
+  height: 38px;
+  width: auto;
+  object-fit: contain;
+  background: white;
+  padding: 4px 8px;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
 .brandIcon {
   width: 40px;
   height: 40px;

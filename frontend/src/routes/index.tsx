@@ -91,8 +91,7 @@ function Landing() {
     <div className={s.page}>
       <header className={s.nav}>
         <Link to="/" className={s.brand}>
-          <div className={s.brandMark} />
-          <span>Polyglot Scribe</span>
+          <img src="/logo.png" alt="Polyglot Scribe" className={s.logo} />
         </Link>
         <nav className={s.navLinks}>
           <a href="#features" className={s.navLink}>{t("nav.features")}</a>
