@@ -21,6 +21,15 @@
   gap: 0.6rem;
   margin-bottom: 1.5rem;
 }
+.logo {
+  height: 40px;
+  width: auto;
+  object-fit: contain;
+  background: white;
+  padding: 4px 8px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
 .brandMark {
   width: 36px;
   height: 36px;

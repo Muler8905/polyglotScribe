@@ -134,7 +134,7 @@ function AuthPage() {
           <LanguageSwitcher compact />
         </div>
         <Link to="/" className={s.brand} style={{ justifyContent: "center", textDecoration: "none" }}>
-          <img src="/logo.png" alt="Polyglot Scribe" style={{ height: "40px", width: "auto" }} />
+          <img src="/logo.png" alt="Polyglot Scribe" className={s.logo} />
           <span className={s.brandName}>Polyglot Scribe</span>
         </Link>
 
