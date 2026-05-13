@@ -25,6 +25,7 @@ import {
   markAllAsRead,
   deleteNotification,
 } from '../controllers/notificationController.js';
+import { getUserStats } from '../controllers/statsController.js';
 
 const router = express.Router();
 
@@ -43,6 +44,9 @@ router.get('/notifications', protect, getNotifications);
 router.patch('/notifications/:id/read', protect, markAsRead);
 router.post('/notifications/mark-all-read', protect, markAllAsRead);
 router.delete('/notifications/:id', protect, deleteNotification);
+
+// Stats routes
+router.get('/stats', protect, getUserStats);
 
 // Admin routes
 router.get('/admin/users', protect, requireAdmin, getAllUsers);

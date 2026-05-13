@@ -41,6 +41,12 @@ function Dashboard() {
   const { isAdmin } = useIsAdmin();
   const [credits, setCredits] = useState<number | null>(null);
   const [history, setHistory] = useState<HistoryItem[]>([]);
+  const [stats, setStats] = useState<{
+    totalMinutes: number;
+    totalCount: number;
+    langDist: any[];
+    usageOverTime: any[];
+  } | null>(null);
   const listFn = useServerFn(listTranscriptions);
   const { mode } = Route.useSearch();
   const [activeMode, setActiveMode] = useState<string | null>(mode || null);
@@ -63,6 +69,13 @@ function Dashboard() {
 
     listFn()
       .then((r: any) => setHistory(r.items?.slice(0, 5) || []))
+      .catch(console.error);
+
+    apiClient
+      .get("/app/stats")
+      .then((r) => {
+        if (r.success) setStats(r.data);
+      })
       .catch(console.error);
   }, [user, refreshKey]);
 
@@ -140,19 +153,21 @@ function Dashboard() {
                   <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
                     <div className={s.statsGrid} style={{ marginBottom: 0 }}>
                       <div className={s.statItem}>
-                        <span className={s.statValue} style={{ fontSize: '1rem' }}>14.5k min</span>
+                        <span className={s.statValue} style={{ fontSize: '1rem' }}>
+                          {stats ? `${stats.totalMinutes} min` : '...'}
+                        </span>
                         <span className={s.statLabel} style={{ fontSize: '0.7rem' }}>{t("dashboard.usageTranscribed")}</span>
                       </div>
                     </div>
                     <Link to="/analytics" className={s.cardBtn} style={{ width: 'auto', background: 'transparent', border: '1px solid var(--glass-border)', fontSize: '0.7rem', padding: '0.3rem 0.6rem' }}>{t("dashboard.usageDetails")}</Link>
                   </div>
                 </div>
-                <UsageChart />
+                <UsageChart data={stats?.usageOverTime} />
               </div>
 
               <div className={s.glassCard}>
                 <h2 className={s.sectionTitle} style={{ marginBottom: '1.5rem' }}>{t("dashboard.languages")}</h2>
-                <LanguageChart />
+                <LanguageChart data={stats?.langDist} />
               </div>
             </div>
 

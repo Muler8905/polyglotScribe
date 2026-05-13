@@ -1,23 +1,24 @@
 import { useTranslation } from "react-i18next";
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
-const data = [
-  { name: "Oct 1", transcribed: 4000, translated: 2400 },
-  { name: "Oct 3", transcribed: 7500, translated: 5000 },
-  { name: "Oct 5", transcribed: 6200, translated: 4800 },
-  { name: "Oct 7", transcribed: 9000, translated: 6000 },
-  { name: "Oct 9", transcribed: 14500, translated: 8000 },
-  { name: "Oct 11", transcribed: 11000, translated: 7000 },
-  { name: "Oct 13", transcribed: 13000, translated: 8500 },
-  { name: "Oct 15", transcribed: 14500, translated: 9800 },
-];
-
-export function UsageChart() {
+export function UsageChart({ data: propData }: { data?: any[] }) {
   const { t } = useTranslation();
+  
+  const chartData = propData || [
+    { name: "Oct 1", transcribed: 4000, translated: 2400 },
+    { name: "Oct 3", transcribed: 7500, translated: 5000 },
+    { name: "Oct 5", transcribed: 6200, translated: 4800 },
+    { name: "Oct 7", transcribed: 9000, translated: 6000 },
+    { name: "Oct 9", transcribed: 14500, translated: 8000 },
+    { name: "Oct 11", transcribed: 11000, translated: 7000 },
+    { name: "Oct 13", transcribed: 13000, translated: 8500 },
+    { name: "Oct 15", transcribed: 14500, translated: 9800 },
+  ];
+
   return (
     <div style={{ width: "100%", height: 260 }}>
       <ResponsiveContainer width="100%" height="100%">
-        <AreaChart data={data}>
+        <AreaChart data={chartData}>
           <defs>
             <linearGradient id="colorTranscribed" x1="0" y1="0" x2="0" y2="1">
               <stop offset="5%" stopColor="oklch(0.7 0.2 295)" stopOpacity={0.3} />
