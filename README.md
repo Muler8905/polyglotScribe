@@ -116,11 +116,46 @@
 
 ```mermaid
 graph TD
-    A[Frontend - React/TanStack] -->|REST API| B[Backend - Express/Node.js]
-    B --> C[(MongoDB Atlas)]
-    B --> D[Gmail SMTP]
-    A --> E[ElevenLabs API - Transcription]
-    A --> F[Lovable API - Translation]
+    subgraph Client [User Interface - React 19]
+        FE[Dashboard & Shell]
+        Auth[Auth Context - JWT/OAuth]
+        Live[Live Transcription Component]
+        History[History & Analytics View]
+        Notify[Real-time Notification Bell]
+    end
+
+    subgraph External [AI & Communication]
+        EL_Scribe[ElevenLabs Scribe v2 - Transcription]
+        EL_TTS[ElevenLabs Multilingual TTS - Voice]
+        Gmail[Gmail SMTP - OTP Verification]
+    end
+
+    subgraph Backend [Logic Layer - Node.js/Express]
+        API[REST API Endpoints]
+        M_Auth[Auth Middleware]
+        M_Admin[Admin Middleware]
+        Agg[Aggregation Pipeline - Analytics]
+    end
+
+    subgraph Storage [Data Layer]
+        DB[(MongoDB Atlas)]
+    end
+
+    %% Connections
+    FE <-->|REST API| API
+    Notify <-->|30s Polling| API
+    Live -->|WebSocket/Binary| EL_Scribe
+    API <--> DB
+    API -->|Nodemailer| Gmail
+    FE -->|Text| EL_TTS
+    History -->|Stats API| Agg
+    Agg <--> DB
+
+    %% Data Flow
+    User((User)) --> FE
+    FE -->|Transcription| EL_Scribe
+    EL_Scribe --> FE
+    FE -->|Save| API
 ```
 
 ---
