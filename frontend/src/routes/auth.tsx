@@ -134,7 +134,6 @@ function AuthPage() {
           <LanguageSwitcher compact />
         </div>
         <div className={s.brand} style={{ justifyContent: "center" }}>
-          <div className={s.brandMark} />
           <span className={s.brandName}>Polyglot Scribe</span>
         </div>
 

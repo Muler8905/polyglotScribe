@@ -265,7 +265,6 @@ function Landing() {
           <div className={s.footerGrid}>
             <div className={s.footerCol}>
               <Link to="/" className={s.footerBrand}>
-                <div className={s.brandMark} />
                 <span>Polyglot Scribe</span>
               </Link>
               <p className={s.footerTagline}>{t("footer.tagline")}</p>
