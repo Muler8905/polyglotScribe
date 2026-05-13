@@ -13,6 +13,15 @@ import { useIsAdmin } from "@/lib/use-admin";
 import { listTranscriptions } from "@/serverFns/transcription.functions";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -22,15 +31,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { apiClient } from "@/lib/api-client";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
@@ -110,7 +110,6 @@ export function Shell({
   };
 
   const confirmSignOut = async () => {
-    setShowSignOutDialog(false);
     await signOut();
     nav({ to: "/" });
   };
@@ -301,7 +300,6 @@ export function Shell({
           {children}
         </div>
       </main>
-
       <AlertDialog open={showSignOutDialog} onOpenChange={setShowSignOutDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -312,10 +310,7 @@ export function Shell({
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>{t("auth.cancel")}</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={confirmSignOut}
-              className="bg-red-500 hover:bg-red-600 focus:ring-red-500"
-            >
+            <AlertDialogAction onClick={confirmSignOut} className="bg-red-600 hover:bg-red-700 text-white">
               {t("auth.signOutAction")}
             </AlertDialogAction>
           </AlertDialogFooter>
