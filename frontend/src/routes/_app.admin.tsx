@@ -189,7 +189,7 @@ function AdminPage() {
     try {
       const res = await apiClient.patch("/app/admin/settings", systemSettings);
       if (res.success) {
-        toast.success("System settings updated successfully");
+        toast.success(t("admin.updated"));
       }
     } catch (err: any) {
       toast.error(err.message || "Failed to save settings");
@@ -455,10 +455,10 @@ function AdminPage() {
             </div>
 
             <div className={s.glassCard}>
-              <h2 className={s.sectionTitle}>Global Settings</h2>
+              <h2 className={s.sectionTitle}>{t("admin.tabSystemSettings")}</h2>
               <div style={{ display: 'grid', gap: '1.5rem', marginTop: '1.5rem' }}>
                 <div className={s.fieldGroup}>
-                  <label className={s.fieldLabel}>Default New User Credits</label>
+                  <label className={s.fieldLabel}>{t("admin.settingDefaultCredits")}</label>
                   <div className={s.inputWrap}>
                     <Database size={16} />
                     <input 
@@ -468,7 +468,7 @@ function AdminPage() {
                     />
                   </div>
                   <p style={{ fontSize: '0.75rem', color: 'var(--muted-foreground)', marginTop: '0.5rem' }}>
-                    Number of free credits granted to every new user upon registration.
+                    {t("admin.settingDefaultCreditsDesc")}
                   </p>
                 </div>
                 <button 
@@ -476,7 +476,7 @@ function AdminPage() {
                   onClick={handleSaveSettings} 
                   disabled={savingSettings}
                 >
-                  {savingSettings ? "Saving..." : "Save Changes"}
+                  {savingSettings ? t("admin.savingSettings") : t("admin.saveSettings")}
                 </button>
               </div>
             </div>

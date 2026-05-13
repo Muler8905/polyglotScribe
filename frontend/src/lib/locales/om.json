@@ -385,7 +385,12 @@
     "failCreate": "Fayyadamaa uumuun hin danda'amne",
     "failDelete": "Fayyadamaa haquun hin danda'amne",
     "failUpdate": "Haaromsuun hin danda'amne",
-    "noName": "Maqaa hin qabu"
+    "noName": "Maqaa hin qabu",
+    "tabSystemSettings": "Sajoo Addunyaa",
+    "settingDefaultCredits": "Kireeditii Haaraa Fayyadamtootaa",
+    "settingDefaultCreditsDesc": "Baay'ina kireeditii bilisaa fayyadamaa haaraa hundaaf yeroo galmeeffaman kennamu.",
+    "saveSettings": "Jijjiirama Olkaa'i",
+    "savingSettings": "Olkaayamaa jira..."
   },
   "docs": {
     "back": "← Gara mana deebi'i",

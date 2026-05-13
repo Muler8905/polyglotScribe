@@ -385,7 +385,12 @@
     "failCreate": "Failed to create user",
     "failDelete": "Failed to delete user",
     "failUpdate": "Failed to update",
-    "noName": "No Name"
+    "noName": "No Name",
+    "tabSystemSettings": "Global Settings",
+    "settingDefaultCredits": "Default New User Credits",
+    "settingDefaultCreditsDesc": "Number of free credits granted to every new user upon registration.",
+    "saveSettings": "Save Changes",
+    "savingSettings": "Saving..."
   },
   "docs": {
     "back": "← Back to home",

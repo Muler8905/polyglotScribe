@@ -385,7 +385,12 @@
     "failCreate": "ተጠቃሚ መፍጠር አልተሳካም",
     "failDelete": "ተጠቃሚ መሰረዝ አልተሳካም",
     "failUpdate": "ማዘመን አልተሳካም",
-    "noName": "ስም የለም"
+    "noName": "ስም የለም",
+    "tabSystemSettings": "ዓለም አቀፍ ቅንብሮች",
+    "settingDefaultCredits": "አዲስ ተጠቃሚ ነባሪ ክሬዲቶች",
+    "settingDefaultCreditsDesc": "እያንዳንዱ አዲስ ተጠቃሚ ሲመዘገብ የሚሰጠው ነጻ ክሬዲት መጠን።",
+    "saveSettings": "ለውጦችን አስቀምጥ",
+    "savingSettings": "በማስቀመጥ ላይ..."
   },
   "docs": {
     "back": "← ወደ መነሻ ተመለስ",
