@@ -214,7 +214,8 @@
 }
 
 .videoCard {
-  margin-top: 1.25rem;
+  margin: 1.25rem auto 0;
+  max-width: 480px;
   border: 1px solid var(--border);
   border-radius: 12px;
   overflow: hidden;

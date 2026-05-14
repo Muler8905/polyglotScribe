@@ -124,6 +124,7 @@ function labelOf(code: string) {
 }
 
 function useTTS() {
+  const { t } = useTranslation();
   const [speaking, setSpeaking] = useState<"src" | "tgt" | null>(null);
   const synth = useServerFn(synthesizeSpeech);
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -510,17 +511,17 @@ function YouTubePanel({ onSaved }: Props) {
       return;
     }
 
+    const extractedId = extractYouTubeId(url.trim());
+    setVideoId(extractedId);
     setTranscribing(true);
     setTranscript("");
     setTranslation("");
     setVideoTitle("");
-    setVideoId(null);
 
     try {
       const result = await transcribeYT({ data: { url: url.trim(), preferredLang: sourceLang } });
       setTranscript(result.text);
       setVideoTitle(result.title);
-      setVideoId(extractYouTubeId(url.trim()));
       toast.success(t("transcriber.ytSuccess"));
       onSaved?.();
     } catch (e) {
@@ -582,7 +583,7 @@ function YouTubePanel({ onSaved }: Props) {
         </button>
       </div>
 
-      {videoId && videoTitle && (
+      {videoId && (
         <div className={s.videoCard}>
           <div className={s.videoFrame}>
             <iframe
@@ -593,9 +594,11 @@ function YouTubePanel({ onSaved }: Props) {
               allowFullScreen
             />
           </div>
-          <div className={s.videoHint}>
-            📹 {videoTitle}
-          </div>
+          {videoTitle && (
+            <div className={s.videoHint}>
+              📹 {videoTitle}
+            </div>
+          )}
         </div>
       )}
 

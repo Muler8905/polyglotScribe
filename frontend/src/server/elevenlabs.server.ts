@@ -50,7 +50,16 @@ export async function transcribeFile(file: Blob, languageCode?: string): Promise
       const geminiKey = process.env.GOOGLE_GEMINI_API_KEY;
       if (openaiKey) {
         console.warn("ElevenLabs limited or blocked, falling back to OpenAI Whisper...");
-        return await transcribeWithOpenAI(file, languageCode, openaiKey);
+        try {
+          return await transcribeWithOpenAI(file, languageCode, openaiKey);
+        } catch (openaiErr: any) {
+          console.error("OpenAI fallback failed:", openaiErr.message);
+          if (geminiKey) {
+            console.warn("OpenAI failed, falling back to Google Gemini...");
+            return await transcribeWithGemini(file, languageCode, geminiKey);
+          }
+          throw openaiErr;
+        }
       } else if (geminiKey) {
         console.warn("ElevenLabs limited or blocked, falling back to Google Gemini...");
         return await transcribeWithGemini(file, languageCode, geminiKey);
