@@ -602,6 +602,14 @@ function YouTubePanel({ onSaved }: Props) {
         </div>
       )}
 
+      {/* Fallback: upload a downloaded video file */}
+      <YouTubeFileFallback
+        sourceLang={sourceLang}
+        targetLang={targetLang}
+        onTranscribed={(text) => { setTranscript(text); setTranslation(""); }}
+        onSaved={onSaved}
+      />
+
       <ResultPanes
         transcript={transcript}
         translation={translation}
@@ -612,6 +620,100 @@ function YouTubePanel({ onSaved }: Props) {
         speaking={tts.speaking}
         onSpeak={(w) => tts.play(w, w === "src" ? transcript : translation, w === "src" ? sourceLang : targetLang)}
       />
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* YouTube File Fallback                                                */
+/* ------------------------------------------------------------------ */
+
+function YouTubeFileFallback({
+  sourceLang,
+  onTranscribed,
+  onSaved,
+}: {
+  sourceLang: string;
+  targetLang: string;
+  onTranscribed: (text: string) => void;
+  onSaved?: () => void;
+}) {
+  const { t } = useTranslation();
+  const [open, setOpen] = useState(false);
+  const [file, setFile] = useState<File | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [dragging, setDragging] = useState(false);
+  const fileInput = useRef<HTMLInputElement>(null);
+
+  const transcribe = async () => {
+    if (!file) return;
+    setBusy(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      fd.append("title", file.name);
+      if (sourceLang) fd.append("language_code", sourceLang);
+      const r = await authedFetch("/api/transcribe-file", { method: "POST", body: fd });
+      if (!r.ok) {
+        const err = await r.json().catch(() => ({ error: r.statusText }));
+        throw new Error(err.error || "Transcription failed");
+      }
+      const j = await r.json();
+      onTranscribed(j.text);
+      toast.success(t("transcriber.transcribedSaved"));
+      onSaved?.();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : t("transcriber.fail"));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className={s.fallbackSection}>
+      <button
+        className={s.fallbackToggle}
+        onClick={() => setOpen((o) => !o)}
+        type="button"
+      >
+        {open ? "▲" : "▼"} {open ? "Hide upload" : "URL not working? Upload the downloaded video file instead"}
+      </button>
+
+      {open && (
+        <div className={s.fallbackContent}>
+          <div className={s.fallbackHint}>
+            💡 Download the video first (e.g. from{" "}
+            <a href="https://yt1s.com" target="_blank" rel="noopener noreferrer">yt1s.com</a>
+            {" "}or similar), then upload the file here.
+          </div>
+          <div
+            className={`${s.dropZone} ${dragging ? s.dragging : ""}`}
+            onClick={() => fileInput.current?.click()}
+            onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
+            onDragLeave={() => setDragging(false)}
+            onDrop={(e) => {
+              e.preventDefault();
+              setDragging(false);
+              setFile(e.dataTransfer.files?.[0] ?? null);
+            }}
+          >
+            <div>{t("transcriber.drop")}</div>
+            {file && <div className={s.fileName}>{file.name} ({(file.size / 1024 / 1024).toFixed(1)} MB)</div>}
+            <input
+              ref={fileInput}
+              className={s.fileInput}
+              type="file"
+              accept="audio/*,video/*"
+              onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+            />
+          </div>
+          <div className={s.actions}>
+            <button className={`${s.btn} ${s.btnPrimary}`} onClick={transcribe} disabled={!file || busy}>
+              {busy ? t("transcriber.transcribing") : t("transcriber.transcribe")}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

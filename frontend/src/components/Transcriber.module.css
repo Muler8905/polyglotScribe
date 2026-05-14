@@ -241,3 +241,43 @@
   background: var(--card);
   border-top: 1px solid var(--border);
 }
+
+/* YouTube file upload fallback */
+.fallbackSection {
+  margin-top: 1.25rem;
+  border: 1px dashed var(--border);
+  border-radius: 11px;
+  overflow: hidden;
+}
+.fallbackToggle {
+  width: 100%;
+  background: transparent;
+  border: none;
+  padding: 0.75rem 1rem;
+  text-align: left;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: var(--muted-foreground);
+  font-weight: 500;
+  transition: background 0.15s, color 0.15s;
+}
+.fallbackToggle:hover {
+  background: var(--muted);
+  color: var(--foreground);
+}
+.fallbackContent {
+  padding: 1rem;
+  border-top: 1px dashed var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.fallbackHint {
+  font-size: 0.82rem;
+  color: var(--muted-foreground);
+  line-height: 1.5;
+}
+.fallbackHint a {
+  color: var(--primary);
+  text-decoration: underline;
+}
