@@ -2,7 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireApiAuth } from "@/integrations/api/auth-middleware";
 
-const API_URL = process.env.API_URL || process.env.VITE_API_URL || "http://localhost:5000/api";
+const API_URL = process.env.API_URL || process.env.VITE_API_URL || (import.meta.env?.VITE_API_URL as string) || "http://localhost:5000/api";
 
 export const initiateChapaPayment = createServerFn({ method: "POST" })
   .middleware([requireApiAuth])

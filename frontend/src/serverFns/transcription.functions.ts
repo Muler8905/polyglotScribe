@@ -5,7 +5,7 @@ import { extractVideoId, fetchYouTubeTranscript } from "@/server/youtube.server"
 import { translateText } from "@/server/translate.server";
 import { LANGUAGES } from "@/lib/languages";
 
-const API_URL = process.env.API_URL || process.env.VITE_API_URL || "http://localhost:5000/api";
+const API_URL = process.env.API_URL || process.env.VITE_API_URL || (import.meta.env?.VITE_API_URL as string) || "http://localhost:5000/api";
 
 function toClientItem(row: any) {
   // Backend returns Mongo/Mongoose docs (camelCase). UI expects legacy snake_case.
