@@ -105,7 +105,7 @@ function Landing() {
         </nav>
         <div className={s.navMobileTools}>
           <LanguageSwitcher compact />
-          <ThemeToggle />
+          <ThemeToggle compact />
           <button
             className={s.menuBtn}
             onClick={() => setMenuOpen((o) => !o)}

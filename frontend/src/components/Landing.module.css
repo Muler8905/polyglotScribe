@@ -2,6 +2,8 @@
   min-height: 100vh;
   background: var(--background);
   color: var(--foreground);
+  overflow-x: hidden;
+  width: 100%;
 }
 
 /* NAV */
@@ -296,8 +298,8 @@
   display: none;
   align-items: center;
   justify-content: center;
-  width: 38px; height: 38px;
-  border-radius: 10px;
+  width: 32px; height: 32px;
+  border-radius: 8px;
   border: 1px solid var(--border);
   background: var(--card);
   color: var(--foreground);
@@ -339,11 +341,12 @@
 
 @media (max-width: 760px) {
   .navLinks { display: none; }
-  .navMobileTools { display: flex; }
-  .menuBtn { display: inline-flex; }
-  .nav { padding: 0.85rem 1.25rem; }
-  .hero { padding: 3rem 1.25rem 2px; }
-  .section { padding: 3.5rem 1.25rem; }
+  .navMobileTools { display: flex; gap: 0.35rem; }
+  .menuBtn { display: inline-flex; width: 28px; height: 28px; padding: 0; }
+  .menuBtn svg { width: 16px; height: 16px; }
+  .nav { padding: 0.85rem 1rem; }
+  .hero { padding: 3rem 1rem 2px; }
+  .section { padding: 3.5rem 1rem; }
 }
 
 /* FOOTER GRID */
