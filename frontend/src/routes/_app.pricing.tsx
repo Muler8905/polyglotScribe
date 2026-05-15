@@ -145,15 +145,15 @@ function PricingPage() {
         setTimeout(poll, 3000);
         setLoadingPlan(null);
       } else {
-        const response = await apiClient.post('/billing/payments/initiate', { planSlug: slug });
-        if (response.success && (response.data?.checkoutUrl || response.data?.checkout_url)) {
-          window.location.href = response.data.checkoutUrl || response.data.checkout_url;
+        const res = await initiate({ data: { planSlug: slug } });
+        if (res?.checkout_url) {
+          window.location.href = res.checkout_url;
         } else {
-          throw new Error(response.message || "Failed to get checkout URL from backend.");
+          const debugInfo = res?.debug_url ? ` (Target: ${res.debug_url})` : "";
+          throw new Error(`Chapa URL missing${debugInfo}. Please check your backend configuration.`);
         }
       }
     } catch (e: any) {
-      console.error("Payment Error:", e);
       toast.error(e.message || "An error occurred while initiating payment.");
       setLoadingPlan(null);
     }
