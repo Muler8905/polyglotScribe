@@ -146,10 +146,12 @@ function PricingPage() {
         setLoadingPlan(null);
       } else {
         const res = await initiate({ data: { planSlug: slug } });
+        console.log("Payment Init Result:", res);
         if (res?.checkout_url) {
           window.location.href = res.checkout_url;
         } else {
-          throw new Error("The payment provider did not return a checkout URL. Please check your backend configuration.");
+          const debugInfo = res?.debug_url ? ` (Target: ${res.debug_url})` : "";
+          throw new Error(`[v2] Chapa URL missing${debugInfo}. Please check your Render Environment Variables and Logs.`);
         }
       }
     } catch (e) {

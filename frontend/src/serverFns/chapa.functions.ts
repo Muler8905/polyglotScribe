@@ -22,16 +22,15 @@ export const initiateChapaPayment = createServerFn({ method: "POST" })
       },
       body: JSON.stringify({ planSlug: data.planSlug }),
     });
-    const json = await res.json().catch(() => ({ success: false, message: `Invalid JSON response from backend (${res.status})` }));
+    const json = await res.json().catch(() => ({ success: false, message: `Invalid JSON from ${res.url} (Status ${res.status})` }));
     if (!res.ok || !json?.success) {
-      const msg = json?.message || `Backend returned ${res.status}: ${res.statusText}`;
-      throw new Error(msg);
+      throw new Error(json?.message || `API Error ${res.status} from ${API_URL}`);
     }
     const url = json.data?.checkoutUrl || json.data?.checkout_url;
     if (!url) {
-      throw new Error("Backend succeeded but no checkoutUrl was provided in the data.");
+      throw new Error(`Backend succeeded but no checkoutUrl was provided by ${API_URL}`);
     }
-    return { checkout_url: url, tx_ref: json.data.txRef };
+    return { checkout_url: url, tx_ref: json.data.txRef, debug_url: API_URL };
   });
 
 export const initiateEbirrPayment = createServerFn({ method: "POST" })
