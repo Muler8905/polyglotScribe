@@ -145,17 +145,16 @@ function PricingPage() {
         setTimeout(poll, 3000);
         setLoadingPlan(null);
       } else {
-        const res = await initiate({ data: { planSlug: slug } });
-        console.log("Payment Init Result:", res);
-        if (res?.checkout_url) {
-          window.location.href = res.checkout_url;
+        const response = await apiClient.post('/billing/payments/initiate', { planSlug: slug });
+        if (response.success && (response.data?.checkoutUrl || response.data?.checkout_url)) {
+          window.location.href = response.data.checkoutUrl || response.data.checkout_url;
         } else {
-          const debugInfo = res?.debug_url ? ` (Target: ${res.debug_url})` : "";
-          throw new Error(`[v2] Chapa URL missing${debugInfo}. Please check your Render Environment Variables and Logs.`);
+          throw new Error(response.message || "Failed to get checkout URL from backend.");
         }
       }
-    } catch (e) {
-      toast.error((e as Error).message);
+    } catch (e: any) {
+      console.error("Payment Error:", e);
+      toast.error(e.message || "An error occurred while initiating payment.");
       setLoadingPlan(null);
     }
   };
