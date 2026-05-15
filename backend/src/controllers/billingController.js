@@ -86,13 +86,11 @@ export const initiatePayment = async (req, res, next) => {
     const fullName = (profile?.displayName ?? req.user.displayName ?? req.user.email.split("@")[0]).trim();
     const [firstName, ...rest] = fullName.split(/\s+/);
     const lastName = rest.join(" ") || "User";
-    // callback_url must point to the BACKEND so Chapa can POST the webhook.
-    // return_url points to the FRONTEND so the user is redirected after payment.
+    
     const backendUrl = process.env.API_BASE_URL || process.env.PUBLIC_APP_URL || `http://localhost:${process.env.PORT || 5000}`;
     const frontendUrl = process.env.FRONTEND_URL || req.headers.origin || 'http://localhost:8080';
     const callbackUrl = `${backendUrl}/api/public/chapa-webhook`;
     const returnUrl = `${frontendUrl}/payment/success?tx_ref=${encodeURIComponent(txRef)}`;
-
 
     const chapaRes = await fetch("https://api.chapa.co/v1/transaction/initialize", {
       method: "POST",
@@ -112,15 +110,21 @@ export const initiatePayment = async (req, res, next) => {
         },
       }),
     });
+
     const chapa = await chapaRes.json();
-    const checkoutUrl = chapa?.data?.checkout_url;
+    const checkoutUrl = chapa?.data?.checkout_url || chapa?.data?.checkoutUrl;
+    
     if (!chapaRes.ok || chapa?.status !== "success" || !checkoutUrl) {
       await SubscriptionPayment.updateOne({ txRef }, { status: "failed" });
-      return res.status(400).json({ success: false, message: `Chapa Error: ${chapa?.message || "No URL returned"}` });
-
+      const chapaMsg = chapa?.message || (chapaRes.ok ? "No checkout_url returned" : `HTTP ${chapaRes.status}`);
+      return res.status(400).json({ 
+        success: false, 
+        message: `Chapa Error: ${chapaMsg}`
+      });
     }
+
     await SubscriptionPayment.updateOne({ txRef }, { checkoutUrl });
-    res.json({ success: true, data: { txRef, checkoutUrl } });
+    res.json({ success: true, data: { txRef, checkoutUrl, checkout_url: checkoutUrl } });
   } catch (error) {
     next(error);
   }
@@ -332,8 +336,6 @@ export const deletePaymentHistory = async (req, res, next) => {
       return res.status(404).json({ success: false, message: "Payment record not found" });
     }
     
-    // We only allow deleting history of failed or completed payments visually,
-    // actually we can just delete the record or mark it as hidden. For now, delete it.
     await SubscriptionPayment.deleteOne({ _id: id });
     res.json({ success: true, message: "Payment record deleted successfully" });
   } catch (error) {

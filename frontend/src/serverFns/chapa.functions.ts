@@ -27,10 +27,11 @@ export const initiateChapaPayment = createServerFn({ method: "POST" })
       const msg = json?.message || `Backend returned ${res.status}: ${res.statusText}`;
       throw new Error(msg);
     }
-    if (!json.data?.checkoutUrl) {
+    const url = json.data?.checkoutUrl || json.data?.checkout_url;
+    if (!url) {
       throw new Error("Backend succeeded but no checkoutUrl was provided in the data.");
     }
-    return { checkout_url: json.data.checkoutUrl, tx_ref: json.data.txRef };
+    return { checkout_url: url, tx_ref: json.data.txRef };
   });
 
 export const initiateEbirrPayment = createServerFn({ method: "POST" })
