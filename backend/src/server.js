@@ -20,6 +20,9 @@ dotenv.config();
 // Initialize express app
 const app = express();
 
+// Trust proxy is required for Render/Cloudflare to get the correct client IP
+app.set('trust proxy', 1);
+
 // CORS configuration - allow multiple frontend URLs
 const allowedOrigins = [
   process.env.FRONTEND_URL || 'http://localhost:8080',

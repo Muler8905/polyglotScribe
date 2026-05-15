@@ -112,6 +112,8 @@ export const initiatePayment = async (req, res, next) => {
     });
 
     const chapa = await chapaRes.json();
+    console.log("CHAPA DEBUG - Status:", chapaRes.status);
+    console.log("CHAPA DEBUG - Body:", JSON.stringify(chapa));
     const checkoutUrl = chapa?.data?.checkout_url || chapa?.data?.checkoutUrl;
     
     if (!chapaRes.ok || chapa?.status !== "success" || !checkoutUrl) {
