@@ -116,7 +116,8 @@ export const initiatePayment = async (req, res, next) => {
     const checkoutUrl = chapa?.data?.checkout_url;
     if (!chapaRes.ok || chapa?.status !== "success" || !checkoutUrl) {
       await SubscriptionPayment.updateOne({ txRef }, { status: "failed" });
-      return res.status(400).json({ success: false, message: chapa?.message || "Chapa init failed" });
+      return res.status(400).json({ success: false, message: `Chapa Error: ${chapa?.message || "No URL returned"}` });
+
     }
     await SubscriptionPayment.updateOne({ txRef }, { checkoutUrl });
     res.json({ success: true, data: { txRef, checkoutUrl } });
