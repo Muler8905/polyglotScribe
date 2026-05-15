@@ -86,9 +86,13 @@ export const initiatePayment = async (req, res, next) => {
     const fullName = (profile?.displayName ?? req.user.displayName ?? req.user.email.split("@")[0]).trim();
     const [firstName, ...rest] = fullName.split(/\s+/);
     const lastName = rest.join(" ") || "User";
-    const origin = req.headers.origin || process.env.PUBLIC_APP_URL || process.env.FRONTEND_URL;
-    const callbackUrl = `${origin}/api/public/chapa-webhook`;
-    const returnUrl = `${origin}/payment/success?tx_ref=${encodeURIComponent(txRef)}`;
+    // callback_url must point to the BACKEND so Chapa can POST the webhook.
+    // return_url points to the FRONTEND so the user is redirected after payment.
+    const backendUrl = process.env.API_BASE_URL || process.env.PUBLIC_APP_URL || `http://localhost:${process.env.PORT || 5000}`;
+    const frontendUrl = process.env.FRONTEND_URL || req.headers.origin || 'http://localhost:8080';
+    const callbackUrl = `${backendUrl}/api/public/chapa-webhook`;
+    const returnUrl = `${frontendUrl}/payment/success?tx_ref=${encodeURIComponent(txRef)}`;
+
 
     const chapaRes = await fetch("https://api.chapa.co/v1/transaction/initialize", {
       method: "POST",
