@@ -247,7 +247,7 @@ function AdminPage() {
             </div>
 
             <div className={s.chartsRow}>
-              <div className={s.glassCard} style={{ flex: 2 }}>
+              <div className={`${s.glassCard} ${s.chartLarge}`}>
                 <h3 className={s.sectionTitle} style={{ marginBottom: '1.5rem' }}>Revenue Analytics (Last 30 Days)</h3>
                 <div style={{ height: '300px', width: '100%' }}>
                   <ResponsiveContainer width="100%" height="100%">
@@ -271,7 +271,7 @@ function AdminPage() {
                 </div>
               </div>
 
-              <div className={s.glassCard} style={{ flex: 1 }}>
+              <div className={`${s.glassCard} ${s.chartSmall}`}>
                 <h3 className={s.sectionTitle} style={{ marginBottom: '1.5rem' }}>Usage Level</h3>
                 <div style={{ height: '300px', width: '100%' }}>
                   <ResponsiveContainer width="100%" height="100%">

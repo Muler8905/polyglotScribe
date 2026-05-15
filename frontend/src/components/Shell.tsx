@@ -163,11 +163,10 @@ export function Shell({
                 </Link>
               );
             })}
+            <div className={`${s.mobileNavLanguageSwitcher} ${isAdminView ? s.adminNavLanguageSwitcher : ''}`}>
+              <LanguageSwitcher variant="navItem" className={s.navItem} />
+            </div>
           </nav>
-        </div>
-
-        <div className={s.mobileLanguageSwitcher}>
-          <LanguageSwitcher />
         </div>
 
         <div className={s.sidebarFooter}>
@@ -192,9 +191,18 @@ export function Shell({
 
       <main className={s.main}>
         <div className={s.topBar}>
-          <div className={s.searchBar}>
-            <input type="text" placeholder={t("shell.searchPlaceholder")} />
+          {/* Left zone — spacer so search stays centered */}
+          <div className={s.topBarLeft} />
+
+          {/* Center zone — search bar */}
+          <div className={s.topBarCenter}>
+            <div className={s.searchBar}>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={s.searchIcon}><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+              <input type="text" placeholder={t("shell.searchPlaceholder")} />
+            </div>
           </div>
+
+          {/* Right zone — notification + language + profile */}
           <div className={s.topActions}>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -254,9 +262,11 @@ export function Shell({
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <div className={s.desktopLanguageSwitcher}>
-              <LanguageSwitcher compact />
-            </div>
+            {!isAdminView && (
+              <div className={s.desktopLanguageSwitcher}>
+                <LanguageSwitcher compact />
+              </div>
+            )}
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

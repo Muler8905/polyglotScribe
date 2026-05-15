@@ -146,6 +146,8 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
 .sectionTitle {
@@ -159,6 +161,7 @@
   display: flex;
   gap: 2rem;
   margin-bottom: 2rem;
+  flex-wrap: wrap;
 }
 
 .statItem {
@@ -218,9 +221,21 @@
   .header {
     flex-direction: column;
     align-items: flex-start;
+    gap: 0.75rem;
   }
   .quickActions {
     grid-template-columns: 1fr;
+  }
+  .actionCard {
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+  }
+  .actionCard .cardBtn {
+    margin-top: auto;
+    flex-shrink: 0;
+    width: auto;
+    white-space: nowrap;
   }
 }
 
@@ -229,14 +244,19 @@
     gap: 1.5rem;
   }
   .welcomeTitle {
-    font-size: 1.5rem;
+    font-size: 1.4rem;
   }
   .welcomeSubtitle {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
   }
   .actionCard {
     padding: 1.25rem;
     gap: 1rem;
+    flex-direction: column;
+  }
+  .actionCard .cardBtn {
+    width: 100%;
+    white-space: normal;
   }
   .cardIcon {
     width: 36px;
@@ -248,24 +268,62 @@
     height: 20px;
   }
   .cardTitle {
-    font-size: 1rem;
+    font-size: 0.95rem;
   }
   .cardDesc {
-    font-size: 0.8rem;
+    font-size: 0.78rem;
   }
   .cardBtn {
-    padding: 0.6rem;
-    font-size: 0.85rem;
+    padding: 0.55rem;
+    font-size: 0.82rem;
   }
   .glassCard {
-    padding: 1.25rem;
+    padding: 1rem;
   }
   .sectionTitle {
-    font-size: 1rem;
+    font-size: 0.95rem;
+  }
+  .sectionHeader {
+    margin-bottom: 1rem;
   }
   .activityTable th,
   .activityTable td {
-    padding: 0.75rem 0.5rem;
-    font-size: 0.75rem;
+    padding: 0.6rem 0.4rem;
+    font-size: 0.72rem;
+  }
+}
+
+.settingsGrid {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.settingsNav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  position: sticky;
+  top: 16px;
+}
+
+@media (max-width: 768px) {
+  .settingsGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .settingsNav {
+    position: relative;
+    top: 0;
+    flex-direction: row;
+    overflow-x: auto;
+    white-space: nowrap;
+    padding-bottom: 0.5rem;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .settingsNav button {
+    flex: none;
   }
 }

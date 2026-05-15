@@ -4,9 +4,9 @@
 // back to other metadata sources when needed.
 import { transcribeFile } from "@/server/elevenlabs.server";
 
-const DESKTOP_UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36";
-const MOBILE_UA = "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1";
-const IOS_APP_UA = "com.google.ios.youtube/20.10.4 (iPhone16,2; U; CPU iOS 17_0 like Mac OS X)";
+const DESKTOP_UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36";
+const MOBILE_UA = "Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1";
+const IOS_APP_UA = "com.google.ios.youtube/20.18.3 (iPhone16,2; U; CPU iOS 17_5 like Mac OS X)";
 
 export function extractVideoId(url: string): string | null {
   try {
@@ -85,12 +85,12 @@ async function getIOSPlayerResponse(videoId: string): Promise<any | null> {
         context: {
           client: {
             clientName: "IOS",
-            clientVersion: "20.10.4",
+            clientVersion: "20.18.3",
             deviceModel: "iPhone16,2",
             hl: "en",
             gl: "US",
             osName: "iPhone",
-            osVersion: "17.0.0.0.0",
+            osVersion: "17.5.0.0.0",
             platform: "MOBILE",
           },
         },

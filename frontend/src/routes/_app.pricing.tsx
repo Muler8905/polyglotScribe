@@ -241,50 +241,52 @@ function PricingPage() {
       {history.length > 0 && (
         <div className={s.history}>
           <h2 className={s.historyTitle}>{t("pricing.historyTitle")}</h2>
-          <table className={s.historyTable}>
-            <thead>
-              <tr>
-                <th>{t("pricing.thDate")}</th>
-                <th>{t("pricing.thPlan")}</th>
-                <th>{t("pricing.thAmount")}</th>
-                <th>{t("pricing.thCredits")}</th>
-                <th>{t("pricing.thStatus")}</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {history.map((h) => (
-                <tr key={h.id}>
-                  <td>{new Date(h.created_at).toLocaleDateString()}</td>
-                  <td>{h.plan?.name ?? "—"}</td>
-                  <td>{h.amount_etb} ETB</td>
-                  <td>{h.credits_awarded || "—"}</td>
-                  <td>
-                    <span
-                      className={`${s.statusBadge} ${
-                        h.status === "success" ? s.statusSuccess :
-                        h.status === "pending" ? s.statusPending : s.statusFailed
-                      }`}
-                    >
-                      {h.status}
-                    </span>
-                  </td>
-                  <td>
-                    <button 
-                      onClick={() => handleDeleteHistory(h.id)}
-                      style={{ 
-                        background: "none", border: "none", color: "var(--muted-foreground)",
-                        cursor: "pointer", padding: "4px", borderRadius: "4px"
-                      }}
-                      title="Delete record"
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </td>
+          <div style={{ overflowX: 'auto' }}>
+            <table className={s.historyTable}>
+              <thead>
+                <tr>
+                  <th>{t("pricing.thDate")}</th>
+                  <th>{t("pricing.thPlan")}</th>
+                  <th>{t("pricing.thAmount")}</th>
+                  <th>{t("pricing.thCredits")}</th>
+                  <th>{t("pricing.thStatus")}</th>
+                  <th></th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {history.map((h) => (
+                  <tr key={h.id}>
+                    <td>{new Date(h.created_at).toLocaleDateString()}</td>
+                    <td>{h.plan?.name ?? "—"}</td>
+                    <td>{h.amount_etb} ETB</td>
+                    <td>{h.credits_awarded || "—"}</td>
+                    <td>
+                      <span
+                        className={`${s.statusBadge} ${
+                          h.status === "success" ? s.statusSuccess :
+                          h.status === "pending" ? s.statusPending : s.statusFailed
+                        }`}
+                      >
+                        {h.status}
+                      </span>
+                    </td>
+                    <td>
+                      <button 
+                        onClick={() => handleDeleteHistory(h.id)}
+                        style={{ 
+                          background: "none", border: "none", color: "var(--muted-foreground)",
+                          cursor: "pointer", padding: "4px", borderRadius: "4px"
+                        }}
+                        title="Delete record"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
       {pendingPlan && (

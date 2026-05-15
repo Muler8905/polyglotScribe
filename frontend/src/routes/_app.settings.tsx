@@ -8,6 +8,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAuth } from "@/lib/auth-context";
 import { toast } from "sonner";
 import { apiClient } from "@/lib/api-client";
+import s from "@/components/Dashboard.module.css";
 
 export const Route = createFileRoute("/_app/settings")({
   head: () => ({ meta: [{ title: "Settings — Polyglot Scribe" }] }),
@@ -92,8 +93,8 @@ function SettingsPage() {
       <div style={{ maxWidth: 880, margin: "0 auto" }}>
         <h1 style={{ fontSize: "1.75rem", fontWeight: 700, marginBottom: "1.5rem" }}>{t("settings.title")}</h1>
 
-        <div style={{ display: "grid", gridTemplateColumns: "220px 1fr", gap: "1.5rem", alignItems: "start" }}>
-          <nav style={{ display: "flex", flexDirection: "column", gap: 4, position: "sticky", top: 16 }}>
+        <div className={s.settingsGrid}>
+          <nav className={s.settingsNav}>
             {tabs.map((tb) => (
               <button
                 key={tb.id}
@@ -112,7 +113,7 @@ function SettingsPage() {
             ))}
           </nav>
 
-          <div>
+          <div style={{ minWidth: 0 }}>
             {tab === "profile" && (
               <div style={card}>
                 {sectionHeader(t("settings.profileHeading"), t("settings.profileDesc"))}

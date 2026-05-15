@@ -400,3 +400,61 @@
   font-weight: 600;
   color: var(--muted-foreground);
 }
+
+.chartLarge {
+  flex: 2;
+  min-width: 300px;
+}
+
+.chartSmall {
+  flex: 1;
+  min-width: 300px;
+}
+
+@media (max-width: 1024px) {
+  .chartsRow {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .tabs {
+    width: 100%;
+    overflow-x: auto;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+  
+  .searchBar {
+    max-width: 100%;
+  }
+
+  .statRow {
+    grid-template-columns: 1fr;
+  }
+  
+  .heroGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .mainGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .chartLarge, .chartSmall {
+    flex: none;
+    width: 100%;
+  }
+}
