@@ -1,7 +1,7 @@
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "@/lib/theme-context";
 
-export function ThemeToggle({ className = "", compact = false }: { className?: string; compact?: boolean }) {
+export function ThemeToggle({ className = "" }: { className?: string }) {
   const { theme, toggle } = useTheme();
   return (
     <button
@@ -13,9 +13,9 @@ export function ThemeToggle({ className = "", compact = false }: { className?: s
         display: "inline-flex",
         alignItems: "center",
         justifyContent: "center",
-        width: compact ? 28 : 38,
-        height: compact ? 28 : 38,
-        borderRadius: compact ? 8 : 10,
+        width: "var(--icon-btn-size)",
+        height: "var(--icon-btn-size)",
+        borderRadius: 10,
         border: "1px solid var(--border)",
         background: "var(--card)",
         color: "var(--foreground)",
@@ -23,7 +23,7 @@ export function ThemeToggle({ className = "", compact = false }: { className?: s
         transition: "transform 0.2s, background 0.2s",
       }}
     >
-      {theme === "dark" ? <Sun size={compact ? 16 : 18} /> : <Moon size={compact ? 16 : 18} />}
+      {theme === "dark" ? <Sun style={{ width: "var(--icon-btn-svg)", height: "var(--icon-btn-svg)" }} /> : <Moon style={{ width: "var(--icon-btn-svg)", height: "var(--icon-btn-svg)" }} />}
     </button>
   );
 }

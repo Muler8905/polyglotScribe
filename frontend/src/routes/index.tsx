@@ -105,14 +105,14 @@ function Landing() {
         </nav>
         <div className={s.navMobileTools}>
           <LanguageSwitcher compact />
-          <ThemeToggle compact />
+          <ThemeToggle />
           <button
             className={s.menuBtn}
             onClick={() => setMenuOpen((o) => !o)}
             aria-label={menuOpen ? "Close menu" : "Open menu"}
             aria-expanded={menuOpen}
           >
-            {menuOpen ? <X size={20} /> : <Menu size={20} />}
+            {menuOpen ? <X style={{ width: "var(--icon-btn-svg)", height: "var(--icon-btn-svg)" }} /> : <Menu style={{ width: "var(--icon-btn-svg)", height: "var(--icon-btn-svg)" }} />}
           </button>
         </div>
       </header>

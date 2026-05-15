@@ -106,6 +106,13 @@
   --glass-border: oklch(0.18 0.04 265 / 10%);
   --glass-glow: oklch(0.7 0.2 295 / 5%);
   --brand-gradient: var(--gradient-primary);
+
+  --icon-btn-size: 38px;
+  --icon-btn-svg: 18px;
+  --lang-btn-pad: 0.5rem 0.85rem;
+  --lang-compact-pad: 0.4rem 0.6rem;
+  --lang-globe-size: 15px;
+  --lang-text-size: 0.88rem;
 }
 
 .dark {
@@ -156,5 +163,16 @@
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --icon-btn-size: 30px;
+    --icon-btn-svg: 16px;
+    --lang-btn-pad: 0.3rem 0.5rem;
+    --lang-compact-pad: 0.3rem 0.5rem;
+    --lang-globe-size: 13px;
+    --lang-text-size: 0.8rem;
   }
 }

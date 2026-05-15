@@ -25,16 +25,16 @@ export function LanguageSwitcher({ compact = false }: { compact?: boolean }) {
         onClick={() => setOpen((o) => !o)}
         aria-label={t("common.language")}
         style={{
-          display: "inline-flex", alignItems: "center", gap: compact ? "0.3rem" : "0.4rem",
-          padding: compact ? "0.3rem 0.5rem" : "0.5rem 0.85rem",
-          borderRadius: compact ? 8 : 9, border: "1px solid var(--border)",
+          display: "inline-flex", alignItems: "center", gap: "0.4rem",
+          padding: compact ? "var(--lang-compact-pad)" : "var(--lang-btn-pad)",
+          borderRadius: 9, border: "1px solid var(--border)",
           background: "var(--background)", color: "var(--foreground)",
-          fontSize: compact ? "0.8rem" : "0.88rem", fontWeight: 500, cursor: "pointer",
+          fontSize: "var(--lang-text-size)", fontWeight: 500, cursor: "pointer",
         }}
       >
-        <Globe size={compact ? 14 : 15} />
+        <Globe style={{ width: "var(--lang-globe-size)", height: "var(--lang-globe-size)" }} />
         <span>{current.flag} {compact ? current.code.toUpperCase() : current.native}</span>
-        <ChevronDown size={compact ? 12 : 13} />
+        <ChevronDown style={{ width: "calc(var(--lang-globe-size) - 2px)", height: "calc(var(--lang-globe-size) - 2px)" }} />
       </button>
       {open && (
         <div

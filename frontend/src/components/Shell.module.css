@@ -287,6 +287,10 @@
   overflow-y: auto;
 }
 
+.mobileLanguageSwitcher {
+  display: none;
+}
+
 @media (max-width: 1024px) {
   .menuBtn {
     display: flex;
@@ -319,5 +323,24 @@
 
   .main {
     padding-top: 4rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .desktopLanguageSwitcher {
+    display: none;
+  }
+  
+  .mobileLanguageSwitcher {
+    display: block;
+    padding: 0 1.25rem;
+    margin-bottom: 1rem;
+    margin-top: auto;
+  }
+  
+  .sidebarContent {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
   }
 }

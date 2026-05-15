@@ -166,6 +166,10 @@ export function Shell({
           </nav>
         </div>
 
+        <div className={s.mobileLanguageSwitcher}>
+          <LanguageSwitcher />
+        </div>
+
         <div className={s.sidebarFooter}>
           <Link to="/settings" className={s.navItem} onClick={close}>
             <Settings size={20} />
@@ -250,7 +254,9 @@ export function Shell({
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <LanguageSwitcher compact />
+            <div className={s.desktopLanguageSwitcher}>
+              <LanguageSwitcher compact />
+            </div>
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

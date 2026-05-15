@@ -215,7 +215,57 @@
 }
 
 @media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
   .quickActions {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    gap: 1.5rem;
+  }
+  .welcomeTitle {
+    font-size: 1.5rem;
+  }
+  .welcomeSubtitle {
+    font-size: 0.9rem;
+  }
+  .actionCard {
+    padding: 1.25rem;
+    gap: 1rem;
+  }
+  .cardIcon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+  }
+  .cardIcon svg {
+    width: 20px;
+    height: 20px;
+  }
+  .cardTitle {
+    font-size: 1rem;
+  }
+  .cardDesc {
+    font-size: 0.8rem;
+  }
+  .cardBtn {
+    padding: 0.6rem;
+    font-size: 0.85rem;
+  }
+  .glassCard {
+    padding: 1.25rem;
+  }
+  .sectionTitle {
+    font-size: 1rem;
+  }
+  .activityTable th,
+  .activityTable td {
+    padding: 0.75rem 0.5rem;
+    font-size: 0.75rem;
   }
 }
