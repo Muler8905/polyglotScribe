@@ -146,7 +146,11 @@ function PricingPage() {
         setLoadingPlan(null);
       } else {
         const res = await initiate({ data: { planSlug: slug } });
-        window.location.href = res.checkout_url;
+        if (res?.checkout_url) {
+          window.location.href = res.checkout_url;
+        } else {
+          throw new Error("The payment provider did not return a checkout URL. Please check your backend configuration.");
+        }
       }
     } catch (e) {
       toast.error((e as Error).message);

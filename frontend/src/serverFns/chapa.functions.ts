@@ -22,8 +22,14 @@ export const initiateChapaPayment = createServerFn({ method: "POST" })
       },
       body: JSON.stringify({ planSlug: data.planSlug }),
     });
-    const json = await res.json();
-    if (!res.ok || !json?.success) throw new Error(json?.message || "Failed to initiate payment");
+    const json = await res.json().catch(() => ({ success: false, message: `Invalid JSON response from backend (${res.status})` }));
+    if (!res.ok || !json?.success) {
+      const msg = json?.message || `Backend returned ${res.status}: ${res.statusText}`;
+      throw new Error(msg);
+    }
+    if (!json.data?.checkoutUrl) {
+      throw new Error("Backend succeeded but no checkoutUrl was provided in the data.");
+    }
     return { checkout_url: json.data.checkoutUrl, tx_ref: json.data.txRef };
   });
 
