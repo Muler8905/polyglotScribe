@@ -26,12 +26,20 @@ class ApiClient {
     if (!this.hasStorage()) return;
     this.token = localStorage.getItem("accessToken");
     this.refreshToken = localStorage.getItem("refreshToken");
+    
+    // Ensure cookie is set for server functions if token exists
+    if (this.token && !document.cookie.includes("ps_token")) {
+      document.cookie = `ps_token=${this.token}; path=/; max-age=2592000; SameSite=Lax`;
+    }
   }
 
   private saveTokens(accessToken: string, refreshToken?: string) {
     this.token = accessToken;
     if (!this.hasStorage()) return;
     localStorage.setItem("accessToken", accessToken);
+    
+    // Set cookie for Server Functions (Cloudflare)
+    document.cookie = `ps_token=${accessToken}; path=/; max-age=2592000; SameSite=Lax`;
     
     if (refreshToken) {
       this.refreshToken = refreshToken;
@@ -46,6 +54,9 @@ class ApiClient {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
     localStorage.removeItem("user");
+    
+    // Clear cookie
+    document.cookie = "ps_token=; path=/; max-age=0";
   }
 
   private async request<T = any>(

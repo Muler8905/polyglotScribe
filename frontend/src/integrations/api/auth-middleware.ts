@@ -6,11 +6,22 @@ const API_URL = process.env.API_URL || process.env.VITE_API_URL || "http://local
 export const requireApiAuth = createMiddleware({ type: "function" }).server(async ({ next }) => {
   const request = getRequest();
   if (!request?.headers) throw new Response("Unauthorized", { status: 401 });
+  
+  let token = "";
   const authHeader = request.headers.get("authorization");
-  if (!authHeader || !authHeader.startsWith("Bearer ")) {
+  
+  if (authHeader && authHeader.startsWith("Bearer ")) {
+    token = authHeader.slice(7);
+  } else {
+    // Fallback to cookie for TanStack Start server functions on Cloudflare
+    const cookieHeader = request.headers.get("cookie") || "";
+    const cookies = Object.fromEntries(cookieHeader.split(';').map(c => c.trim().split('=')));
+    token = cookies['ps_token'];
+  }
+
+  if (!token) {
     throw new Response("Unauthorized: missing token", { status: 401 });
   }
-  const token = authHeader.slice(7);
   const meRes = await fetch(`${API_URL}/auth/me`, {
     headers: {
       Authorization: `Bearer ${token}`,
