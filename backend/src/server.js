@@ -74,6 +74,17 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 
+// Root route
+app.get('/', (req, res) => {
+  res.json({
+    success: true,
+    message: '🚀 Polyglot Scribe API is live and healthy!',
+    frontend: process.env.FRONTEND_URL,
+    status: 'online',
+    timestamp: new Date().toISOString()
+  });
+});
+
 // Health check route
 app.get('/health', (req, res) => {
   res.json({
