@@ -194,10 +194,12 @@ function LivePanel({ onSaved }: Props) {
     languageCode: sourceLang,
     onPartialTranscript: (d: any) => {
       const t = typeof d === "string" ? d : d?.text ?? d?.transcript ?? "";
+      console.log("Live Partial:", t);
       setPartial(t);
     },
     onCommittedTranscript: (d: any) => {
       const t = (typeof d === "string" ? d : d?.text ?? d?.transcript ?? "").trim();
+      console.log("Live Committed:", t);
       if (t) setCommitted((prev) => [...prev, t]);
       setPartial("");
     },
@@ -210,12 +212,16 @@ function LivePanel({ onSaved }: Props) {
     | Array<{ id?: string; text?: string }>
     | undefined;
   useEffect(() => {
-    if (typeof hookPartial === "string") setPartial(hookPartial);
-  }, [hookPartial]);
+    if (typeof hookPartial === "string" && hookPartial !== partial) {
+      console.log("Live Hook Sync Partial:", hookPartial);
+      setPartial(hookPartial);
+    }
+  }, [hookPartial, partial]);
   useEffect(() => {
     if (Array.isArray(hookCommitted) && hookCommitted.length) {
       const texts = hookCommitted.map((c) => (c?.text ?? "").trim()).filter(Boolean);
-      if (texts.length) setCommitted(texts);
+      console.log("Live Hook Sync Committed:", texts);
+      setCommitted(texts);
     }
   }, [hookCommitted]);
 
