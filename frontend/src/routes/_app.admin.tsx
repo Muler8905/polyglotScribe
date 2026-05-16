@@ -5,7 +5,7 @@ import {
   Image as ImageIcon, Users, Settings,
   Search, UserPlus, Mail, Key, User as UserIcon,
   Activity, Database, BarChart3, TrendingUp, DollarSign,
-  Globe, Zap
+  Globe, Zap, Bell
 } from "lucide-react";
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip,
