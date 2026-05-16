@@ -23,6 +23,11 @@ This guide covers the steps required to deploy the Polyglot Scribe application t
     - `GOOGLE_CLIENT_ID`: From Google Cloud Console.
     - `GOOGLE_CLIENT_SECRET`: From Google Cloud Console.
     - `GOOGLE_CALLBACK_URL`: `https://[YOUR_BACKEND_DOMAIN]/api/auth/google/callback`
+    - `EMAIL_HOST`: `smtp.gmail.com`
+    - `EMAIL_PORT`: `587`
+    - `EMAIL_USER`: `your_email@gmail.com`
+    - `EMAIL_PASSWORD`: `your_app_password`
+    - `EMAIL_FROM`: `Polyglot Scribe <your_email@gmail.com>`
 
 ---
 
