@@ -18,6 +18,17 @@ import { useIsAdmin } from "@/lib/use-admin";
 import { Shell } from "@/components/Shell";
 import s from "@/components/Admin.module.css";
 import { apiClient } from "@/lib/api-client";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export const Route = createFileRoute("/_app/admin")({
   beforeLoad: async () => {
@@ -155,7 +166,6 @@ function AdminPage() {
   };
 
   const handleDeleteUser = async (userId: string) => {
-    if (!confirm(t("admin.confirmDeleteUser"))) return;
     const res = await apiClient.delete(`/app/admin/users/${userId}`);
     if (!res.success) return toast.error(res.message || t("admin.failDelete"));
     toast.success(t("admin.userDeleted"));
@@ -368,7 +378,28 @@ function AdminPage() {
                       </td>
                       <td>{new Date(u.createdAt).toLocaleDateString()}</td>
                       <td>
-                        <button className={s.deleteBtn} onClick={() => handleDeleteUser(u.user_id)}><Trash2 size={16} /></button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <button className={s.deleteBtn}><Trash2 size={16} /></button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>{t("admin.confirmDeleteUser")}</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Are you sure you want to delete this user? This action cannot be undone.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction 
+                                onClick={() => handleDeleteUser(u.user_id)}
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                              >
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </td>
                     </tr>
                   ))}
@@ -416,12 +447,31 @@ function AdminPage() {
                       >
                         {h.active ? t("admin.statusActive") : t("admin.statusHidden")}
                       </button>
-                      <button className={s.deleteBtn} onClick={async () => {
-                        if (confirm(t("admin.confirmDeleteUser"))) {
-                          await apiClient.delete(`/app/hero-images/${h.id}`);
-                          loadAll();
-                        }
-                      }}><Trash2 size={16} /></button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <button className={s.deleteBtn}><Trash2 size={16} /></button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>{t("admin.confirmDeleteUser")}</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Are you sure you want to delete this hero image?
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction 
+                                onClick={async () => {
+                                  await apiClient.delete(`/app/hero-images/${h.id}`);
+                                  loadAll();
+                                }}
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                              >
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                     </div>
                   </div>
                 </div>

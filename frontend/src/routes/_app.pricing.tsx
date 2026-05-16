@@ -9,6 +9,17 @@ import { initiateChapaPayment, initiateEbirrPayment, verifyChapaPayment, verifyE
 import s from "@/components/Pricing.module.css";
 import { apiClient } from "@/lib/api-client";
 import { Shell } from "@/components/Shell";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export const Route = createFileRoute("/_app/pricing")({
   head: () => ({ meta: [{ title: "Upgrade — Polyglot Scribe" }] }),
@@ -100,7 +111,6 @@ function PricingPage() {
   };
 
   const handleDeleteHistory = async (id: string) => {
-    if (!confirm(t("pricing.confirmDelete"))) return;
     try {
       await deleteHistory({ data: { id } });
       setHistory(h => h.filter(item => item.id !== id));
@@ -277,16 +287,36 @@ function PricingPage() {
                         </span>
                       </td>
                       <td>
-                        <button 
-                          onClick={() => handleDeleteHistory(h.id)}
-                          style={{ 
-                            background: "none", border: "none", color: "var(--muted-foreground)",
-                            cursor: "pointer", padding: "4px", borderRadius: "4px"
-                          }}
-                          title="Delete record"
-                        >
-                          <Trash2 size={16} />
-                        </button>
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <button 
+                              style={{ 
+                                background: "none", border: "none", color: "var(--muted-foreground)",
+                                cursor: "pointer", padding: "4px", borderRadius: "4px"
+                              }}
+                              title="Delete record"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>{t("pricing.confirmDelete")}</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                This action cannot be undone. This will permanently delete your payment record.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction 
+                                onClick={() => handleDeleteHistory(h.id)}
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                              >
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </td>
                     </tr>
                   ))}

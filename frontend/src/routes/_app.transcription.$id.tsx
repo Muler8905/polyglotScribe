@@ -12,6 +12,17 @@ import {
   synthesizeSpeech,
   translateTranscription,
 } from "@/serverFns/transcription.functions";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export const Route = createFileRoute("/_app/transcription/$id")({
   head: () => ({ meta: [{ title: "Transcription — Polyglot Scribe" }] }),
@@ -69,7 +80,6 @@ function TranscriptionDetail() {
 
   const onDelete = async () => {
     if (!item) return;
-    if (!confirm(t("transcription.confirmDelete"))) return;
     await del({ data: { id: item.id } });
     toast.success(t("transcription.deleted"));
     setRefreshKey((k) => k + 1);
@@ -131,7 +141,28 @@ function TranscriptionDetail() {
             <button className={`${s.btn} ${s.btnPrimary}`} onClick={onTranslate} disabled={translating}>
               {translating ? t("transcription.translating") : t("transcription.translate")}
             </button>
-            <button className={`${s.btn} ${s.btnDanger}`} onClick={onDelete}>{t("transcription.delete")}</button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <button className={`${s.btn} ${s.btnDanger}`}>{t("transcription.delete")}</button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>{t("transcription.confirmDelete")}</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Are you sure you want to delete this transcription? This action cannot be undone.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction 
+                    onClick={onDelete}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
+                    Delete
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
 
           <div className={s.transcriptGrid}>
