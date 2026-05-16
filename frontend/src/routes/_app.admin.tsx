@@ -29,6 +29,12 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 export const Route = createFileRoute("/_app/admin")({
   beforeLoad: async () => {
@@ -216,7 +222,8 @@ function AdminPage() {
 
   return (
     <Shell>
-      <div className={s.container}>
+      <TooltipProvider>
+        <div className={s.container}>
         <header className={s.header}>
           <div className={s.headerInfo}>
             <h1 className={s.title}>{t("admin.title")}</h1>
@@ -355,19 +362,25 @@ function AdminPage() {
                       <td>
                         <div style={{ display: 'flex', gap: '0.25rem' }}>
                           {[
-                            { key: "feature_live", label: "🎙️" },
-                            { key: "feature_file", label: "📁" },
-                            { key: "feature_youtube", label: "▶️" },
-                            { key: "feature_translate", label: "🌍" },
-                            { key: "feature_tts", label: "🔊" }
+                            { key: "feature_live", label: "🎙️", name: "Live Recording" },
+                            { key: "feature_file", label: "📁", name: "File Upload" },
+                            { key: "feature_youtube", label: "▶️", name: "YouTube" },
+                            { key: "feature_translate", label: "🌍", name: "Translation" },
+                            { key: "feature_tts", label: "🔊", name: "Text-to-Speech" }
                           ].map((f) => (
-                            <button
-                              key={f.key}
-                              className={`${s.capBtn} ${u[f.key as keyof UserRow] ? s.capOn : s.capOff}`}
-                              onClick={() => updateToken(u.user_id, { [f.key]: !u[f.key as keyof UserRow] })}
-                            >
-                              {f.label}
-                            </button>
+                            <Tooltip key={f.key}>
+                              <TooltipTrigger asChild>
+                                <button
+                                  className={`${s.capBtn} ${u[f.key as keyof UserRow] ? s.capOn : s.capOff}`}
+                                  onClick={() => updateToken(u.user_id, { [f.key]: !u[f.key as keyof UserRow] })}
+                                >
+                                  {f.label}
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent side="top">
+                                <p>{f.name}</p>
+                              </TooltipContent>
+                            </Tooltip>
                           ))}
                         </div>
                       </td>
@@ -551,6 +564,7 @@ function AdminPage() {
           </div>
         )}
       </div>
+      </TooltipProvider>
     </Shell>
   );
 }
