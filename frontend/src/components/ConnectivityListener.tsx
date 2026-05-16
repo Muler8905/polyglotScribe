@@ -43,25 +43,5 @@ export function ConnectivityListener() {
     };
   }, [isOffline]);
 
-  if (!isOffline) return null;
-
-  return (
-    <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-[9999] animate-in slide-in-from-bottom-4 duration-300">
-      <div className="bg-rose-500 text-white px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-3 border border-rose-400/50 backdrop-blur-md">
-        <div className="bg-white/20 p-2 rounded-full animate-pulse">
-          <WifiOff size={18} />
-        </div>
-        <div className="flex flex-col">
-          <span className="font-bold text-sm leading-none">Connection Lost</span>
-          <span className="text-[11px] opacity-90 mt-1">Please check your internet settings</span>
-        </div>
-        <button 
-          onClick={() => setIsOffline(false)}
-          className="ml-2 hover:bg-white/10 p-1 rounded-lg transition-colors"
-        >
-          <X size={16} />
-        </button>
-      </div>
-    </div>
-  );
+  return null;
 }
