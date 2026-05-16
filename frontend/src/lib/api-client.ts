@@ -81,7 +81,14 @@ class ApiClient {
         credentials: 'include',
       });
 
-      const data = await response.json();
+      const contentType = response.headers.get("content-type");
+      let data;
+      if (contentType && contentType.includes("application/json")) {
+        data = await response.json();
+      } else {
+        const text = await response.text();
+        data = { success: false, message: text || `Error ${response.status}: ${response.statusText}` };
+      }
 
       // Handle 401 - try to refresh token
       if (response.status === 401 && this.refreshToken && endpoint !== '/auth/refresh') {
