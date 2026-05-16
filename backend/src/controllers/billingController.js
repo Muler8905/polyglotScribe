@@ -87,8 +87,13 @@ export const initiatePayment = async (req, res, next) => {
     const [firstName, ...rest] = fullName.split(/\s+/);
     const lastName = rest.join(" ") || "User";
     
-    const backendUrl = process.env.API_BASE_URL || process.env.PUBLIC_APP_URL || `http://localhost:${process.env.PORT || 5000}`;
+    const backendUrl = process.env.API_BASE_URL || process.env.PUBLIC_APP_URL || (req.headers.host ? `${req.protocol}://${req.headers.host}` : null);
     const frontendUrl = process.env.FRONTEND_URL || req.headers.origin || 'http://localhost:8080';
+    
+    if (!backendUrl) {
+      return res.status(500).json({ success: false, message: "Server URL could not be determined. Please set API_BASE_URL." });
+    }
+
     const callbackUrl = `${backendUrl}/api/public/chapa-webhook`;
     const returnUrl = `${frontendUrl}/payment/success?tx_ref=${encodeURIComponent(txRef)}`;
 
