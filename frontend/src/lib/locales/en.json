@@ -260,7 +260,10 @@
     "ytPromptUrl": "Please enter a YouTube URL",
     "ytSuccess": "YouTube video transcribed and saved!",
     "translateSuccess": "Translation complete!",
-    "ytIframeTitle": "YouTube video"
+    "ytIframeTitle": "YouTube video",
+    "autoDetect": "Auto Detect",
+    "waitingForAudio": "Waiting for audio... Ensure your speakers are on so the mic can hear the video.",
+    "ytAudioTip": "💡 Pro tip: Turn up your speakers! The AI listens through your microphone to transcribe the video. If you are on a desktop without a mic, use the upload option below."
   },
   "pricing": {
     "back": "Dashboard",

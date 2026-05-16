@@ -337,3 +337,21 @@ export async function fetchYouTubeTranscript(videoId: string, preferredLang?: st
     languageCode: result.language_code ?? preferredLang ?? "auto",
   };
 }
+
+export async function getYouTubeMetadata(videoId: string) {
+  const player = await getPlayerResponse(videoId);
+  if (!player) return null;
+  const title = player.videoDetails?.title || `YouTube ${videoId}`;
+  const languageCode = player.captions?.playerCaptionsTracklistRenderer?.captionTracks?.[0]?.languageCode;
+  
+  // Map YouTube ISO codes to our internal codes
+  let mappedLang = "eng";
+  if (languageCode) {
+    if (languageCode.startsWith("en")) mappedLang = "eng";
+    else if (languageCode.startsWith("am")) mappedLang = "amh";
+    else if (languageCode.startsWith("om")) mappedLang = "orm";
+    else if (languageCode.startsWith("so")) mappedLang = "som";
+  }
+
+  return { title, languageCode: mappedLang };
+}

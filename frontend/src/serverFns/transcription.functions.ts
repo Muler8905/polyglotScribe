@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireApiAuth } from "@/integrations/api/auth-middleware";
 import { createScribeRealtimeToken, ttsToBase64 } from "@/server/elevenlabs.server";
-import { extractVideoId, fetchYouTubeTranscript } from "@/server/youtube.server";
+import { extractVideoId, fetchYouTubeTranscript, getYouTubeMetadata } from "@/server/youtube.server";
 import { translateText } from "@/server/translate.server";
 import { LANGUAGES } from "@/lib/languages";
 
@@ -176,4 +176,14 @@ export const synthesizeSpeech = createServerFn({ method: "POST" })
     const trimmed = data.text.slice(0, 4500);
     const audioBase64 = await ttsToBase64(trimmed, lang.elevenVoice);
     return { audioBase64 };
+  });
+
+export const getYouTubeInfo = createServerFn({ method: "POST" })
+  .middleware([requireApiAuth])
+  .inputValidator((d: { url: string }) => d)
+  .handler(async ({ data }) => {
+    const id = extractVideoId(data.url);
+    if (!id) throw new Error("Invalid YouTube URL");
+    const meta = await getYouTubeMetadata(id);
+    return { id, title: meta?.title, languageCode: meta?.languageCode };
   });

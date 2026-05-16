@@ -260,7 +260,8 @@
     "ytPromptUrl": "Maaloo URL YouTube galchi",
     "ytSuccess": "Vidiyoon YouTube barreeffamee kuufameera!",
     "translateSuccess": "Hiikkaan xumurameera!",
-    "ytIframeTitle": "Vidiyoo YouTube"
+    "ytIframeTitle": "Vidiyoo YouTube",
+    "autoDetect": "Ofiin Bari"
   },
   "pricing": {
     "back": "Daashboordii",

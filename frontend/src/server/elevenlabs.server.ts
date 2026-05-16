@@ -82,7 +82,7 @@ async function transcribeWithGemini(file: Blob, languageCode: string | undefined
     ? `Please transcribe the following audio exactly as spoken. The audio is in the language with code '${languageCode}'. Output ONLY the transcription, nothing else. Do not include commentary.`
     : `Please transcribe the following audio exactly as spoken in its original language. Output ONLY the transcription, nothing else. Do not include commentary.`;
 
-  const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
+  const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -104,7 +104,9 @@ async function transcribeWithGemini(file: Blob, languageCode: string | undefined
   });
 
   if (!r.ok) {
-    throw new Error(`Gemini Transcription failed: ${r.status} ${await r.text()}`);
+    const errText = await r.text();
+    console.error("Gemini Transcription Error:", errText);
+    throw new Error(`Fallback Transcription (Gemini) failed: ${r.status}. This usually happens when both ElevenLabs and Gemini are out of credits.`);
   }
 
   const j = await r.json();

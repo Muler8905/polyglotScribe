@@ -12,6 +12,7 @@ import {
   translateAdhoc,
   translateTranscription,
   transcribeYouTube,
+  getYouTubeInfo,
 } from "@/serverFns/transcription.functions";
 import { authedFetch } from "@/lib/auth-context";
 
@@ -51,6 +52,16 @@ export function Transcriber({ onSaved, initialTab }: Props) {
 /* Shared transcript + translation viewer                              */
 /* ------------------------------------------------------------------ */
 
+function AudioVisualizer() {
+  return (
+    <div className={s.visualizer}>
+      <div className={s.bar} />
+      <div className={s.bar} />
+      <div className={s.bar} />
+    </div>
+  );
+}
+
 function ResultPanes(props: {
   transcript: string;
   partial?: string;
@@ -61,8 +72,9 @@ function ResultPanes(props: {
   translating: boolean;
   speaking: "src" | "tgt" | null;
   onSpeak: (which: "src" | "tgt") => void;
+  scribeConnected?: boolean;
 }) {
-  const { transcript, partial, translation, sourceLang, targetLang, onTranslate, translating, speaking, onSpeak } = props;
+  const { transcript, partial, translation, sourceLang, targetLang, onTranslate, translating, speaking, onSpeak, scribeConnected } = props;
   const { t } = useTranslation();
 
   const copy = (txt: string) => {
@@ -78,6 +90,13 @@ function ResultPanes(props: {
     URL.revokeObjectURL(url);
   };
 
+  const scrollRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [transcript, partial]);
+
   return (
     <div className={s.transcriptGrid}>
       <div className={s.pane}>
@@ -91,8 +110,9 @@ function ResultPanes(props: {
             </button>
           </div>
         </div>
-        <div className={s.transcriptText}>
-          {!transcript && !partial && <span className={s.empty}>{t("transcriber.transcriptEmpty")}</span>}
+        <div className={s.transcriptText} ref={scrollRef}>
+          {!transcript && !partial && !scribeConnected && <span className={s.empty}>{t("transcriber.transcriptEmpty")}</span>}
+          {!transcript && !partial && scribeConnected && <span className={s.hint}>{t("transcriber.waitingForAudio") || "Waiting for audio... Ensure your speakers are on so the mic can hear the video."}</span>}
           {transcript}
           {partial && <span className={s.partial}>{transcript ? " " : ""}{partial}</span>}
         </div>
@@ -288,6 +308,7 @@ function LivePanel({ onSaved }: Props) {
         <div className={s.field}>
           <label className={s.label}>{t("transcriber.spokenLang")}</label>
           <select className={s.select} value={sourceLang} onChange={(e) => setSourceLang(e.target.value)}>
+            <option value="auto">✨ {t("transcriber.autoDetect") || "Auto Detect"}</option>
             {LANGUAGES.map((l) => (
               <option key={l.code} value={l.code}>{l.label}</option>
             ))}
@@ -317,7 +338,11 @@ function LivePanel({ onSaved }: Props) {
           {saving ? t("transcriber.saving") : t("transcriber.save")}
         </button>
         {scribe.isConnected && (
-          <span className={s.statusLine}><span className={s.recordDot} />{t("transcriber.listening")}</span>
+          <div className={s.statusLine}>
+            <span className={s.recordDot} />
+            {t("transcriber.listening")}
+            <AudioVisualizer />
+          </div>
         )}
       </div>
 
@@ -331,6 +356,7 @@ function LivePanel({ onSaved }: Props) {
         translating={translating}
         speaking={tts.speaking}
         onSpeak={(w) => tts.play(w, w === "src" ? transcript : translation, w === "src" ? sourceLang : targetLang)}
+        scribeConnected={scribe.isConnected}
       />
     </div>
   );
@@ -493,43 +519,123 @@ function YouTubePanel({ onSaved }: Props) {
   const { t } = useTranslation();
   const [url, setUrl] = useState("");
   const [videoId, setVideoId] = useState<string | null>(null);
-  const [sourceLang, setSourceLang] = useState("eng");
+  const [sourceLang, setSourceLang] = useState("auto");
   const [targetLang, setTargetLang] = useState("amh");
-  const [transcript, setTranscript] = useState("");
+  
+  // Real-time state (mirrors LivePanel)
+  const [committed, setCommitted] = useState<string[]>([]);
+  const [partial, setPartial] = useState("");
   const [translation, setTranslation] = useState("");
-  const [transcribing, setTranscribing] = useState(false);
   const [translating, setTranslating] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [connecting, setConnecting] = useState(false);
   const [videoTitle, setVideoTitle] = useState("");
 
+  const transcript = committed.join(" ").trim();
   const tts = useTTS();
-  const transcribeYT = useServerFn(transcribeYouTube);
+  const getToken = useServerFn(getScribeToken);
+  const getInfo = useServerFn(getYouTubeInfo);
   const translateFn = useServerFn(translateAdhoc);
+  const saveFn = useServerFn(saveTranscription);
+  const transcribeYTBatch = useServerFn(transcribeYouTube);
 
-  const transcribe = async () => {
+  const scribe = useScribe({
+    modelId: "scribe_v2_realtime",
+    commitStrategy: CommitStrategy.VAD,
+    languageCode: "eng", // Use a stable default, we'll override in connect()
+    onPartialTranscript: (d: any) => {
+      const t = typeof d === "string" ? d : d?.text ?? d?.transcript ?? "";
+      console.log("YouTube Partial:", t);
+      setPartial(t);
+    },
+    onCommittedTranscript: (d: any) => {
+      const t = (typeof d === "string" ? d : d?.text ?? d?.transcript ?? "").trim();
+      console.log("YouTube Committed:", t);
+      if (t) setCommitted((prev) => [...prev, t]);
+      setPartial("");
+    },
+  });
+
+  // Sync hook state for robustness
+  const hookPartial = (scribe as any).partialTranscript as string | undefined;
+  const hookCommitted = (scribe as any).committedTranscripts as any[] | undefined;
+  useEffect(() => { 
+    if (typeof hookPartial === "string" && hookPartial !== partial) {
+      console.log("YouTube Hook Sync Partial:", hookPartial);
+      setPartial(hookPartial); 
+    }
+  }, [hookPartial, partial]);
+
+  useEffect(() => {
+    if (Array.isArray(hookCommitted) && hookCommitted.length) {
+      const texts = hookCommitted.map((c) => (c?.text ?? "").trim()).filter(Boolean);
+      console.log("YouTube Hook Sync Committed:", texts);
+      setCommitted(texts);
+    }
+  }, [hookCommitted]);
+
+  const start = useCallback(async () => {
     if (!url.trim()) {
       toast.error(t("transcriber.ytPromptUrl"));
       return;
     }
-
     const extractedId = extractYouTubeId(url.trim());
-    setVideoId(extractedId);
-    setTranscribing(true);
-    setTranscript("");
+    if (!extractedId) {
+      toast.error(t("transcriber.invalidYtUrl") || "Invalid YouTube URL");
+      return;
+    }
+
+    setConnecting(true);
+    setCommitted([]);
+    setPartial("");
     setTranslation("");
-    setVideoTitle("");
 
     try {
-      const result = await transcribeYT({ data: { url: url.trim(), preferredLang: sourceLang } });
-      setTranscript(result.text);
-      setVideoTitle(result.title);
-      toast.success(t("transcriber.ytSuccess"));
-      onSaved?.();
+      // 1. Fetch video info to detect language automatically (BEFORE starting video)
+      const info = await getInfo({ data: { url: url.trim() } });
+      if (info.title) setVideoTitle(info.title);
+      
+      let effectiveLang = sourceLang;
+      if (sourceLang === "auto" && info.languageCode) {
+        effectiveLang = info.languageCode;
+        setSourceLang(info.languageCode);
+      } else if (sourceLang === "auto") {
+        effectiveLang = "eng"; // Fallback
+      }
+
+      // 2. Ensure mic access
+      await navigator.mediaDevices.getUserMedia({ audio: true });
+      const { token } = await getToken();
+
+      // 3. Connect scribe
+      await scribe.connect({
+        token,
+        languageCode: effectiveLang,
+        sampleRate: 16000,
+        microphone: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+          channelCount: 1,
+        },
+      });
+
+      // 4. ONLY NOW start the video playback to ensure we don't miss the beginning
+      setVideoId(extractedId);
+      toast.success(t("transcriber.listeningIn", { lang: labelOf(effectiveLang) }));
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : t("transcriber.failTranscribe"));
+      toast.error(e instanceof Error ? e.message : t("transcriber.failStart"));
     } finally {
-      setTranscribing(false);
+      setConnecting(false);
     }
-  };
+  }, [url, getToken, getInfo, scribe, sourceLang, t]);
+
+  const stop = useCallback(async () => {
+    await scribe.disconnect();
+    setVideoId(null); // Optional: stop video when transcription stops
+    toast.info(t("transcriber.recStopped"));
+  }, [scribe, t]);
+
 
   const translate = async () => {
     if (!transcript) return;
@@ -543,6 +649,36 @@ function YouTubePanel({ onSaved }: Props) {
     } finally {
       setTranslating(false);
     }
+  };
+
+  const save = async () => {
+    if (!transcript) return;
+    setSaving(true);
+    try {
+      await saveFn({
+        data: {
+          type: "youtube",
+          title: videoTitle || t("transcriber.youtubeTitle"),
+          transcript,
+          sourceLang,
+          targetLang: translation ? targetLang : undefined,
+          translation: translation || undefined,
+          sourceUrl: `https://youtu.be/${videoId}`,
+        },
+      });
+      toast.success(t("transcriber.savedToHistory"));
+      onSaved?.();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : t("transcriber.saveFailed"));
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const clear = () => {
+    setCommitted([]);
+    setPartial("");
+    setTranslation("");
   };
 
   return (
@@ -566,6 +702,7 @@ function YouTubePanel({ onSaved }: Props) {
         <div className={s.field}>
           <label className={s.label}>{t("transcriber.spokenLang")}</label>
           <select className={s.select} value={sourceLang} onChange={(e) => setSourceLang(e.target.value)}>
+            <option value="auto">✨ {t("transcriber.autoDetect") || "Auto Detect"}</option>
             {LANGUAGES.map((l) => (<option key={l.code} value={l.code}>{l.label}</option>))}
           </select>
         </div>
@@ -578,16 +715,33 @@ function YouTubePanel({ onSaved }: Props) {
       </div>
 
       <div className={s.actions}>
-        <button className={`${s.btn} ${s.btnPrimary}`} onClick={transcribe} disabled={!url.trim() || transcribing}>
-          {transcribing ? t("transcriber.transcribing") : t("transcriber.transcribe")}
+        {!scribe.isConnected ? (
+          <button className={`${s.btn} ${s.btnPrimary}`} onClick={start} disabled={connecting}>
+            {connecting ? t("transcriber.connecting") : t("transcriber.start")}
+          </button>
+        ) : (
+          <button className={`${s.btn} ${s.btnDanger}`} onClick={stop}>
+            {t("transcriber.stop")}
+          </button>
+        )}
+        <button className={s.btn} onClick={clear} disabled={!transcript && !partial}>{t("transcriber.clear")}</button>
+        <button className={s.btn} onClick={save} disabled={!transcript || saving}>
+          {saving ? t("transcriber.saving") : t("transcriber.save")}
         </button>
+        {scribe.isConnected && (
+          <div className={s.statusLine}>
+            <span className={s.recordDot} />
+            {t("transcriber.listening")}
+            <AudioVisualizer />
+          </div>
+        )}
       </div>
 
       {videoId && (
         <div className={s.videoCard}>
           <div className={s.videoFrame}>
             <iframe
-              src={`https://www.youtube.com/embed/${videoId}?autoplay=0&rel=0`}
+              src={`https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`}
               title={t("transcriber.ytIframeTitle")}
               frameBorder={0}
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -602,16 +756,9 @@ function YouTubePanel({ onSaved }: Props) {
         </div>
       )}
 
-      {/* Fallback: upload a downloaded video file */}
-      <YouTubeFileFallback
-        sourceLang={sourceLang}
-        targetLang={targetLang}
-        onTranscribed={(text) => { setTranscript(text); setTranslation(""); }}
-        onSaved={onSaved}
-      />
-
       <ResultPanes
         transcript={transcript}
+        partial={partial}
         translation={translation}
         sourceLang={sourceLang}
         targetLang={targetLang}
@@ -619,10 +766,26 @@ function YouTubePanel({ onSaved }: Props) {
         translating={translating}
         speaking={tts.speaking}
         onSpeak={(w) => tts.play(w, w === "src" ? transcript : translation, w === "src" ? sourceLang : targetLang)}
+        scribeConnected={scribe.isConnected}
+      />
+
+      {scribe.isConnected && !transcript && !partial && (
+        <div className={s.ytHint} style={{ marginTop: '1rem', color: 'var(--primary)' }}>
+          {t("transcriber.ytAudioTip") || "💡 Pro tip: Turn up your speakers! The AI listens through your microphone to transcribe the video."}
+        </div>
+      )}
+
+      {/* Fallback Section is still available for offline/batch processing if needed */}
+      <YouTubeFileFallback
+        sourceLang={sourceLang}
+        targetLang={targetLang}
+        onTranscribed={(text) => { setCommitted([text]); setPartial(""); setTranslation(""); }}
+        onSaved={onSaved}
       />
     </div>
   );
 }
+
 
 /* ------------------------------------------------------------------ */
 /* YouTube File Fallback                                                */

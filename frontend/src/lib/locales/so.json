@@ -258,9 +258,10 @@
     "saveFailed": "Kaydintu way fashilantay",
     "failTranscribe": "Qoraalku wuu fashilmay",
     "ytPromptUrl": "Fadlan geli URL YouTube",
-    "ytSuccess": "Fiidiyowga YouTube waa la qoray oo la kaydiyay!",
-    "translateSuccess": "Turjumaaddu way dhammaatay!",
-    "ytIframeTitle": "Fiidiyowga YouTube"
+    "ytSuccess": "Fiidiyowga YouTube waa la qoray waana la keydiyay!",
+    "translateSuccess": "Turjumaadii waa dhammaatay!",
+    "ytIframeTitle": "Fiidiyowga YouTube",
+    "autoDetect": "Si toos ah u ogow"
   },
   "pricing": {
     "back": "Daashboor",
