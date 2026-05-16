@@ -2,9 +2,21 @@ import { langLabel } from "@/lib/languages";
 
 export async function translateText(text: string, targetLangCode: string, sourceLangCode?: string) {
   // Support multiple translation providers
+  const anthropicKey = process.env.ANTHROPIC_API_KEY;
   const geminiKey = process.env.GOOGLE_GEMINI_API_KEY;
   const openaiKey = process.env.OPENAI_API_KEY;
   
+  // Prioritize Anthropic if key is present (best quality for these languages)
+  if (anthropicKey) {
+    try {
+      return await translateWithAnthropic(text, targetLangCode, sourceLangCode, anthropicKey);
+    } catch (error: any) {
+      console.error("Anthropic translation failed:", error.message);
+      // Fallback to Gemini if Anthropic fails
+      if (geminiKey) return await translateWithGemini(text, targetLangCode, sourceLangCode, geminiKey);
+    }
+  }
+
   if (geminiKey) {
     try {
       return await translateWithGemini(text, targetLangCode, sourceLangCode, geminiKey);
@@ -18,8 +30,54 @@ export async function translateText(text: string, targetLangCode: string, source
   } else if (openaiKey) {
     return await translateWithOpenAI(text, targetLangCode, sourceLangCode, openaiKey);
   } else {
-    throw new Error("Translation API key not configured. Please set GOOGLE_GEMINI_API_KEY or OPENAI_API_KEY in your .env file");
+    throw new Error("Translation API key not configured. Please set ANTHROPIC_API_KEY, GOOGLE_GEMINI_API_KEY, or OPENAI_API_KEY in your .env file");
   }
+}
+
+async function translateWithAnthropic(text: string, targetLangCode: string, sourceLangCode: string | undefined, apiKey: string) {
+  const target = langLabel(targetLangCode);
+  const source = sourceLangCode ? langLabel(sourceLangCode) : "the auto-detected source language";
+
+  const sys = [
+    `You are an expert professional translator specializing in English, Amharic (አማርኛ), Afaan Oromo, and Somali.`,
+    `Translate the user's text from ${source} into ${target}.`,
+    ``,
+    `STRICT RULES:`,
+    `1. Preserve the EXACT meaning, intent, nuance, tone, register, and emotion of the original.`,
+    `2. Use natural, idiomatic ${target} as a fluent native speaker would write it — never word-for-word.`,
+    `3. Keep proper nouns, brand names, code, numbers, URLs, emails, hashtags and @mentions unchanged.`,
+    `4. Preserve punctuation, line breaks, lists and formatting exactly.`,
+    `5. For Amharic output, use proper Ethiopic script (Fidel) with correct spelling and grammar.`,
+    `6. For Afaan Oromo output, use the Qubee Latin alphabet with correct gemination and vowel length.`,
+    `7. For Somali output, use standard Somali Latin orthography with correct doubled vowels and consonants.`,
+    `8. If the source already matches the target language, return it unchanged.`,
+    `9. Do NOT add explanations, transliterations, alternatives, quotes, or commentary.`,
+    `10. Output ONLY the translated text — nothing else.`,
+  ].join("\n");
+
+  const r = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: {
+      "x-api-key": apiKey,
+      "anthropic-version": "2023-06-01",
+      "content-type": "application/json",
+    },
+    body: JSON.stringify({
+      model: "claude-3-5-sonnet-20240620",
+      max_tokens: 4096,
+      temperature: 0,
+      system: sys,
+      messages: [{ role: "user", content: text }],
+    }),
+  });
+
+  if (!r.ok) {
+    const errorText = await r.text();
+    throw new Error(`Anthropic translation failed: ${r.status} ${errorText}`);
+  }
+
+  const j = await r.json();
+  return (j.content?.[0]?.text ?? "").trim();
 }
 
 async function translateWithGemini(text: string, targetLangCode: string, sourceLangCode: string | undefined, apiKey: string) {
