@@ -99,12 +99,13 @@ function Landing() {
           <a href="#how" className={s.navLink}>{t("nav.how")}</a>
           <a href="#cases" className={s.navLink}>{t("nav.cases")}</a>
           <ThemeToggle />
-          <LanguageSwitcher />
+          <div className={s.desktopLanguageWrapper}>
+            <LanguageSwitcher />
+          </div>
           <Link to="/auth" className={`${s.linkBtn} ${s.linkGhost}`}>{t("nav.signin")}</Link>
           <Link to="/auth" className={`${s.linkBtn} ${s.linkPrimary}`}>{t("nav.getStarted")}</Link>
         </nav>
         <div className={s.navMobileTools}>
-          <LanguageSwitcher compact />
           <ThemeToggle />
           <button
             className={s.menuBtn}
@@ -125,6 +126,9 @@ function Landing() {
         <Link to="/docs" onClick={() => setMenuOpen(false)}>{t("nav.documentation")}</Link>
         <Link to="/support" onClick={() => setMenuOpen(false)}>{t("nav.support")}</Link>
         <Link to="/privacy" onClick={() => setMenuOpen(false)}>{t("nav.privacy")}</Link>
+        <div style={{ padding: "0.7rem 0.85rem" }}>
+          <LanguageSwitcher />
+        </div>
         <Link to="/auth" onClick={() => setMenuOpen(false)} className={`${s.linkBtn} ${s.linkPrimary}`} style={{ textAlign: "center", marginTop: "0.5rem" }}>{t("nav.getStarted")}</Link>
       </div>
 

@@ -40,8 +40,12 @@ const corsOptions = {
     if (allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
-      console.warn(`CORS blocked origin: ${origin}`);
-      callback(null, true); // Allow anyway in development
+      if (process.env.NODE_ENV === 'production') {
+        console.warn(`CORS blocked origin: ${origin}`);
+        callback(new Error('Not allowed by CORS'));
+      } else {
+        callback(null, true); // Allow anyway in development
+      }
     }
   },
   credentials: true,
@@ -107,22 +111,9 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Debug route to test request body parsing
-app.post('/api/debug', (req, res) => {
-  console.log('Debug - Headers:', req.headers);
-  console.log('Debug - Body:', req.body);
-  res.json({
-    success: true,
-    receivedBody: req.body,
-    bodyType: typeof req.body,
-    headers: req.headers
-  });
-});
-
 // API routes
 app.use('/api/auth', authRoutes);
 app.use('/api/app', appRoutes);
-app.use("/api/app", appRoutes);
 app.use("/api/transcriptions", transcriptionRoutes);
 app.use("/api/billing", billingRoutes);
 app.use("/api/public", webhookRoutes);
