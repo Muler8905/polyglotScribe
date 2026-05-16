@@ -8,7 +8,7 @@ import {
   Globe, Zap
 } from "lucide-react";
 import {
-  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
+  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip,
   ResponsiveContainer, BarChart, Bar, Cell
 } from 'recharts';
 import { toast } from "sonner";
@@ -278,7 +278,7 @@ function AdminPage() {
                       <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
                       <XAxis dataKey="date" stroke="rgba(255,255,255,0.3)" fontSize={12} tickFormatter={(val) => val.split('-').slice(1).join('/')} />
                       <YAxis stroke="rgba(255,255,255,0.3)" fontSize={12} />
-                      <Tooltip
+                      <RechartsTooltip
                         contentStyle={{ background: '#1a1a1a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }}
                         itemStyle={{ color: '#f59e0b' }}
                       />
@@ -295,7 +295,7 @@ function AdminPage() {
                     <BarChart data={stats.analytics}>
                       <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
                       <XAxis dataKey="date" hide />
-                      <Tooltip
+                      <RechartsTooltip
                         contentStyle={{ background: '#1a1a1a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }}
                         cursor={{ fill: 'rgba(255,255,255,0.05)' }}
                       />
