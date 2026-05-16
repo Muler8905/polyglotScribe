@@ -50,7 +50,17 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 // Security middleware
-app.use(helmet());
+app.use(
+  helmet({
+    crossOriginOpenerPolicy: { policy: "unsafe-none" },
+  })
+);
+
+// Explicitly set COOP header for all responses to prevent Google Auth issues
+app.use((req, res, next) => {
+  res.setHeader("Cross-Origin-Opener-Policy", "unsafe-none");
+  next();
+});
 
 // Rate limiting
 const limiter = rateLimit({

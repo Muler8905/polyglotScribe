@@ -8,6 +8,16 @@ import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
 export default defineConfig({
   vite: {
+    server: {
+      headers: {
+        "Cross-Origin-Opener-Policy": "unsafe-none",
+      },
+    },
+    preview: {
+      headers: {
+        "Cross-Origin-Opener-Policy": "unsafe-none",
+      },
+    },
     build: {
       chunkSizeWarningLimit: 1000,
       rollupOptions: {

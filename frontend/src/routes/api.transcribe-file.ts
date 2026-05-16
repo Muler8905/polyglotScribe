@@ -25,6 +25,7 @@ export const Route = createFileRoute("/api/transcribe-file")({
 
         try {
           const result = await transcribeFile(file, lang);
+          
           const saveRes = await fetch(`${API_URL}/transcriptions`, {
             method: "POST",
             headers: {
@@ -38,7 +39,9 @@ export const Route = createFileRoute("/api/transcribe-file")({
               transcript: result.text,
             }),
           });
+          
           const saveJson = await saveRes.json();
+          
           if (!saveRes.ok || !saveJson?.success) throw new Error(saveJson?.message || "Failed to save");
 
           return Response.json({

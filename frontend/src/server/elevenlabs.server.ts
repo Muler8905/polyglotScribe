@@ -1,7 +1,10 @@
 // Server-only ElevenLabs helpers
 function key() {
   const k = process.env.ELEVENLABS_API_KEY;
-  if (!k) throw new Error("ELEVENLABS_API_KEY is not configured");
+  if (!k) {
+    console.error("[ElevenLabs] ELEVENLABS_API_KEY is MISSING in process.env");
+    throw new Error("ELEVENLABS_API_KEY is not configured");
+  }
   return k;
 }
 
@@ -37,6 +40,7 @@ export async function transcribeFile(file: Blob, languageCode?: string): Promise
     
     if (!r.ok) {
       const errorText = await r.text();
+      console.error("[ElevenLabs] API Error:", r.status, errorText);
       if (r.status === 401 || r.status === 429 || errorText.includes("Unusual activity detected") || errorText.includes("Free Tier")) {
         throw new Error(`ELEVENLABS_RATE_LIMIT: ${errorText}`);
       }
@@ -82,7 +86,8 @@ async function transcribeWithGemini(file: Blob, languageCode: string | undefined
     ? `Please transcribe the following audio exactly as spoken. The audio is in the language with code '${languageCode}'. Output ONLY the transcription, nothing else. Do not include commentary.`
     : `Please transcribe the following audio exactly as spoken in its original language. Output ONLY the transcription, nothing else. Do not include commentary.`;
 
-  const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
+  const trimmedKey = apiKey.trim();
+  const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${trimmedKey}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
