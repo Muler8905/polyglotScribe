@@ -74,7 +74,7 @@ function AdminPage() {
   const { isAdmin, loading } = useIsAdmin();
   const { user: currentUser } = useAuth();
   const { t } = useTranslation();
-  const [tab, setTab] = useState<"analytics" | "users" | "hero" | "system">("analytics");
+  const [tab, setTab] = useState<"analytics" | "users" | "hero" | "system" | "notifications">("analytics");
   const [users, setUsers] = useState<UserRow[]>([]);
   const [hero, setHero] = useState<HeroImage[]>([]);
   const [stats, setStats] = useState<any>(null);
@@ -85,6 +85,15 @@ function AdminPage() {
   const [newUser, setNewUser] = useState({ email: "", password: "", displayName: "", credits: 100 });
   const [systemSettings, setSystemSettings] = useState({ defaultUserCredits: 10 });
   const [savingSettings, setSavingSettings] = useState(false);
+  const [notifForm, setNotifForm] = useState({
+    targetType: "all",
+    userId: "",
+    userEmail: "",
+    title: "",
+    message: "",
+    deliveryMethod: "system" as "system" | "email" | "both"
+  });
+  const [sendingNotif, setSendingNotif] = useState(false);
 
 
   const loadAll = async () => {
@@ -214,6 +223,39 @@ function AdminPage() {
     }
   };
 
+  const handleSendNotification = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!notifForm.title || !notifForm.message) {
+      return toast.error("Title and message are required");
+    }
+    
+    setSendingNotif(true);
+    try {
+      const payload = { ...notifForm };
+      if (notifForm.targetType === 'single') {
+        const target = users.find(u => u.email === notifForm.userEmail);
+        if (!target) {
+          toast.error("Target user not found");
+          setSendingNotif(false);
+          return;
+        }
+        payload.userId = target.user_id;
+      }
+
+      const res = await apiClient.post("/app/admin/notifications/send", payload);
+      if (res.success) {
+        toast.success("Notification sent successfully");
+        setNotifForm({ ...notifForm, title: "", message: "" });
+      } else {
+        toast.error(res.message || "Failed to send notification");
+      }
+    } catch (err: any) {
+      toast.error(err.message || "An error occurred");
+    } finally {
+      setSendingNotif(false);
+    }
+  };
+
 
   const filteredUsers = users.filter(u =>
     u.email?.toLowerCase().includes(search.toLowerCase()) ||
@@ -232,6 +274,7 @@ function AdminPage() {
           <div className={s.tabs}>
             <button className={`${s.tab} ${tab === "analytics" ? s.tabActive : ""}`} onClick={() => setTab("analytics")}><BarChart3 size={18} /> Analytics</button>
             <button className={`${s.tab} ${tab === "users" ? s.tabActive : ""}`} onClick={() => setTab("users")}><Users size={18} /> {t("admin.tabUsers")}</button>
+            <button className={`${s.tab} ${tab === "notifications" ? s.tabActive : ""}`} onClick={() => setTab("notifications")}><Bell size={18} /> Notifications</button>
             <button className={`${s.tab} ${tab === "hero" ? s.tabActive : ""}`} onClick={() => setTab("hero")}><ImageIcon size={18} /> {t("admin.tabHero")}</button>
             <button className={`${s.tab} ${tab === "system" ? s.tabActive : ""}`} onClick={() => setTab("system")}><Settings size={18} /> {t("admin.tabSystem")}</button>
           </div>
@@ -544,6 +587,115 @@ function AdminPage() {
               </div>
             </div>
 
+          </div>
+        )}
+
+        {tab === "notifications" && (
+          <div className={s.mainGrid}>
+            <div className={s.glassCard}>
+              <h2 className={s.sectionTitle} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <Bell className="text-primary" /> Send New Notification
+              </h2>
+              <p className={s.subtitle} style={{ marginTop: '0.5rem' }}>Broadcast messages to users via the app or email.</p>
+              
+              <form onSubmit={handleSendNotification} style={{ marginTop: '2rem', display: 'grid', gap: '1.5rem' }}>
+                <div className={s.fieldGroup}>
+                  <label className={s.fieldLabel}>Target Audience</label>
+                  <div style={{ display: 'flex', gap: '1rem' }}>
+                    <button 
+                      type="button"
+                      className={`${s.statusBtn} ${notifForm.targetType === 'all' ? s.statusActive : ''}`}
+                      onClick={() => setNotifForm({ ...notifForm, targetType: 'all' })}
+                    >
+                      All Users
+                    </button>
+                    <button 
+                      type="button"
+                      className={`${s.statusBtn} ${notifForm.targetType === 'single' ? s.statusActive : ''}`}
+                      onClick={() => setNotifForm({ ...notifForm, targetType: 'single' })}
+                    >
+                      Specific User
+                    </button>
+                  </div>
+                </div>
+
+                {notifForm.targetType === 'single' && (
+                  <div className={s.fieldGroup}>
+                    <label className={s.fieldLabel}>User Email</label>
+                    <div className={s.inputWrap}>
+                      <Mail size={16} />
+                      <input 
+                        type="email" 
+                        placeholder="user@example.com"
+                        value={notifForm.userEmail}
+                        onChange={(e) => setNotifForm({ ...notifForm, userEmail: e.target.value })}
+                        required
+                      />
+                    </div>
+                  </div>
+                )}
+
+                <div className={s.fieldGroup}>
+                  <label className={s.fieldLabel}>Delivery Method</label>
+                  <select 
+                    className={s.captionInput} 
+                    style={{ background: 'rgba(255,255,255,0.05)', height: '40px', color: 'white' }}
+                    value={notifForm.deliveryMethod}
+                    onChange={(e) => setNotifForm({ ...notifForm, deliveryMethod: e.target.value as any })}
+                  >
+                    <option value="system" style={{ background: '#1a1a1a' }}>System (In-App Only)</option>
+                    <option value="email" style={{ background: '#1a1a1a' }}>Email Only</option>
+                    <option value="both" style={{ background: '#1a1a1a' }}>Both (System + Email)</option>
+                  </select>
+                </div>
+
+                <div className={s.fieldGroup}>
+                  <label className={s.fieldLabel}>Notification Title</label>
+                  <input 
+                    className={s.captionInput} 
+                    style={{ background: 'rgba(255,255,255,0.05)', fontSize: '1rem', fontWeight: 600 }}
+                    placeholder="e.g. System Update"
+                    value={notifForm.title}
+                    onChange={(e) => setNotifForm({ ...notifForm, title: e.target.value })}
+                  />
+                </div>
+
+                <div className={s.fieldGroup}>
+                  <label className={s.fieldLabel}>Message Content</label>
+                  <textarea 
+                    className={s.captionInput} 
+                    style={{ background: 'rgba(255,255,255,0.05)', minHeight: '120px' }}
+                    placeholder="Type your message here..."
+                    value={notifForm.message}
+                    onChange={(e) => setNotifForm({ ...notifForm, message: e.target.value })}
+                  />
+                </div>
+
+                <button 
+                  className={s.primaryBtn} 
+                  type="submit" 
+                  disabled={sendingNotif}
+                >
+                  {sendingNotif ? "Sending..." : "Send Notification Now"}
+                </button>
+              </form>
+            </div>
+
+            <div className={s.glassCard}>
+              <h3 className={s.sectionTitle}>Recent Deliveries</h3>
+              <div style={{ marginTop: '1.5rem', display: 'grid', gap: '1rem' }}>
+                <div className={s.userCell} style={{ padding: '1rem', background: 'rgba(255,255,255,0.02)', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                  <div className={s.avatar} style={{ background: 'var(--brand-primary)' }}>📢</div>
+                  <div>
+                    <div className={s.userName}>System Welcome</div>
+                    <div className={s.userEmail}>Automated for new users</div>
+                  </div>
+                </div>
+                <p className="text-[11px] text-muted-foreground italic mt-4">
+                  Manual notification logs will appear here after your first broadcast.
+                </p>
+              </div>
+            </div>
           </div>
         )}
 

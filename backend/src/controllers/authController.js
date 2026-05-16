@@ -8,6 +8,7 @@ import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from ".
 import { sendOTPEmail, sendPasswordResetEmail } from "../config/email.js";
 import crypto from "crypto";
 import { OAuth2Client } from "google-auth-library";
+import { createNotification } from "../utils/notifications.js";
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -104,6 +105,15 @@ export const verifyOTP = async (req, res, next) => {
       expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
     });
     await user.save();
+
+    // Welcome Notification
+    await createNotification({
+      userId: user._id,
+      title: "Welcome to Polyglot Scribe! 🎉",
+      message: "We're excited to have you here. Start by transcribing your first audio or video now!",
+      type: "success",
+      link: "/dashboard"
+    });
 
     res.cookie('token', accessToken, {
       httpOnly: true,
@@ -339,6 +349,15 @@ export const googleSignIn = async (req, res, next) => {
       await Profile.create({ userId: user._id, displayName, avatarUrl });
       await UserToken.create({ userId: user._id });
       await UserRole.create({ userId: user._id, role: "user" });
+
+      // Welcome Notification for new Google user
+      await createNotification({
+        userId: user._id,
+        title: "Welcome to Polyglot Scribe! 🎉",
+        message: "Your Google account is linked. Enjoy seamless transcription and translation!",
+        type: "success",
+        link: "/dashboard"
+      });
     }
 
     user.lastLogin = new Date();

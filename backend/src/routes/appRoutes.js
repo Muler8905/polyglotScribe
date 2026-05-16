@@ -10,6 +10,7 @@ import {
   getAdminStats,
   getSystemSettings,
   updateSystemSettings,
+  sendManualNotification,
 } from '../controllers/adminController.js';
 
 import {
@@ -61,6 +62,7 @@ router.delete('/admin/users/:userId/transcriptions', protect, requireAdmin, dele
 router.get('/admin/stats', protect, requireAdmin, getAdminStats);
 router.get('/admin/settings', protect, requireAdmin, getSystemSettings);
 router.patch('/admin/settings', protect, requireAdmin, updateSystemSettings);
+router.post('/admin/notifications/send', protect, requireAdmin, sendManualNotification);
 
 
 

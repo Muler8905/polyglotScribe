@@ -12,6 +12,7 @@ import { useAuth } from "@/lib/auth-context";
 import { useIsAdmin } from "@/lib/use-admin";
 import { listTranscriptions } from "@/serverFns/transcription.functions";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { NotificationBell } from "@/components/NotificationBell";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -59,51 +60,10 @@ export function Shell({
   const nav = useNavigate();
   const location = useLocation();
   const [items, setItems] = useState<HistoryItem[]>([]);
-  const [notifications, setNotifications] = useState<any[]>([]);
-  const [unreadCount, setUnreadCount] = useState(0);
   const list = useServerFn(listTranscriptions);
 
   const [open, setOpen] = useState(false);
   const [showSignOutDialog, setShowSignOutDialog] = useState(false);
-
-  useEffect(() => {
-    const fetchNotifications = async () => {
-      try {
-        const res = await apiClient.getNotifications();
-        if (res.success) {
-          setNotifications(res.data.notifications);
-          setUnreadCount(res.data.unreadCount);
-        }
-      } catch (err) {
-        console.error("Failed to fetch notifications", err);
-      }
-    };
-
-    fetchNotifications();
-    // Poll for notifications every 30 seconds
-    const interval = setInterval(fetchNotifications, 30000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const handleMarkAllRead = async () => {
-    try {
-      await apiClient.markAllNotificationsAsRead();
-      setNotifications(prev => prev.map(n => ({ ...n, read: true })));
-      setUnreadCount(0);
-    } catch (err) {
-      toast.error("Failed to mark notifications as read");
-    }
-  };
-
-  const handleMarkRead = async (id: string) => {
-    try {
-      await apiClient.markNotificationAsRead(id);
-      setNotifications(prev => prev.map(n => n._id === id ? { ...n, read: true } : n));
-      setUnreadCount(prev => Math.max(0, prev - 1));
-    } catch (err) {
-      console.error(err);
-    }
-  };
 
   const handleSignOut = async () => {
     setShowSignOutDialog(true);
@@ -204,63 +164,7 @@ export function Shell({
 
           {/* Right zone — notification + language + profile */}
           <div className={s.topActions}>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button className={s.notificationBtn} aria-label="Notifications">
-                  <Bell size={20} />
-                  {unreadCount > 0 && <div className={s.notificationDot} />}
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-80 p-0 overflow-hidden">
-                <div className="p-4 flex items-center justify-between border-bottom bg-muted/50">
-                  <h3 className="font-semibold text-sm">{t("notifications.title")}</h3>
-                  {unreadCount > 0 && (
-                    <button 
-                      onClick={handleMarkAllRead}
-                      className="text-xs text-primary hover:underline font-medium"
-                    >
-                      {t("notifications.markAllRead")}
-                    </button>
-                  )}
-                </div>
-                <DropdownMenuSeparator className="m-0" />
-                <div className="max-h-[400px] overflow-y-auto">
-                  {notifications.length > 0 ? (
-                    notifications.map((n) => (
-                      <div 
-                        key={n._id} 
-                        className={`p-4 border-b last:border-0 hover:bg-muted/30 transition-colors cursor-pointer relative ${!n.read ? 'bg-primary/5' : ''}`}
-                        onClick={() => handleMarkRead(n._id)}
-                      >
-                        {!n.read && <div className="absolute left-2 top-1/2 -translate-y-1/2 w-1.5 h-1.5 bg-primary rounded-full" />}
-                        <div className="ml-2">
-                          <div className="text-sm font-semibold flex items-center justify-between">
-                            <span>{n.title}</span>
-                            <span className="text-[10px] font-normal text-muted-foreground">
-                              {formatDistanceToNow(new Date(n.createdAt), { addSuffix: true })}
-                            </span>
-                          </div>
-                          <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{n.message}</p>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="p-8 text-center text-muted-foreground">
-                      <Bell size={32} className="mx-auto mb-2 opacity-20" />
-                      <p className="text-sm">{t("notifications.empty")}</p>
-                    </div>
-                  )}
-                </div>
-                {notifications.length > 0 && (
-                  <>
-                    <DropdownMenuSeparator className="m-0" />
-                    <Link to="/settings" className="block p-3 text-center text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">
-                      {t("notifications.viewAll")}
-                    </Link>
-                  </>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <NotificationBell />
 
             {!isAdminView && (
               <div className={s.desktopLanguageSwitcher}>

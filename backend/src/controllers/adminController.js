@@ -5,6 +5,7 @@ import UserToken from '../models/UserToken.js';
 import Transcription from '../models/Transcription.js';
 import SubscriptionPayment from '../models/SubscriptionPayment.js';
 import SystemSetting from '../models/SystemSetting.js';
+import { sendUserNotification, createNotification } from '../utils/notifications.js';
 
 
 // @desc    Get all users with their details
@@ -340,6 +341,39 @@ export const updateSystemSettings = async (req, res, next) => {
     next(error);
   }
 };
+// @desc    Send notification to users (Admin only)
+// @route   POST /api/app/admin/notifications/send
+// @access  Private (Admin only)
+export const sendManualNotification = async (req, res, next) => {
+  try {
+    const { targetType, userId, title, message, deliveryMethod } = req.body;
+
+    if (targetType === 'single') {
+      if (!userId) return res.status(400).json({ success: false, message: 'User ID is required for single target' });
+      const result = await sendUserNotification({ userId, title, message, deliveryMethod });
+      return res.json(result);
+    } else if (targetType === 'all') {
+      const users = await User.find({}).select('_id email displayName');
+      
+      // Batch processing for notifications
+      for (const user of users) {
+        if (deliveryMethod === 'system' || deliveryMethod === 'both') {
+          await createNotification({ userId: user._id, title, message });
+        }
+        if (deliveryMethod === 'email' || deliveryMethod === 'both') {
+          // Use the utility which handles the email logic
+          await sendUserNotification({ userId: user._id, title, message, deliveryMethod: 'email' });
+        }
+      }
+      
+      return res.json({ success: true, message: `Notification sent to ${users.length} users` });
+    }
+
+    res.status(400).json({ success: false, message: 'Invalid target type' });
+  } catch (error) {
+    next(error);
+  }
+};
 
 export default {
   getAllUsers,
@@ -351,4 +385,5 @@ export default {
   getAdminStats,
   getSystemSettings,
   updateSystemSettings,
+  sendManualNotification,
 };

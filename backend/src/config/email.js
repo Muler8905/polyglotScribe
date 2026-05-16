@@ -127,4 +127,45 @@ export const sendPasswordResetEmail = async (email, resetToken, displayName) => 
   return await sendEmail({ to: email, subject, html });
 };
 
-export default { sendEmail, sendOTPEmail, sendPasswordResetEmail };
+// Send general notification email
+export const sendGeneralEmail = async (email, title, message, displayName) => {
+  const subject = title || 'Notification from Polyglot Scribe';
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #1f2937; margin: 0; padding: 0; }
+        .container { max-width: 600px; margin: 20px auto; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; }
+        .header { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; padding: 40px 20px; text-align: center; }
+        .content { padding: 40px 30px; background: white; }
+        .footer { background: #f9fafb; padding: 20px; text-align: center; color: #6b7280; font-size: 14px; }
+        h1 { margin: 0; font-size: 24px; font-weight: 700; }
+        p { margin-bottom: 16px; font-size: 16px; color: #4b5563; }
+        .message-box { background: #f3f4f6; border-left: 4px solid #3b82f6; padding: 20px; border-radius: 4px; margin: 20px 0; font-size: 16px; font-style: italic; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>${title}</h1>
+        </div>
+        <div class="content">
+          <p>Hi ${displayName || 'there'},</p>
+          <div class="message-box">
+            ${message}
+          </div>
+          <p>If you have any questions, feel free to reply to this email.</p>
+        </div>
+        <div class="footer">
+          <p>© ${new Date().getFullYear()} Polyglot Scribe. All rights reserved.</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+
+  return await sendEmail({ to: email, subject, html });
+};
+
+export default { sendEmail, sendOTPEmail, sendPasswordResetEmail, sendGeneralEmail };
