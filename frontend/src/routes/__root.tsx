@@ -4,6 +4,7 @@ import { ThemeProvider } from "@/lib/theme-context";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { Toaster } from "sonner";
 import "@/lib/i18n";
+import { ConnectivityListener } from "@/components/ConnectivityListener";
 
 import appCss from "../styles.css?url";
 
@@ -90,6 +91,7 @@ function RootComponent() {
       <GoogleOAuthProvider clientId={googleClientId}>
         <AuthProvider>
           <Outlet />
+          <ConnectivityListener />
           <Toaster richColors position="top-right" />
         </AuthProvider>
       </GoogleOAuthProvider>

@@ -12,10 +12,15 @@ class ApiClient {
   private baseURL: string;
   private token: string | null = null;
   private refreshToken: string | null = null;
+  private onNetworkError?: () => void;
 
   constructor(baseURL: string) {
     this.baseURL = baseURL;
     this.loadTokens();
+  }
+
+  setNetworkErrorHandler(handler: () => void) {
+    this.onNetworkError = handler;
   }
 
   private hasStorage() {
@@ -107,8 +112,15 @@ class ApiClient {
       }
 
       return data;
-    } catch (error) {
+    } catch (error: any) {
       console.error('API request error:', error);
+      
+      // Check if it's a network error (e.g. internet down)
+      if (error.message === 'Failed to fetch' || error.name === 'TypeError' || error.name === 'NetworkError') {
+        if (this.onNetworkError) this.onNetworkError();
+        throw new Error('Network error. Please check your internet connection.');
+      }
+      
       throw error;
     }
   }
