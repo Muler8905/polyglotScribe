@@ -258,9 +258,25 @@ function LivePanel({ onSaved }: Props) {
   }, [getToken, scribe, sourceLang]);
 
   const stop = useCallback(async () => {
-    await scribe.disconnect();
+    try {
+      await scribe.disconnect();
+    } catch (e) {
+      console.warn("Disconnect error:", e);
+    }
     toast.info(t("transcriber.recStopped"));
   }, [scribe, t]);
+
+  useEffect(() => {
+    return () => {
+      try {
+        if (scribe.isConnected) {
+          scribe.disconnect();
+        }
+      } catch (e) {
+        console.warn("Cleanup error:", e);
+      }
+    };
+  }, [scribe]);
 
   const translate = async () => {
     if (!transcript) return;
@@ -637,10 +653,26 @@ function YouTubePanel({ onSaved }: Props) {
   }, [url, getToken, getInfo, scribe, sourceLang, t]);
 
   const stop = useCallback(async () => {
-    await scribe.disconnect();
+    try {
+      await scribe.disconnect();
+    } catch (e) {
+      console.warn("Disconnect error:", e);
+    }
     setVideoId(null); // Optional: stop video when transcription stops
     toast.info(t("transcriber.recStopped"));
   }, [scribe, t]);
+
+  useEffect(() => {
+    return () => {
+      try {
+        if (scribe.isConnected) {
+          scribe.disconnect();
+        }
+      } catch (e) {
+        console.warn("Cleanup error:", e);
+      }
+    };
+  }, [scribe]);
 
 
   const translate = async () => {
