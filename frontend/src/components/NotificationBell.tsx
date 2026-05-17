@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { Bell, Check, Trash2, Info, CheckCircle, AlertTriangle, XCircle, ExternalLink } from "lucide-react";
+import { Bell, Check, Trash2, Info, CheckCircle, AlertTriangle, XCircle, ExternalLink, X } from "lucide-react";
 import { apiClient } from "@/lib/api-client";
 import { formatDistanceToNow } from "date-fns";
 import { Link } from "@tanstack/react-router";
@@ -19,6 +19,7 @@ export function NotificationBell() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [selectedNotif, setSelectedNotif] = useState<Notification | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const fetchNotifications = async () => {
@@ -137,7 +138,10 @@ export function NotificationBell() {
               notifications.map((n) => (
                 <div 
                   key={n._id}
-                  onClick={() => !n.read && markAsRead(n._id)}
+                  onClick={() => {
+                    if (!n.read) markAsRead(n._id);
+                    setSelectedNotif(n);
+                  }}
                   className={`p-4 hover:bg-muted/50 transition-colors cursor-pointer relative group ${!n.read ? 'bg-primary/5' : ''}`}
                 >
                   <div className="flex gap-3">
@@ -183,6 +187,126 @@ export function NotificationBell() {
 
           <div className="p-3 text-center border-t bg-muted/10">
              <span className="text-[11px] text-muted-foreground">End of notifications</span>
+          </div>
+        </div>
+      )}
+
+      {selectedNotif && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          onClick={() => setSelectedNotif(null)}
+          style={{
+            position: "fixed",
+            inset: 0,
+            backgroundColor: "rgba(0, 0, 0, 0.6)",
+            backdropFilter: "blur(6px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 9999,
+            padding: "1rem",
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              backgroundColor: "var(--card, #1e1e1e)",
+              color: "var(--foreground, #fff)",
+              borderRadius: "16px",
+              padding: "1.5rem",
+              maxWidth: "420px",
+              width: "100%",
+              boxShadow: "0 20px 50px -10px rgba(0, 0, 0, 0.4)",
+              border: "1px solid var(--border, #2d2d2d)",
+              display: "flex",
+              flexDirection: "column",
+              gap: "1rem",
+              position: "relative",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "1rem" }}>
+              <div style={{
+                backgroundColor: selectedNotif.type === "success" ? "rgba(16, 185, 129, 0.1)" :
+                                selectedNotif.type === "warning" ? "rgba(245, 158, 11, 0.1)" :
+                                selectedNotif.type === "error" ? "rgba(239, 68, 68, 0.1)" : "rgba(59, 130, 246, 0.1)",
+                color: selectedNotif.type === "success" ? "rgb(16, 185, 129)" :
+                       selectedNotif.type === "warning" ? "rgb(245, 158, 11)" :
+                       selectedNotif.type === "error" ? "rgb(239, 68, 68)" : "rgb(59, 130, 246)",
+                borderRadius: "50%",
+                padding: "0.5rem",
+                display: "inline-flex",
+                flexShrink: 0,
+              }}>
+                {getIcon(selectedNotif.type)}
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <h3 style={{ fontSize: "1.1rem", fontWeight: 700, margin: 0, wordBreak: "break-word", color: "var(--foreground, #fff)" }}>
+                  {selectedNotif.title}
+                </h3>
+                <span style={{ fontSize: "0.75rem", color: "var(--muted-foreground, #a3a3a3)" }}>
+                  {formatDistanceToNow(new Date(selectedNotif.createdAt), { addSuffix: true })}
+                </span>
+              </div>
+              <button
+                onClick={() => setSelectedNotif(null)}
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "var(--muted-foreground, #a3a3a3)",
+                  cursor: "pointer",
+                  padding: "4px",
+                  display: "inline-flex",
+                  borderRadius: "50%",
+                  transition: "background 0.2s",
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.05)")}
+                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = "transparent")}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div style={{
+              fontSize: "0.9rem",
+              lineHeight: 1.6,
+              color: "var(--muted-foreground, #d4d4d4)",
+              margin: 0,
+              whiteSpace: "pre-wrap",
+              wordBreak: "break-word",
+              maxHeight: "250px",
+              overflowY: "auto",
+              paddingRight: "4px",
+            }}>
+              {selectedNotif.message}
+            </div>
+
+            {selectedNotif.link && (
+              <Link
+                to={selectedNotif.link as any}
+                onClick={() => {
+                  setSelectedNotif(null);
+                  setIsOpen(false);
+                }}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "0.5rem",
+                  padding: "0.6rem 1rem",
+                  borderRadius: "8px",
+                  backgroundColor: "var(--primary, #3b82f6)",
+                  color: "#fff",
+                  textDecoration: "none",
+                  fontSize: "0.85rem",
+                  fontWeight: 600,
+                  textAlign: "center",
+                  marginTop: "0.5rem",
+                }}
+              >
+                View Details <ExternalLink size={14} />
+              </Link>
+            )}
           </div>
         </div>
       )}
