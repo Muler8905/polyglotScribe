@@ -8,6 +8,7 @@ import { useAuth } from "@/lib/auth-context";
 import { initiateChapaPayment, initiateEbirrPayment, verifyChapaPayment, verifyEbirrPayment, deletePaymentHistory } from "@/serverFns/chapa.functions";
 import s from "@/components/Pricing.module.css";
 import { apiClient } from "@/lib/api-client";
+import { Shell } from "@/components/Shell";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -197,7 +198,7 @@ function PricingPage() {
   const lowCredits = credits !== null && credits < 10;
 
   return (
-    <>
+    <Shell>
       <div className={s.page}>
         <div className={s.topbar}>
           <Link to="/dashboard" className={s.back}>
@@ -470,6 +471,6 @@ function PricingPage() {
           </div>
         )}
       </div>
-    </>
+    </Shell>
   );
 }

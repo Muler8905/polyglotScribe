@@ -5,6 +5,7 @@ import {
   Shield, Sparkles, Coins, Lock, Mic,
   UploadCloud, Youtube, Play, ArrowUpRight
 } from "lucide-react";
+import { Shell } from "@/components/Shell";
 import { Transcriber } from "@/components/Transcriber";
 import { useAuth } from "@/lib/auth-context";
 import { useIsAdmin } from "@/lib/use-admin";
@@ -79,7 +80,7 @@ function Dashboard() {
   }, [user, refreshKey]);
 
   return (
-    <>
+    <Shell refreshKey={refreshKey}>
       <div className={s.container}>
         <header className={s.header}>
           <div className={s.headerInfo}>
@@ -210,6 +211,6 @@ function Dashboard() {
           </>
         )}
       </div>
-    </>
+    </Shell>
   );
 }

@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/lib/auth-context";
 import { useIsAdmin } from "@/lib/use-admin";
+import { Shell } from "@/components/Shell";
 import s from "@/components/Admin.module.css";
 import { apiClient } from "@/lib/api-client";
 import {
@@ -262,7 +263,7 @@ function AdminPage() {
   );
 
   return (
-    <>
+    <Shell>
       <TooltipProvider>
         <div className={s.container}>
         <header className={s.header}>
@@ -716,6 +717,6 @@ function AdminPage() {
         )}
       </div>
       </TooltipProvider>
-    </>
+    </Shell>
   );
 }

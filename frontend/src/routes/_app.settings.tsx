@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useTranslation, Trans } from "react-i18next";
 import { User, Lock, CreditCard, Settings as SettingsIcon } from "lucide-react";
+import { Shell } from "@/components/Shell";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAuth } from "@/lib/auth-context";
@@ -88,7 +89,7 @@ function SettingsPage() {
   );
 
   return (
-    <>
+    <Shell>
       <div style={{ maxWidth: 880, margin: "0 auto" }}>
         <h1 style={{ fontSize: "1.75rem", fontWeight: 700, marginBottom: "1.5rem" }}>{t("settings.title")}</h1>
 
@@ -196,6 +197,6 @@ function SettingsPage() {
           </div>
         </div>
       </div>
-    </>
+    </Shell>
   );
 }
