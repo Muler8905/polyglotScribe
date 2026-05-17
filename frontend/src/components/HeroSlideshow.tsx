@@ -38,7 +38,7 @@ export function HeroSlideshow() {
 
   return (
     <div className={s.wrap} aria-label="Hero slideshow">
-      <AnimatePresence mode="sync">
+      <AnimatePresence mode="sync" initial={false}>
         <motion.div
           key={index}
           className={s.slide}
