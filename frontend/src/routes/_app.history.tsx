@@ -1,7 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Shell } from "@/components/Shell";
 import { useServerFn } from "@tanstack/react-start";
 import { listTranscriptions } from "@/serverFns/transcription.functions";
 import { Search, Filter, Eye, Trash2 } from "lucide-react";
@@ -41,7 +40,7 @@ function HistoryPage() {
   });
 
   return (
-    <Shell>
+    <>
       <div className={s.container}>
         <header className={s.header}>
           <h1 className={s.welcomeTitle}>{t("history.title")}</h1>
@@ -110,6 +109,6 @@ function HistoryPage() {
           </div>
         </div>
       </div>
-    </Shell>
+    </>
   );
 }

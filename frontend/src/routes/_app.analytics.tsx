@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useTranslation } from "react-i18next";
-import { Shell } from "@/components/Shell";
 import { UsageChart } from "@/components/UsageChart";
 import { LanguageChart } from "@/components/LanguageChart";
 import s from "@/components/Dashboard.module.css";
@@ -21,7 +20,7 @@ function AnalyticsPage() {
   ];
 
   return (
-    <Shell>
+    <>
       <div className={s.container}>
         <header className={s.header}>
           <h1 className={s.welcomeTitle}>{t("analytics.title")}</h1>
@@ -64,6 +63,6 @@ function AnalyticsPage() {
           </div>
         </div>
       </div>
-    </Shell>
+    </>
   );
 }

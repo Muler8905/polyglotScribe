@@ -3,7 +3,6 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Shell } from "@/components/Shell";
 import s from "@/components/Transcriber.module.css";
 import { LANGUAGES } from "@/lib/languages";
 import {
@@ -114,7 +113,7 @@ function TranscriptionDetail() {
   };
 
   return (
-    <Shell activeId={id} refreshKey={refreshKey}>
+    <>
       {!item ? (
         <div className={s.empty}>{t("transcription.loading")}</div>
       ) : (
@@ -196,6 +195,6 @@ function TranscriptionDetail() {
           </div>
         </div>
       )}
-    </Shell>
+    </>
   );
 }
