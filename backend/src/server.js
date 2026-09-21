@@ -5,6 +5,14 @@ import morgan from 'morgan';
 import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
+
+// Load environment variables first
+dotenv.config();
+
+// In development, disable SSL cert verification for outgoing fetch (handles corporate/proxy SSL inspection)
+if (process.env.NODE_ENV !== 'production') {
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+}
 import connectDB from './config/database.js';
 import authRoutes from './routes/authRoutes.js';
 import appRoutes from "./routes/appRoutes.js";
@@ -13,9 +21,6 @@ import billingRoutes from "./routes/billingRoutes.js";
 import webhookRoutes from "./routes/webhookRoutes.js";
 import { errorHandler, notFound } from './middleware/errorHandler.js';
 import { ensureDefaultPlans } from "./controllers/billingController.js";
-
-// Load environment variables
-dotenv.config();
 
 // Initialize express app
 const app = express();
@@ -147,3 +152,4 @@ process.on('unhandledRejection', (err) => {
   // Close server & exit process
   process.exit(1);
 });
+
