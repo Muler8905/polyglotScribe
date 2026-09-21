@@ -1,3 +1,9 @@
+// Server-only: disable SSL verification in dev to handle corporate proxy SSL inspection
+// This mirrors the same fix applied in backend/src/server.js
+if (process.env.NODE_ENV !== 'production') {
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+}
+
 // Extract audio from a YouTube video and transcribe it via ElevenLabs Scribe.
 // The most reliable source of direct audio stream URLs is currently the mobile
 // watch page's ytInitialPlayerResponse, so we parse that first and only fall

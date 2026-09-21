@@ -596,6 +596,16 @@ function YouTubePanel({ onSaved }: Props) {
     }
   }, [hookCommitted]);
 
+  // Show video preview as soon as a valid URL is pasted
+  useEffect(() => {
+    const id = extractYouTubeId(url.trim());
+    if (id) {
+      setVideoId(id);
+    } else {
+      setVideoId(null);
+    }
+  }, [url]);
+
   const start = useCallback(async () => {
     if (!url.trim()) {
       toast.error(t("transcriber.ytPromptUrl"));
@@ -642,8 +652,7 @@ function YouTubePanel({ onSaved }: Props) {
         },
       });
 
-      // 4. ONLY NOW start the video playback to ensure we don't miss the beginning
-      setVideoId(extractedId);
+      // 4. Video is already displayed from URL preview, just notify user
       toast.success(t("transcriber.listeningIn", { lang: labelOf(effectiveLang) }));
     } catch (e) {
       toast.error(e instanceof Error ? e.message : t("transcriber.failStart"));
@@ -658,7 +667,6 @@ function YouTubePanel({ onSaved }: Props) {
     } catch (e) {
       console.warn("Disconnect error:", e);
     }
-    setVideoId(null); // Optional: stop video when transcription stops
     toast.info(t("transcriber.recStopped"));
   }, [scribe, t]);
 

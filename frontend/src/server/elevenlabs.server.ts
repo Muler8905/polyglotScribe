@@ -1,3 +1,8 @@
+// Server-only: disable SSL verification in dev to handle corporate proxy SSL inspection
+if (process.env.NODE_ENV !== 'production') {
+  process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+}
+
 // Server-only ElevenLabs helpers
 function key() {
   const k = process.env.ELEVENLABS_API_KEY;
